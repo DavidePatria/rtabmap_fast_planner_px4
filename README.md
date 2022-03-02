@@ -49,7 +49,7 @@ source ~/.bashrc
 cd ~/catkin_ws/src
 # To work with PX4/Firmware 1.12.3, mavros 1.8.0 or 1.9.0 releases should be used
 # (With mavros master branch there are a lot of "Detected jump back in time" TF errors)
-git clone https://github.com/mavlink/mavros.git && cd mavros && git checkout 1.9.0 && cd ..
+git clone https://github.com/mavlink/mavros.git && cd mavros && git checkout 1.8.0 && cd ..
 git clone https://github.com/SyrianSpock/realsense_gazebo_plugin.git
 
 sudo ~/catkin_ws/src/mavros/mavros/scripts/install_geographiclib_datasets.sh
