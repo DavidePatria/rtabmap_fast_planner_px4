@@ -39,7 +39,7 @@ git clone https://github.com/PX4/PX4-Autopilot.git
 cd PX4-Autopilot
 git checkout v1.12.3
 git submodule update --init --recursive
-sudo pip3 install numpy toml packaging jinja2 empy numpy
+pip install numpy toml packaging jinja2 empy numpy
 make px4_sitl_default gazebo
 # (do ctrl-c in terminal to close gazebo)
 echo "source ~/PX4-Autopilot/Tools/setup_gazebo.bash ~/PX4-Autopilot ~/PX4-Autopilot/build/px4_sitl_default" >> ~/.bashrc
