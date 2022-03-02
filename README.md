@@ -70,6 +70,12 @@ rosrun rtabmap_drone_example offboard
 
 # Frontier exploration:
 roslaunch rtabmap_drone_example explore.launch
+
+# Places of interest labeling (when the drone is in the desired location):
+rosservice call /rtabmap/set_label 0 Room1
+
+# Patrolling (stopping in place for 5 seconds):
+rosrun rtabmap_ros patrol.py _time:=5 Room1 Room2 Room3
 ```
  * Manual control: If a joystick is plugged, you can send twists by holding L1 and moving the joysticks. Hold L1+L2 with left joystick down to land (be gentle to land smoothly), then hold left joystick in bottom-right position to disarm after the drone is on the ground.
  * Autonomous control: use "2D Nav Goal" button in RVIZ to set a goal to reach 
