@@ -7,14 +7,12 @@
     <arg name="verbose" default="false"/>
     <arg name="paused" default="false"/>
     <arg name="respawn_gazebo" default="false"/>
-    <!-- <arg name="world_name" default="apt"/> -->
-    <!-- <arg name="world" default="$(find rtabmap_drone_example)/worlds/$(arg world_name).world"/> -->
 
     <arg name="world_name" default="small_house"/>
-    <arg name="world" default="/home/davide/.gazebo/worlds/$(arg world_name).world"/>
+    <arg name="world" default="$(find rtabmap_drone_example)/worlds/$(arg world_name).world"/>
 
     <arg name="fixed_velodyne" default="false"/>
-   <arg name="vertical_velodyne" default="false"/>
+    <arg name="vertical_velodyne" default="false"/>
     <arg name="rotation_speed" default="0.785398163"/>
 
     <!-- Gazebo sim -->
