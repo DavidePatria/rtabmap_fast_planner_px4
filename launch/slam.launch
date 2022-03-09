@@ -4,6 +4,7 @@
     <arg name="localization" default="false"/>
     <arg name="rtabmapviz"   default="true"/>
     <arg name="ground_truth" default="false"/>
+    <arg name="map_path"     default="~/.ros/rtabmap.db"/>
     
     <arg     if="$(arg localization)" name="pre_args" default=""/>
     <arg unless="$(arg localization)" name="pre_args" default="-d"/>
@@ -35,6 +36,10 @@
       <arg name="imu_topic"         value="/body_imu/data"/>
       <arg name="wait_imu_to_init"  value="true"/>
       <arg name="approx_sync"       value="true"/>
+
+      # add custom map location as an argument
+      <arg name="database_path"	    value="$(arg map_path)"/>
+
       <arg if="$(arg ground_truth)" name="ground_truth_frame_id" value="world"/>
       <arg if="$(arg ground_truth)" name="ground_truth_base_frame_id" value="base_link_gt"/>
     </include>
