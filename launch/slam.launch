@@ -6,10 +6,10 @@
     <arg name="ground_truth" default="false"/>
     <arg name="map_path"     default="~/.ros/rtabmap.db"/>
 
-    <arg name="arg rgb_arg"	    default= "/r200/camera/color/image_raw" />
-    <arg name="arg depth_arg"	    default= "/r200/camera/depth/image_raw" />
-    <arg name="arg camera_info_arg" default= "/r200/camera/color/camera_info" />
-    <arg name="arg imu_arg"	    default= "/body_imu/data" />
+    <arg name="rgb_arg"	    default= "/r200/camera/color/image_raw" />
+    <arg name="depth_arg"	    default= "/r200/camera/depth/image_raw" />
+    <arg name="camera_info_arg" default= "/r200/camera/color/camera_info" />
+    <arg name="imu_arg"	    default= "/body_imu/data" />
 
     <arg     if="$(arg localization)" name="pre_args" default=""/>
     <arg unless="$(arg localization)" name="pre_args" default="-d"/>
