@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<launch>
+
+	<arg name="queue_size" default="10" />
+	<arg name="approx_sync" default="true" />
+	<arg name="compressed_rate" default="0" />
+	
+    <node pkg="rtabmap_ros" type="rgbd_sync" name="camera_points_xyz">
+		<remap from="/rgb/image" to="/r200/camera/color/image_raw" />
+		<remap from="/depth/image" to="/r200/camera/depth/image_raw" />
+		<remap from="/rgb/camera_info" to="/r200/camera/color/camera_info" />
+		<param name="queue_size" value="$(arg queue_size)" />
+		<param name="approx_sync" value="$(arg approx_sync)" />
+		<param name="compress_rate" value="$(arg compressed_rate)" />
+	</node>
+
+
+</launch>
