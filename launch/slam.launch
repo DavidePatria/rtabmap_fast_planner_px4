@@ -6,10 +6,10 @@
     <arg name="ground_truth" default="false"/>
     <arg name="map_path"     default="~/.ros/rtabmap.db"/>
 
-    <arg name="arg rgb_arg"	    default= "/r200/camera/color/image_raw" />
-    <arg name="arg depth_arg"	    default= "/r200/camera/depth/image_raw" />
-    <arg name="arg camera_info_arg" default= "/r200/camera/color/camera_info" />
-    <arg name="arg imu_arg"	    default= "/body_imu/data" />
+    <arg name="rgb_arg"	    default= "/r200/camera/color/image_raw" />
+    <arg name="depth_arg"	    default= "/r200/camera/depth/image_raw" />
+    <arg name="camera_info_arg" default= "/r200/camera/color/camera_info" />
+    <arg name="imu_arg"	    default= "/body_imu/data" />
 
     <arg     if="$(arg localization)" name="pre_args" default=""/>
     <arg unless="$(arg localization)" name="pre_args" default="-d"/>
@@ -30,12 +30,15 @@
     <!-- VSLAM -->
     <param name="/rtabmap/rtabmap/latch" value="false"/> <!-- For some reason, if we latch grid_map, the global costmap inflation layer will create holes on robot path. To avoid holes, republish grid_map on each update (latching disabled). -->
     <include file="$(find rtabmap_ros)/launch/rtabmap.launch">
-      <arg name="localization"      value="$(arg localization)"/>
-      <arg name="args"              value="$(arg pre_args) --Optimizer/GravitySigma 0.1 --Vis/FeatureType 10 --Kp/DetectorStrategy 10 --Grid/MapFrameProjection true --NormalsSegmentation false --Grid/MaxGroundHeight 1 --Grid/MaxObstacleHeight 1.6 --RGBD/StartAtOrigin true" />
-      <arg name="rtabmapviz"        value="$(arg rtabmapviz)" /> 
-      <arg name="frame_id"          value="base_link" />
-      <arg name="odom_guess_frame_id" value="base_link_stabilized" />
+      <arg name="localization"        value ="$(arg localization)"/>
+      <arg name="args"                value ="$(arg pre_args) --Optimizer/GravitySigma 0.1 --Vis/FeatureType 10 --Kp/DetectorStrategy 10 --Grid/MapFrameProjection true --NormalsSegmentation false --Grid/MaxGroundHeight 1 --Grid/MaxObstacleHeight 1.6 --RGBD/StartAtOrigin true" />
+      <arg name="rtabmapviz"          value ="$(arg rtabmapviz)" />
+      <arg name="frame_id"            value ="base_link" />
+      <arg name="odom_guess_frame_id" value ="base_link_stabilized" />
 
+	  <arg name="rgbd_sync" value ="true"/>
+
+	  <!-- old definition of topics, hardcoded -->
       <!-- <arg name="rgb_topic"         value="/r200/camera/color/image_raw" /> -->
       <!-- <arg name="depth_topic"       value="/r200/camera/depth/image_raw" /> -->
       <!-- <arg name="camera_info_topic" value="/r200/camera/color/camera_info" /> -->
