@@ -4,6 +4,9 @@
  * Stack and tested in Gazebo SITL
  */
 
+#include "ros/subscriber.h"
+#include "ros/time.h"
+#include "std_msgs/Empty.h"
 #include <ros/ros.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/Twist.h>
@@ -14,6 +17,9 @@
 #include <mavros_msgs/State.h>
 #include <mavros_msgs/PositionTarget.h>
 #include <tf/transform_listener.h>
+
+#include <std_msgs/Time.h>
+
 
 /*
 uint16 IGNORE_PX=1
@@ -36,6 +42,9 @@ unsigned short velocity_mask = VELOCITY2D_CONTROL;
 
 mavros_msgs::PositionTarget current_goal;
 ros::Time lastTwistReceived;
+
+// variable to store last beat time, like above for twist
+ros::Time lastRemoteBeat;
 
 mavros_msgs::State current_state;
 void state_cb(const mavros_msgs::State::ConstPtr& msg){
@@ -70,10 +79,23 @@ void joy_cb(const sensor_msgs::Joy::ConstPtr& msg){
 	}
 }
 
+void remote_con_cb(const std_msgs::Empty& msg){
+	lastRemoteBeat = ros::Time::now();	
+}
+
+
 int main(int argc, char **argv)
 {
 	ros::init(argc, argv, "offboard_node");
 	ros::NodeHandle nh;
+
+	// Subscriber to topic published by remote computer, which isn' the offboard one.
+	// The use it serves is receiving a continuous stream from the remote computer and
+	// ensure that the last message has been received within a reasonable amount of
+	// time, after which the remote computer is deemed lost and the dron is landed
+	// (not transitively landed, but "made land")
+	ros::Subscriber remote_con_sub = nh.subscribe<std_msgs::Empty>
+	("remote_con_beat", 1, remote_con_cb);
 
 	ros::Subscriber state_sub = nh.subscribe<mavros_msgs::State>
 	("mavros/state", 10, state_cb);
