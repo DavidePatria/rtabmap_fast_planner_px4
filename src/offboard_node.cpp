@@ -4,12 +4,16 @@
  * Stack and tested in Gazebo SITL
  */
 
-#include "ros/subscriber.h"
-#include "ros/time.h"
-#include "std_msgs/Empty.h"
+// correct syntax for topic names?
 #include <ros/ros.h>
+#include "ros/time.h"
+#include "ros/subscriber.h"
+
+#include "std_msgs/String.h"
+#include "std_msgs/Empty.h"
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/Twist.h>
+
 #include <sensor_msgs/Joy.h>
 #include <mavros_msgs/CommandBool.h>
 #include <mavros_msgs/CommandLong.h>
@@ -44,6 +48,9 @@ mavros_msgs::PositionTarget current_goal;
 ros::Time lastTwistReceived;
 
 // variable to store last beat time, like above for twist
+// initialise to current time, minus 1 second to ensure both not random value
+// and avoid misfires
+// ros::Time lastRemoteBeat = ros::Time().now() - ros::Duration(1.0);
 ros::Time lastRemoteBeat;
 
 mavros_msgs::State current_state;
@@ -79,8 +86,8 @@ void joy_cb(const sensor_msgs::Joy::ConstPtr& msg){
 	}
 }
 
-void remote_con_cb(const std_msgs::Empty& msg){
-	lastRemoteBeat = ros::Time::now();	
+void remote_con_cb(const std_msgs::String::ConstPtr& msg ){
+	lastRemoteBeat = ros::Time::now();
 }
 
 
@@ -89,13 +96,21 @@ int main(int argc, char **argv)
 	ros::init(argc, argv, "offboard_node");
 	ros::NodeHandle nh;
 
+	// assignemnt has to be done after node creation
+	lastRemoteBeat = ros::Time().now();
+	ros::Rate temp_rate(1);
+	temp_rate.sleep();
+	// subtracting duation to time creates problems, safer to assign present 
+	// time and wait to make the message old
+
 	// Subscriber to topic published by remote computer, which isn' the offboard one.
 	// The use it serves is receiving a continuous stream from the remote computer and
 	// ensure that the last message has been received within a reasonable amount of
 	// time, after which the remote computer is deemed lost and the dron is landed
 	// (not transitively landed, but "made land")
-	ros::Subscriber remote_con_sub = nh.subscribe<std_msgs::Empty>
-	("remote_con_beat", 1, remote_con_cb);
+	// ros::Subscriber remote_con_sub = nh.subscribe<std_msgs::Empty>("/remote_con_beat", 1, remote_con_cb);
+	ros::Subscriber remote_con_sub = nh.subscribe("/remote_con_beat", 0, remote_con_cb);
+	// correct syntax for topic names?
 
 	ros::Subscriber state_sub = nh.subscribe<mavros_msgs::State>
 	("mavros/state", 10, state_cb);
@@ -115,6 +130,7 @@ int main(int argc, char **argv)
 	("/joy", 1, joy_cb);
 
 	//the setpoint publishing rate MUST be faster than 2Hz
+	// this is 50, way faster
 	ros::Rate rate(50.0);
 
 	// wait for FCU connection
@@ -185,7 +201,18 @@ int main(int argc, char **argv)
 	geometry_msgs::PoseStamped current_pose;
 	current_pose.header.frame_id = "map";
 
-	while(ros::ok()){
+
+
+	if( lastRemoteBeat - ros::Time::now() < ros::Duration(1.0)  && lastRemoteBeat - ros::Time::now() > ros::Duration(0.0) ){
+		printf("time is with us, let's proceed\n");
+	} else if( lastRemoteBeat - ros::Time::now() >= ros::Duration(1.0) ) {
+		printf("timing is wrong, next time\n");
+	} else {
+		printf("something is wrong\n");
+	}
+
+	// TEST: to keep going require remote heartbeat to be fresh enough
+	while(ros::ok() && (lastRemoteBeat - ros::Time::now() < ros::Duration(1.0)) ){
 		tf::StampedTransform visionPoseTf;
 		try{
 			listener.lookupTransform("/map", "/base_link", ros::Time(0), visionPoseTf);
