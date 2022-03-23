@@ -137,8 +137,10 @@ int main(int argc, char **argv)
 		return -1;
 	}
 
+
 	try{
 		tf::StampedTransform visionPoseTf;
+
 		listener.lookupTransform("/map", "/base_link", ros::Time(0), visionPoseTf);
 
 		//update currentPose
@@ -178,8 +180,9 @@ int main(int argc, char **argv)
 	while(ros::ok()){
 
 		if( ros::Time().now() - lastRemoteBeat < ros::Duration(1) )	{
-			tf::StampedTransform visionPoseTf;
 			try{
+				tf::StampedTransform visionPoseTf;
+
 				listener.lookupTransform("/map", "/base_link", ros::Time(0), visionPoseTf);
 
 				//update currentPose
@@ -237,7 +240,7 @@ int main(int argc, char **argv)
 
 			if(current_goal.header.stamp.toSec() - lastTwistReceived.toSec() > 1 and current_goal.type_mask != POSITION_CONTROL)
 			{
-				//switch to position mode with last position
+				//switch to position mode with last position if twist is not received for more than 1 sec
 
 				current_goal.coordinate_frame = mavros_msgs::PositionTarget::FRAME_LOCAL_NED;
 				current_goal.type_mask = POSITION_CONTROL;
@@ -258,14 +261,39 @@ int main(int argc, char **argv)
 			// Vision pose should be published at a steady
 			// frame rate so that EKF from px4 stays stable
 			vision_pos_pub.publish(current_pose);
-
-			ros::spinOnce();
-			rate.sleep();
 		}
+		// supposedly this else is if((ros::Time()::now() - lastRemoteBeat).toSec()>1.0)
+		// so if the message is too old
 		else {
-			ros::spinOnce();
-			rate.sleep();
+
+			ROS_INFO("Topic not publishing, ");
+
+			if(current_goal.header.stamp.toSec() - lastTwistReceived.toSec() > 1 and current_goal.type_mask != POSITION_CONTROL)
+			{
+				//switch to position mode with last position if twist is not received for more than 1 sec
+
+				current_goal.coordinate_frame = mavros_msgs::PositionTarget::FRAME_LOCAL_NED;
+				current_goal.type_mask = POSITION_CONTROL;
+				current_goal.position.x = current_pose.pose.position.x;
+				current_goal.position.y = current_pose.pose.position.y;
+				current_goal.position.z = 1.5;
+				tfScalar yaw, pitch, roll;
+				tf::Matrix3x3 mat(tf::Quaternion(current_pose.pose.orientation.x, current_pose.pose.orientation.y, current_pose.pose.orientation.z, current_pose.pose.orientation.w));
+				mat.getEulerYPR(yaw, pitch, roll);
+				current_goal.yaw = yaw;
+				ROS_INFO("Switch to position control (x=%f, y=%f, z=%f, yaw=%f)",
+						current_goal.position.x, current_goal.position.y, current_goal.position.z, current_goal.yaw);
+			}
+
+			current_pose.header.stamp = current_goal.header.stamp;
+			local_pos_pub.publish(current_goal);
+
+			// Vision pose should be published at a steady
+			// frame rate so that EKF from px4 stays stable
+			vision_pos_pub.publish(current_pose);
 		}
+	ros::spinOnce();
+	rate.sleep();
 	}
 
 	return 0;
