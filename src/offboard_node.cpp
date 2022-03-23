@@ -4,6 +4,8 @@
  * Stack and tested in Gazebo SITL
  */
 
+#include "ros/subscriber.h"
+#include "std_msgs/Empty.h"
 #include <ros/ros.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/Twist.h>
@@ -36,6 +38,9 @@ unsigned short velocity_mask = VELOCITY2D_CONTROL;
 
 mavros_msgs::PositionTarget current_goal;
 ros::Time lastTwistReceived;
+// keep track of beat from remote computer
+ros::Time lastRemoteBeat;
+
 
 mavros_msgs::State current_state;
 void state_cb(const mavros_msgs::State::ConstPtr& msg){
@@ -70,11 +75,18 @@ void joy_cb(const sensor_msgs::Joy::ConstPtr& msg){
 	}
 }
 
+void remote_cb(const std_msgs::Empty::ConstPtr& msg) {
+	// update time for last beat
+	lastRemoteBeat = ros::Time().now();
+}
+
 int main(int argc, char **argv)
 {
 	ros::init(argc, argv, "offboard_node");
 	ros::NodeHandle nh;
 
+	ros::Subscriber remote_pub = nh.subscribe<std_msgs::Empty>
+	("/remote_beat", 1, remote_cb);
 	ros::Subscriber state_sub = nh.subscribe<mavros_msgs::State>
 	("mavros/state", 10, state_cb);
 	ros::Publisher local_pos_pub = nh.advertise<mavros_msgs::PositionTarget>
