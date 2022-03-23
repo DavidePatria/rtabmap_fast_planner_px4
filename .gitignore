@@ -1,3 +1,4 @@
 build
 .cache/clangd/index/offboard_node.cpp.42B28D30CCCEE39E.idx
 compile_commands.json
+.cache
