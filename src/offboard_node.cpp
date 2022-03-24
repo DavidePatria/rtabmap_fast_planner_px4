@@ -48,19 +48,22 @@ void state_cb(const mavros_msgs::State::ConstPtr& msg){
 }
 
 void twist_cb(const geometry_msgs::Twist::ConstPtr& msg){
-	if(current_goal.type_mask == POSITION_CONTROL)
-	{
-		ROS_INFO("Switch to velocity control");
+	// If beat is fresh publish the received twist, otherwise skip it.
+	if( (ros::Time().now() - lastRemoteBeat).toSec() < 1.0){
+		if(current_goal.type_mask == POSITION_CONTROL)
+		{
+			ROS_INFO("Switch to velocity control");
+		}
+		current_goal.coordinate_frame = mavros_msgs::PositionTarget::FRAME_BODY_NED;
+		current_goal.type_mask = velocity_mask;
+		current_goal.velocity.x = msg->linear.x;
+		current_goal.velocity.y = msg->linear.y;
+		current_goal.velocity.z = velocity_mask == VELOCITY2D_CONTROL?0:msg->linear.z;
+		current_goal.position.z = 1.5;
+		current_goal.yaw_rate = msg->angular.z;
+		current_goal.yaw_rate = msg->angular.z;
+		lastTwistReceived = ros::Time::now();
 	}
-	current_goal.coordinate_frame = mavros_msgs::PositionTarget::FRAME_BODY_NED;
-	current_goal.type_mask = velocity_mask;
-	current_goal.velocity.x = msg->linear.x;
-	current_goal.velocity.y = msg->linear.y;
-	current_goal.velocity.z = velocity_mask == VELOCITY2D_CONTROL?0:msg->linear.z;
-	current_goal.position.z = 1.5;
-	current_goal.yaw_rate = msg->angular.z;
-	current_goal.yaw_rate = msg->angular.z;
-	lastTwistReceived = ros::Time::now();
 }
 
 void joy_cb(const sensor_msgs::Joy::ConstPtr& msg){
