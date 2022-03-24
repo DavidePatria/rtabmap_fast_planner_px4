@@ -113,6 +113,9 @@ int main(int argc, char **argv)
 		rate.sleep();
 	}
 
+	// at first the drone will be activated but it won't move until the condition
+	// on the remote computer is satisfied
+
 	mavros_msgs::SetMode offb_set_mode;
 	offb_set_mode.request.custom_mode = "OFFBOARD";
 
@@ -179,25 +182,29 @@ int main(int argc, char **argv)
 
 	while(ros::ok()){
 
+		// this try catch to send the position has to be done every cycle
+		// regardless of the remote machine state otherwise px4 doesn't get
+		// vision data and stops, so it is kept outside the main if as in the
+		// original programme
+		try{
+			tf::StampedTransform visionPoseTf;
+
+			listener.lookupTransform("/map", "/base_link", ros::Time(0), visionPoseTf);
+
+			//update currentPose
+			current_pose.pose.position.x = visionPoseTf.getOrigin().x();
+			current_pose.pose.position.y = visionPoseTf.getOrigin().y();
+			current_pose.pose.position.z = visionPoseTf.getOrigin().z();
+			current_pose.pose.orientation.x = visionPoseTf.getRotation().x();
+			current_pose.pose.orientation.y = visionPoseTf.getRotation().y();
+			current_pose.pose.orientation.z = visionPoseTf.getRotation().z();
+			current_pose.pose.orientation.w = visionPoseTf.getRotation().w();
+		}
+		catch (tf::TransformException & ex){
+			ROS_ERROR("%s",ex.what());
+		}
+
 		if( ros::Time().now() - lastRemoteBeat < ros::Duration(1) )	{
-			try{
-				tf::StampedTransform visionPoseTf;
-
-				listener.lookupTransform("/map", "/base_link", ros::Time(0), visionPoseTf);
-
-				//update currentPose
-				current_pose.pose.position.x = visionPoseTf.getOrigin().x();
-				current_pose.pose.position.y = visionPoseTf.getOrigin().y();
-				current_pose.pose.position.z = visionPoseTf.getOrigin().z();
-				current_pose.pose.orientation.x = visionPoseTf.getRotation().x();
-				current_pose.pose.orientation.y = visionPoseTf.getRotation().y();
-				current_pose.pose.orientation.z = visionPoseTf.getRotation().z();
-				current_pose.pose.orientation.w = visionPoseTf.getRotation().w();
-			}
-			catch (tf::TransformException & ex){
-				ROS_ERROR("%s",ex.what());
-			}
-
 			if( current_state.mode != "OFFBOARD" &&
 					(ros::Time::now() - last_request > ros::Duration(5.0))){
 				if( set_mode_client.call(offb_set_mode) &&
@@ -266,7 +273,12 @@ int main(int argc, char **argv)
 		// so if the message is too old
 		else {
 
-			ROS_INFO("Topic not publishing, ");
+			// if the programme starts without a beat from the remote machine
+			// it won't take off at first, since is goes directly into this
+			// else that doesn't arm/OFFBOARD the drone
+			ROS_INFO("Topic not publishing");
+
+			current_goal.header.stamp = ros::Time::now();
 
 			if(current_goal.header.stamp.toSec() - lastTwistReceived.toSec() > 1 and current_goal.type_mask != POSITION_CONTROL)
 			{
@@ -277,6 +289,8 @@ int main(int argc, char **argv)
 				current_goal.position.x = current_pose.pose.position.x;
 				current_goal.position.y = current_pose.pose.position.y;
 				current_goal.position.z = 1.5;
+				current_goal.yaw = current_pose.pose.orientation.z;
+
 				tfScalar yaw, pitch, roll;
 				tf::Matrix3x3 mat(tf::Quaternion(current_pose.pose.orientation.x, current_pose.pose.orientation.y, current_pose.pose.orientation.z, current_pose.pose.orientation.w));
 				mat.getEulerYPR(yaw, pitch, roll);
