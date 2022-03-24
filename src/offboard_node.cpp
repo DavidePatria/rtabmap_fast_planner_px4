@@ -5,6 +5,7 @@
  */
 
 #include "ros/subscriber.h"
+#include "ros/time.h"
 #include "std_msgs/Empty.h"
 #include <ros/ros.h>
 #include <geometry_msgs/PoseStamped.h>
@@ -83,6 +84,13 @@ void remote_cb(const std_msgs::Empty::ConstPtr& msg) {
 	lastRemoteBeat = ros::Time().now();
 }
 
+// Variable to check is the drone has flew at least once.
+// Since the drone begins in AUTO.LAND this is used to let it switch to OFFBOARD
+// for the first time the programme is launched, because later the drone being
+// in AUTO.LAND can solely mean that a manual activation has been done
+bool wasFlying = false;
+ros::Time letItDoItsThing;
+
 int main(int argc, char **argv)
 {
 	ros::init(argc, argv, "offboard_node");
@@ -109,6 +117,8 @@ int main(int argc, char **argv)
 
 	//the setpoint publishing rate MUST be faster than 2Hz
 	ros::Rate rate(50.0);
+	// set to the starting time before trying to change modes
+	letItDoItsThing = ros::Time().now();
 
 	// wait for FCU connection
 	while(ros::ok() && !current_state.connected){
@@ -208,107 +218,114 @@ int main(int argc, char **argv)
 			ROS_ERROR("%s",ex.what());
 		}
 
-		if( ros::Time().now() - lastRemoteBeat < ros::Duration(1) )	{
-			if( current_state.mode != "OFFBOARD" &&
-					(ros::Time::now() - last_request > ros::Duration(5.0))){
-				if( set_mode_client.call(offb_set_mode) &&
-						offb_set_mode.response.mode_sent){
-					ROS_INFO("Offboard enabled");
-					ROS_INFO("Vehicle arming... (5 seconds)");
-				}
-				last_request = ros::Time::now();
-			} else {
-				if( !current_state.armed &&
-						!(current_goal.velocity.z < -0.4 && current_goal.yaw_rate < -0.4) && // left joystick down-right
-						(ros::Time::now() - last_request > ros::Duration(5.0))){
-					if( arming_client.call(arm_cmd) &&
-							arm_cmd.response.success){
-						ROS_INFO("Vehicle armed");
-						ROS_INFO("Take off at 1.5 meter... to position=(%f,%f,%f) yaw=%f",
-								current_goal.position.x,
-								current_goal.position.y,
-								current_goal.position.z,
-								current_goal.yaw);
-					}
-					last_request = ros::Time::now();
-				}
-				else if(current_goal.velocity.z < -0.4 && current_goal.yaw_rate < -0.4 && // left joystick down-right
-						(ros::Time::now() - last_request > ros::Duration(5.0))){
-					if( command_client.call(disarm_cmd) &&
-							disarm_cmd.response.success){
-						ROS_INFO("Vehicle disarmed");
-						ros::shutdown();
-					}
-					else
-					{
-						ROS_INFO("Disarming failed! Still in flight?");
-					}
-					last_request = ros::Time::now();
-				}
-			}
-
-			current_goal.header.stamp = ros::Time::now();
-
-			if(current_goal.header.stamp.toSec() - lastTwistReceived.toSec() > 1 and current_goal.type_mask != POSITION_CONTROL)
-			{
-				//switch to position mode with last position if twist is not received for more than 1 sec
-
-				current_goal.coordinate_frame = mavros_msgs::PositionTarget::FRAME_LOCAL_NED;
-				current_goal.type_mask = POSITION_CONTROL;
-				current_goal.position.x = current_pose.pose.position.x;
-				current_goal.position.y = current_pose.pose.position.y;
-				current_goal.position.z = 1.5;
-				tfScalar yaw, pitch, roll;
-				tf::Matrix3x3 mat(tf::Quaternion(current_pose.pose.orientation.x, current_pose.pose.orientation.y, current_pose.pose.orientation.z, current_pose.pose.orientation.w));
-				mat.getEulerYPR(yaw, pitch, roll);
-				current_goal.yaw = yaw;
-				ROS_INFO("Switch to position control (x=%f, y=%f, z=%f, yaw=%f)",
-						current_goal.position.x, current_goal.position.y, current_goal.position.z, current_goal.yaw);
-			}
-
-			current_pose.header.stamp = current_goal.header.stamp;
-			local_pos_pub.publish(current_goal);
-
-			// Vision pose should be published at a steady
-			// frame rate so that EKF from px4 stays stable
-			vision_pos_pub.publish(current_pose);
+		if(current_state.mode == "AUTO.LAND" && wasFlying == true){
+			ROS_INFO("Drone is in autolanding mode, skipping");
 		}
-		// supposedly this else is if((ros::Time()::now() - lastRemoteBeat).toSec()>1.0)
-		// so if the message is too old
 		else {
+			if( ros::Time().now() - lastRemoteBeat < ros::Duration(1) )	{
+				if( current_state.mode != "OFFBOARD" &&
+						(ros::Time::now() - last_request > ros::Duration(5.0))){
+					if( set_mode_client.call(offb_set_mode) &&
+							offb_set_mode.response.mode_sent){
+						ROS_INFO("Offboard enabled");
+						ROS_INFO("Vehicle arming... (5 seconds)");
+					}
+					last_request = ros::Time::now();
+				} else {
+					if( !current_state.armed &&
+							!(current_goal.velocity.z < -0.4 && current_goal.yaw_rate < -0.4) && // left joystick down-right
+							(ros::Time::now() - last_request > ros::Duration(5.0))){
+						if( arming_client.call(arm_cmd) &&
+								arm_cmd.response.success){
+							ROS_INFO("Vehicle armed");
+							ROS_INFO("Take off at 1.5 meter... to position=(%f,%f,%f) yaw=%f",
+									current_goal.position.x,
+									current_goal.position.y,
+									current_goal.position.z,
+									current_goal.yaw);
+						}
+						last_request = ros::Time::now();
+						//attempt to set the variable, might not be the right spot
+						wasFlying = true;
+					}
+					else if(current_goal.velocity.z < -0.4 && current_goal.yaw_rate < -0.4 && // left joystick down-right
+							(ros::Time::now() - last_request > ros::Duration(5.0))){
+						if( command_client.call(disarm_cmd) &&
+								disarm_cmd.response.success){
+							ROS_INFO("Vehicle disarmed");
+							ros::shutdown();
+						}
+						else
+						{
+							ROS_INFO("Disarming failed! Still in flight?");
+						}
+						last_request = ros::Time::now();
+					}
+				}
 
-			// if the programme starts without a beat from the remote machine
-			// it won't take off at first, since is goes directly into this
-			// else that doesn't arm/OFFBOARD the drone
-			ROS_INFO("Topic not publishing");
+				current_goal.header.stamp = ros::Time::now();
 
-			current_goal.header.stamp = ros::Time::now();
+				if(current_goal.header.stamp.toSec() - lastTwistReceived.toSec() > 1 and current_goal.type_mask != POSITION_CONTROL)
+				{
+					//switch to position mode with last position if twist is not received for more than 1 sec
 
-			if(current_goal.header.stamp.toSec() - lastTwistReceived.toSec() > 1 and current_goal.type_mask != POSITION_CONTROL)
-			{
-				//switch to position mode with last position if twist is not received for more than 1 sec
+					current_goal.coordinate_frame = mavros_msgs::PositionTarget::FRAME_LOCAL_NED;
+					current_goal.type_mask = POSITION_CONTROL;
+					current_goal.position.x = current_pose.pose.position.x;
+					current_goal.position.y = current_pose.pose.position.y;
+					current_goal.position.z = 1.5;
+					tfScalar yaw, pitch, roll;
+					tf::Matrix3x3 mat(tf::Quaternion(current_pose.pose.orientation.x, current_pose.pose.orientation.y, current_pose.pose.orientation.z, current_pose.pose.orientation.w));
+					mat.getEulerYPR(yaw, pitch, roll);
+					current_goal.yaw = yaw;
+					ROS_INFO("Switch to position control (x=%f, y=%f, z=%f, yaw=%f)",
+							current_goal.position.x, current_goal.position.y, current_goal.position.z, current_goal.yaw);
+				}
 
-				current_goal.coordinate_frame = mavros_msgs::PositionTarget::FRAME_LOCAL_NED;
-				current_goal.type_mask = POSITION_CONTROL;
-				current_goal.position.x = current_pose.pose.position.x;
-				current_goal.position.y = current_pose.pose.position.y;
-				current_goal.position.z = 1.5;
-				current_goal.yaw = current_pose.pose.orientation.z;
+				current_pose.header.stamp = current_goal.header.stamp;
+				local_pos_pub.publish(current_goal);
 
-				tfScalar yaw, pitch, roll;
-				tf::Matrix3x3 mat(tf::Quaternion(current_pose.pose.orientation.x, current_pose.pose.orientation.y, current_pose.pose.orientation.z, current_pose.pose.orientation.w));
-				mat.getEulerYPR(yaw, pitch, roll);
-				current_goal.yaw = yaw;
-				ROS_INFO("Switch to position control (x=%f, y=%f, z=%f, yaw=%f)",
-						current_goal.position.x, current_goal.position.y, current_goal.position.z, current_goal.yaw);
+				// Vision pose should be published at a steady
+				// frame rate so that EKF from px4 stays stable
+				vision_pos_pub.publish(current_pose);
 			}
+			// supposedly this else is if((ros::Time()::now() - lastRemoteBeat).toSec()>1.0)
+			// so if the message is too old
+			else {
 
-			current_pose.header.stamp = current_goal.header.stamp;
-			local_pos_pub.publish(current_goal);
+				// if the programme starts without a beat from the remote machine
+				// it won't take off at first, since is goes directly into this
+				// else that doesn't arm/OFFBOARD the drone
+				ROS_INFO("Topic not publishing");
 
-			// Vision pose should be published at a steady
-			// frame rate so that EKF from px4 stays stable
-			vision_pos_pub.publish(current_pose);
+				current_goal.header.stamp = ros::Time::now();
+
+				if(current_goal.header.stamp.toSec() - lastTwistReceived.toSec() > 1 and current_goal.type_mask != POSITION_CONTROL)
+				{
+					//switch to position mode with last position if twist is not received for more than 1 sec
+
+					current_goal.coordinate_frame = mavros_msgs::PositionTarget::FRAME_LOCAL_NED;
+					current_goal.type_mask = POSITION_CONTROL;
+					current_goal.position.x = current_pose.pose.position.x;
+					current_goal.position.y = current_pose.pose.position.y;
+					current_goal.position.z = 1.5;
+					current_goal.yaw = current_pose.pose.orientation.z;
+
+					tfScalar yaw, pitch, roll;
+					tf::Matrix3x3 mat(tf::Quaternion(current_pose.pose.orientation.x, current_pose.pose.orientation.y, current_pose.pose.orientation.z, current_pose.pose.orientation.w));
+					mat.getEulerYPR(yaw, pitch, roll);
+					current_goal.yaw = yaw;
+					ROS_INFO("Switch to position control (x=%f, y=%f, z=%f, yaw=%f)",
+							current_goal.position.x, current_goal.position.y, current_goal.position.z, current_goal.yaw);
+				}
+
+				current_pose.header.stamp = current_goal.header.stamp;
+				local_pos_pub.publish(current_goal);
+
+				// Vision pose should be published at a steady
+				// frame rate so that EKF from px4 stays stable
+				vision_pos_pub.publish(current_pose);
+			}
 		}
 
 		ros::spinOnce();
