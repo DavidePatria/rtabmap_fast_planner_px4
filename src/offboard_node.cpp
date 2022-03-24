@@ -208,9 +208,6 @@ int main(int argc, char **argv)
 			ROS_ERROR("%s",ex.what());
 		}
 
-		// used in any of the conditional statements corpi below, put outside to not repeat
-		current_goal.header.stamp = ros::Time::now();
-
 		if( ros::Time().now() - lastRemoteBeat < ros::Duration(1) )	{
 			if( current_state.mode != "OFFBOARD" &&
 					(ros::Time::now() - last_request > ros::Duration(5.0))){
@@ -250,6 +247,7 @@ int main(int argc, char **argv)
 				}
 			}
 
+			current_goal.header.stamp = ros::Time::now();
 
 			if(current_goal.header.stamp.toSec() - lastTwistReceived.toSec() > 1 and current_goal.type_mask != POSITION_CONTROL)
 			{
@@ -268,6 +266,12 @@ int main(int argc, char **argv)
 						current_goal.position.x, current_goal.position.y, current_goal.position.z, current_goal.yaw);
 			}
 
+			current_pose.header.stamp = current_goal.header.stamp;
+			local_pos_pub.publish(current_goal);
+
+			// Vision pose should be published at a steady
+			// frame rate so that EKF from px4 stays stable
+			vision_pos_pub.publish(current_pose);
 		}
 		// supposedly this else is if((ros::Time()::now() - lastRemoteBeat).toSec()>1.0)
 		// so if the message is too old
@@ -299,13 +303,14 @@ int main(int argc, char **argv)
 						current_goal.position.x, current_goal.position.y, current_goal.position.z, current_goal.yaw);
 			}
 
+			current_pose.header.stamp = current_goal.header.stamp;
+			local_pos_pub.publish(current_goal);
+
+			// Vision pose should be published at a steady
+			// frame rate so that EKF from px4 stays stable
+			vision_pos_pub.publish(current_pose);
 		}
 
-		local_pos_pub.publish(current_goal);
-
-		// Vision pose should be published at a steady
-		// frame rate so that EKF from px4 stays stable
-		vision_pos_pub.publish(current_pose);
 		ros::spinOnce();
 		rate.sleep();
 	}
