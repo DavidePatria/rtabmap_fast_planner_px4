@@ -43,11 +43,24 @@ uint16 IGNORE_YAW_RATE=2048
 #define POSITION_CONTROL 0b101111111000
 unsigned short velocity_mask = VELOCITY2D_CONTROL;
 
+//==============================================================================
+// GLOBAL VARIBALES
+
+// Variable to check is the drone has flew at least once.
+// Since the drone begins in AUTO.LAND this is used to let it switch to OFFBOARD
+// for the first time the programme is launched, because later the drone being
+// in AUTO.LAND can solely mean that a manual activation has been done
+bool wasFlying = false;
+ros::Time letItDoItsThing;
+
 mavros_msgs::PositionTarget current_goal;
 ros::Time lastTwistReceived;
 // keep track of beat from remote computer
 ros::Time lastRemoteBeat;
 
+
+//==============================================================================
+// CALLABACK FUNCTIONS
 mavros_msgs::State current_state;
 void state_cb(const mavros_msgs::State::ConstPtr& msg){
 	current_state = *msg;
@@ -85,12 +98,29 @@ void remote_cb(const std_msgs::Empty::ConstPtr& msg) {
 	lastRemoteBeat = ros::Time().now();
 }
 
-// Variable to check is the drone has flew at least once.
-// Since the drone begins in AUTO.LAND this is used to let it switch to OFFBOARD
-// for the first time the programme is launched, because later the drone being
-// in AUTO.LAND can solely mean that a manual activation has been done
-bool wasFlying = false;
-ros::Time letItDoItsThing;
+//==============================================================================
+// ANTI-CLUTTER FUNCTIONS
+//
+
+void updatePose(geometry_msgs::PoseStamped &pose, const tf::StampedTransform &vision) {
+	pose.pose.position.x    = vision.getOrigin().x();
+	pose.pose.position.y    = vision.getOrigin().y();
+	pose.pose.position.z    = vision.getOrigin().z();
+	pose.pose.orientation.x = vision.getRotation().x();
+	pose.pose.orientation.y = vision.getRotation().y();
+	pose.pose.orientation.z = vision.getRotation().z();
+	pose.pose.orientation.w = vision.getRotation().w();
+}
+
+void setPosGoal(mavros_msgs::PositionTarget &goal, geometry_msgs::PoseStamped &pose ) {
+	goal.coordinate_frame = mavros_msgs::PositionTarget::FRAME_LOCAL_NED;
+	goal.type_mask = POSITION_CONTROL;
+	goal.position.x = pose.pose.position.x;
+	goal.position.y = pose.pose.position.y;
+	goal.position.z = 1.5;
+}
+
+
 
 int main(int argc, char **argv)
 {
@@ -205,17 +235,10 @@ int main(int argc, char **argv)
 		// original programme
 		try{
 			tf::StampedTransform visionPoseTf;
-
 			listener.lookupTransform("/map", "/base_link", ros::Time(0), visionPoseTf);
 
 			//update currentPose
-			current_pose.pose.position.x = visionPoseTf.getOrigin().x();
-			current_pose.pose.position.y = visionPoseTf.getOrigin().y();
-			current_pose.pose.position.z = visionPoseTf.getOrigin().z();
-			current_pose.pose.orientation.x = visionPoseTf.getRotation().x();
-			current_pose.pose.orientation.y = visionPoseTf.getRotation().y();
-			current_pose.pose.orientation.z = visionPoseTf.getRotation().z();
-			current_pose.pose.orientation.w = visionPoseTf.getRotation().w();
+			updatePose(current_pose, visionPoseTf);
 		}
 		catch (tf::TransformException & ex){
 			ROS_ERROR("%s",ex.what());
@@ -271,11 +294,8 @@ int main(int argc, char **argv)
 				{
 					//switch to position mode with last position if twist is not received for more than 1 sec
 
-					current_goal.coordinate_frame = mavros_msgs::PositionTarget::FRAME_LOCAL_NED;
-					current_goal.type_mask = POSITION_CONTROL;
-					current_goal.position.x = current_pose.pose.position.x;
-					current_goal.position.y = current_pose.pose.position.y;
-					current_goal.position.z = 1.5;
+					setPosGoal( current_goal, current_pose);
+
 					tfScalar yaw, pitch, roll;
 					tf::Matrix3x3 mat(tf::Quaternion(current_pose.pose.orientation.x, current_pose.pose.orientation.y, current_pose.pose.orientation.z, current_pose.pose.orientation.w));
 					mat.getEulerYPR(yaw, pitch, roll);
