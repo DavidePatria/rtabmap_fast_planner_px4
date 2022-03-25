@@ -35,6 +35,9 @@
       <arg name="rtabmapviz"          value ="$(arg rtabmapviz)" />
       <arg name="frame_id"            value ="base_link" />
       <arg name="odom_guess_frame_id" value ="base_link_stabilized" />
+	  <!-- manually added argument in conjunction to the add of a .ini config file in the referenced folder -->
+	  <arg name="gui_cfg" value ="$(find rtabmap_drone_example)/config/rtabmap_gui.ini" />
+
 
 	  <arg name="rgbd_sync" value ="true"/>
 
