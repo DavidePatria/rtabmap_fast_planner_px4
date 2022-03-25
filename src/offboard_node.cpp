@@ -69,14 +69,10 @@ void twist_cb(const geometry_msgs::Twist::ConstPtr& msg){
 
 void joy_cb(const sensor_msgs::Joy::ConstPtr& msg){
 	if(msg->buttons[5] == 1)
-	{
 		// When holding right trigger, accept velocity in Z
 		velocity_mask = VELOCITY_CONTROL;
-	}
 	else
-	{
 		velocity_mask = VELOCITY2D_CONTROL;
-	}
 }
 
 void remote_cb(const std_msgs::Empty::ConstPtr& msg) {
@@ -128,6 +124,7 @@ int main(int argc, char **argv)
 
 	// at first the drone will be activated but it won't move until the condition
 	// on the remote computer is satisfied
+	//
 
 	mavros_msgs::SetMode offb_set_mode;
 	offb_set_mode.request.custom_mode = "OFFBOARD";
@@ -218,9 +215,8 @@ int main(int argc, char **argv)
 			ROS_ERROR("%s",ex.what());
 		}
 
-		if(current_state.mode == "AUTO.LAND" && wasFlying == true){
+		if(current_state.mode == "AUTO.LAND" && wasFlying == true)
 			ROS_INFO("Drone is in autolanding mode, skipping");
-		}
 		else {
 			if( ros::Time().now() - lastRemoteBeat < ros::Duration(1) )	{
 				if( current_state.mode != "OFFBOARD" &&
