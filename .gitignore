@@ -1,5 +1,4 @@
-build
-.cache/clangd/index/offboard_node.cpp.42B28D30CCCEE39E.idx
+build/
+.cache/
 compile_commands.json
-.cache
-.clangd/index/offboard_node.cpp.87809A7A401B6C46.idx
+.clangd/

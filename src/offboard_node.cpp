@@ -7,9 +7,12 @@
 #include "ros/subscriber.h"
 #include "ros/time.h"
 #include "std_msgs/Empty.h"
-#include <ros/ros.h>
+
+#include "std_msgs/String.h"
+#include "std_msgs/Empty.h"
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/Twist.h>
+
 #include <sensor_msgs/Joy.h>
 #include <mavros_msgs/CommandBool.h>
 #include <mavros_msgs/CommandLong.h>
@@ -17,6 +20,9 @@
 #include <mavros_msgs/State.h>
 #include <mavros_msgs/PositionTarget.h>
 #include <tf/transform_listener.h>
+
+#include <std_msgs/Time.h>
+
 
 /*
 uint16 IGNORE_PX=1
@@ -41,7 +47,6 @@ mavros_msgs::PositionTarget current_goal;
 ros::Time lastTwistReceived;
 // keep track of beat from remote computer
 ros::Time lastRemoteBeat;
-
 
 mavros_msgs::State current_state;
 void state_cb(const mavros_msgs::State::ConstPtr& msg){
@@ -112,6 +117,7 @@ int main(int argc, char **argv)
 	("/joy", 1, joy_cb);
 
 	//the setpoint publishing rate MUST be faster than 2Hz
+	// this is 50, way faster
 	ros::Rate rate(50.0);
 	// set to the starting time before trying to change modes
 	letItDoItsThing = ros::Time().now();
