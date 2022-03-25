@@ -118,3 +118,8 @@ rosrun rtabmap_ros patrol.py _time:=5 Room1 Room2 Room3
 
 ![](https://raw.githubusercontent.com/matlabbe/rtabmap_drone_example/master/doc/example.jpg)
 
+## particular configuration
+
+In a commit the issue relative to the configuration of `rtabmapviz` has been resolved an a `.ini` file has been added to the repo and it is passed to `rtabmap.launch` as an argument.
+But, butt, is contains a path to `$HOME` inside which it was generated, therefore it might cause problems. 
+Therefore, if after launching `slam.launch` the ciclets in rtabmapviz are too big the configuration hasn't been applied.
