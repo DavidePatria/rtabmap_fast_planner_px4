@@ -58,7 +58,11 @@ ros::Time lastTwistReceived;
 // keep track of beat from remote computer
 ros::Time lastRemoteBeat;
 
+// print only once entering the case where remote beat is not received and change value
 bool donotprint = false;
+// true if the botton B on the joystick is pressed
+bool b_prem;
+bool wantToLand;
 
 //==============================================================================
 // CALLABACK FUNCTIONS
@@ -259,15 +263,15 @@ int main(int argc, char **argv)
 
 	while(ros::ok()){
 
-		if(a_prem) {
-			if( set_mode_client.call(offb_set_mode) &&
-					offb_set_mode.response.mode_sent){
-				ROS_INFO("Offboard enabled");
-				ROS_INFO("Vehicle arming... (5 seconds)");
-			}
-		}
+          if (b_prem) {
+            if (set_mode_client.call(offb_set_mode) &&
+                offb_set_mode.response.mode_sent) {
+              ROS_INFO("Offboard enabled");
+              ROS_INFO("Vehicle arming... (5 seconds)");
+            }
+          }
 
-		// this try catch to send the position has to be done every cycle
+                // this try catch to send the position has to be done every cycle
 		// regardless of the remote machine state otherwise px4 doesn't get
 		// vision data and stops, so it is kept outside the main if as in the
 		// original programme
@@ -283,12 +287,17 @@ int main(int argc, char **argv)
 		}
 
 		// if(current_state.mode == "AUTO.LAND" && wasFlying == true)
-		if(current_state.mode == "AUTO.LAND" && !a_prem ) {
+		// b_prem is an external command for the wanted state (offboard or auto.land)
+		// that is going to be substituted by a service, somehow
+		if(current_state.mode == "AUTO.LAND" && b_prem) {
 			tf::StampedTransform visionPoseTf;
 			updatePose(current_pose, visionPoseTf);
 			ROS_INFO("Drone is in autolanding mode, skipping");
 			// FACENDUM: implement the descent when requested
-			approachGround(current_pose, current_goal);
+			while(!(approachGround(current_pose, current_goal)==1))
+				current_pose.header.stamp = current_goal.header.stamp;
+				local_pos_pub.publish(current_goal);
+				vision_pos_pub.publish(current_pose);
 		}
 		else {
 			if( ros::Time().now() - lastRemoteBeat < ros::Duration(1) )	{
