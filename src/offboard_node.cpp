@@ -88,15 +88,14 @@ void twist_cb(const geometry_msgs::Twist::ConstPtr& msg){
 	}
 }
 
-bool a_prem;
 
 void joy_cb(const sensor_msgs::Joy::ConstPtr& msg){
 	if(msg->buttons[1] == 1) {
-		a_prem = true;
+		b_prem = true;
 		ROS_INFO("a is pressed");
 	} else 
 		if(msg->buttons[1] == 0)
-			a_prem = false; 
+		b_prem = false;
 
 	if(msg->buttons[5] == 1)
 		// When holding right trigger, accept velocity in Z
