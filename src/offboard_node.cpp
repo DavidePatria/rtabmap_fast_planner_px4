@@ -137,6 +137,8 @@ int main(int argc, char **argv)
 	ros::init(argc, argv, "offboard_node");
 	ros::NodeHandle nh;
 
+	// ros::ServiceClient client = nh.serviceClient<rtabmap_drone_example::MakeTakeoff>
+
 	ros::Subscriber remote_pub = nh.subscribe<std_msgs::Empty>
 	("/remote_beat", 1, remote_cb);
 	ros::Subscriber state_sub = nh.subscribe<mavros_msgs::State>
@@ -172,9 +174,14 @@ int main(int argc, char **argv)
 	// on the remote computer is satisfied
 	//
 
-	mavros_msgs::SetMode offb_set_mode;
-	offb_set_mode.request.custom_mode = "OFFBOARD";
 
+	// define a new message for setting au
+	// let's try removing the takeoff after start and see if it creates problems
+	mavros_msgs::SetMode offb_set_mode;
+	mavros_msgs::SetMode autol_set_mode;
+	offb_set_mode.request.custom_mode = "OFFBOARD";
+	// autol_set_mode.request.custom_mode = "AUTO.LAND";
+	//
 	mavros_msgs::CommandBool arm_cmd;
 	arm_cmd.request.value = true;
 
@@ -188,7 +195,7 @@ int main(int argc, char **argv)
 
 	tf::TransformListener listener;
 
-	ROS_INFO("Setting offboard mode... (5 seconds)");
+	// ROS_INFO("Setting offboard mode... (5 seconds)");
 	ros::spinOnce();
 
 	if(!listener.waitForTransform("/map", "/base_link", ros::Time(0), ros::Duration(5)))
@@ -198,35 +205,36 @@ int main(int argc, char **argv)
 	}
 
 
-	try{
-		tf::StampedTransform visionPoseTf;
+	// try{
+	// 	tf::StampedTransform visionPoseTf;
+	//
+	// 	listener.lookupTransform("/map", "/base_link", ros::Time(0), visionPoseTf);
+	//
+	// 	//update currentPose
+	// 	current_goal.coordinate_frame = mavros_msgs::PositionTarget::FRAME_LOCAL_NED;
+	// 	current_goal.type_mask = POSITION_CONTROL;
+	// 	current_goal.position.x = visionPoseTf.getOrigin().x();
+	// 	current_goal.position.y = visionPoseTf.getOrigin().y();
+	// 	current_goal.position.z = 1.5;
+	// 	current_goal.yaw = tf::getYaw(visionPoseTf.getRotation());
+	// 	current_goal.velocity.x = 0;
+	// 	current_goal.velocity.y = 0;
+	// 	current_goal.velocity.z = 0;
+	// 	current_goal.yaw_rate = 0;
+	// 	current_goal.acceleration_or_force.x = 0;
+	// 	current_goal.acceleration_or_force.y = 0;
+	// 	current_goal.acceleration_or_force.z = 0;
+	// 	ROS_INFO("Initial position=(%f,%f,%f) yaw=%f",
+	// 			current_goal.position.x,
+	// 			current_goal.position.y,
+	// 			visionPoseTf.getOrigin().z(),
+	// 			current_goal.yaw);
+	// }
+	// catch (tf::TransformException & ex){
+	// 	ROS_ERROR("%s",ex.what());
+	// 	return -1;
+	// }
 
-		listener.lookupTransform("/map", "/base_link", ros::Time(0), visionPoseTf);
-
-		//update currentPose
-		current_goal.coordinate_frame = mavros_msgs::PositionTarget::FRAME_LOCAL_NED;
-		current_goal.type_mask = POSITION_CONTROL;
-		current_goal.position.x = visionPoseTf.getOrigin().x();
-		current_goal.position.y = visionPoseTf.getOrigin().y();
-		current_goal.position.z = 1.5;
-		current_goal.yaw = tf::getYaw(visionPoseTf.getRotation());
-		current_goal.velocity.x = 0;
-		current_goal.velocity.y = 0;
-		current_goal.velocity.z = 0;
-		current_goal.yaw_rate = 0;
-		current_goal.acceleration_or_force.x = 0;
-		current_goal.acceleration_or_force.y = 0;
-		current_goal.acceleration_or_force.z = 0;
-		ROS_INFO("Initial position=(%f,%f,%f) yaw=%f",
-				current_goal.position.x,
-				current_goal.position.y,
-				visionPoseTf.getOrigin().z(),
-				current_goal.yaw);
-	}
-	catch (tf::TransformException & ex){
-		ROS_ERROR("%s",ex.what());
-		return -1;
-	}
 	//send a few setpoints before starting
 	for(int i = 100; ros::ok() && i > 0; --i){
 		local_pos_pub.publish(current_goal);
@@ -237,7 +245,17 @@ int main(int argc, char **argv)
 	geometry_msgs::PoseStamped current_pose;
 	current_pose.header.frame_id = "map";
 
+	ROS_INFO("entering while");
+
 	while(ros::ok()){
+
+		if(a_prem) {
+			if( set_mode_client.call(offb_set_mode) &&
+					offb_set_mode.response.mode_sent){
+				ROS_INFO("Offboard enabled");
+				ROS_INFO("Vehicle arming... (5 seconds)");
+			}
+		}
 
 		// this try catch to send the position has to be done every cycle
 		// regardless of the remote machine state otherwise px4 doesn't get
