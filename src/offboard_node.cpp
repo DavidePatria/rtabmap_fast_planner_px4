@@ -58,10 +58,13 @@ ros::Time lastTwistReceived;
 // keep track of beat from remote computer
 ros::Time lastRemoteBeat;
 
+bool donotprint = false;
 
 //==============================================================================
 // CALLABACK FUNCTIONS
 mavros_msgs::State current_state;
+
+
 void state_cb(const mavros_msgs::State::ConstPtr& msg){
 	current_state = *msg;
 }
@@ -318,7 +321,12 @@ int main(int argc, char **argv)
 				// if the programme starts without a beat from the remote machine
 				// it won't take off at first, since is goes directly into this
 				// else that doesn't arm/OFFBOARD the drone
-				ROS_INFO("Topic not publishing");
+				if(!donotprint){
+					ROS_INFO("Remote beat topic not received");
+					// print once per case
+					donotprint = true;
+				}
+
 
 				current_goal.header.stamp = ros::Time::now();
 
