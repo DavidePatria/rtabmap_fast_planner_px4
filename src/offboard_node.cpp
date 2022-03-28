@@ -132,6 +132,15 @@ void setPosGoal(mavros_msgs::PositionTarget &goal, geometry_msgs::PoseStamped &p
 	goal.position.z = 1.5;
 }
 
+int approachGround(geometry_msgs::PoseStamped &pose, mavros_msgs::PositionTarget &goal) {
+	// check if position is low enough for a landing attempt
+	if(pose.pose.position.z > 0.5) {
+		goal.position.z = 0.4;
+		return 1;
+	}
+	else 
+		return 0;
+}
 
 
 int main(int argc, char **argv)
@@ -180,9 +189,9 @@ int main(int argc, char **argv)
 	// define a new message for setting au
 	// let's try removing the takeoff after start and see if it creates problems
 	mavros_msgs::SetMode offb_set_mode;
-	mavros_msgs::SetMode autol_set_mode;
 	offb_set_mode.request.custom_mode = "OFFBOARD";
-	// autol_set_mode.request.custom_mode = "AUTO.LAND";
+	mavros_msgs::SetMode autol_set_mode;
+	autol_set_mode.request.custom_mode = "AUTO.LAND";
 	//
 	mavros_msgs::CommandBool arm_cmd;
 	arm_cmd.request.value = true;
@@ -277,8 +286,10 @@ int main(int argc, char **argv)
 		// if(current_state.mode == "AUTO.LAND" && wasFlying == true)
 		if(current_state.mode == "AUTO.LAND" && !a_prem ) {
 			tf::StampedTransform visionPoseTf;
-			ROS_INFO("Drone is in autolanding mode, skipping");
 			updatePose(current_pose, visionPoseTf);
+			ROS_INFO("Drone is in autolanding mode, skipping");
+			// FACENDUM: implement the descent when requested
+			approachGround(current_pose, current_goal);
 		}
 		else {
 			if( ros::Time().now() - lastRemoteBeat < ros::Duration(1) )	{
