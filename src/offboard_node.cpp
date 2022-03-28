@@ -88,7 +88,14 @@ void twist_cb(const geometry_msgs::Twist::ConstPtr& msg){
 	}
 }
 
+bool a_prem;
+
 void joy_cb(const sensor_msgs::Joy::ConstPtr& msg){
+	if(msg->buttons[1] == 1) {
+		a_prem = true;
+		ROS_INFO("a is pressed");
+	}
+
 	if(msg->buttons[5] == 1)
 		// When holding right trigger, accept velocity in Z
 		velocity_mask = VELOCITY_CONTROL;
@@ -247,10 +254,15 @@ int main(int argc, char **argv)
 			ROS_ERROR("%s",ex.what());
 		}
 
-		if(current_state.mode == "AUTO.LAND" && wasFlying == true)
+		// if(current_state.mode == "AUTO.LAND" && wasFlying == true)
+		if(current_state.mode == "AUTO.LAND" && !a_prem ) {
+			tf::StampedTransform visionPoseTf;
 			ROS_INFO("Drone is in autolanding mode, skipping");
+			updatePose(current_pose, visionPoseTf);
+		}
 		else {
 			if( ros::Time().now() - lastRemoteBeat < ros::Duration(1) )	{
+				donotprint = false;
 				if( current_state.mode != "OFFBOARD" &&
 						(ros::Time::now() - last_request > ros::Duration(5.0))){
 					if( set_mode_client.call(offb_set_mode) &&
