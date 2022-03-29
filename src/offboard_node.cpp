@@ -234,25 +234,25 @@ int main(int argc, char **argv)
 	//
 	// 	listener.lookupTransform("/map", "/base_link", ros::Time(0), visionPoseTf);
 	//
-	// 	//update currentPose
-	// 	current_goal.coordinate_frame = mavros_msgs::PositionTarget::FRAME_LOCAL_NED;
-	// 	current_goal.type_mask = POSITION_CONTROL;
-	// 	current_goal.position.x = visionPoseTf.getOrigin().x();
-	// 	current_goal.position.y = visionPoseTf.getOrigin().y();
-	// 	current_goal.position.z = 1.5;
-	// 	current_goal.yaw = tf::getYaw(visionPoseTf.getRotation());
-	// 	current_goal.velocity.x = 0;
-	// 	current_goal.velocity.y = 0;
-	// 	current_goal.velocity.z = 0;
-	// 	current_goal.yaw_rate = 0;
-	// 	current_goal.acceleration_or_force.x = 0;
-	// 	current_goal.acceleration_or_force.y = 0;
-	// 	current_goal.acceleration_or_force.z = 0;
-	// 	ROS_INFO("Initial position=(%f,%f,%f) yaw=%f",
-	// 			current_goal.position.x,
-	// 			current_goal.position.y,
-	// 			visionPoseTf.getOrigin().z(),
-	// 			current_goal.yaw);
+	// //update currentPose
+	// current_goal.coordinate_frame = mavros_msgs::PositionTarget::FRAME_LOCAL_NED;
+	// current_goal.type_mask = POSITION_CONTROL;
+	// current_goal.position.x = visionPoseTf.getOrigin().x();
+	// current_goal.position.y = visionPoseTf.getOrigin().y();
+	// current_goal.position.z = 1.5;
+	// current_goal.yaw = tf::getYaw(visionPoseTf.getRotation());
+	// current_goal.velocity.x = 0;
+	// current_goal.velocity.y = 0;
+	// current_goal.velocity.z = 0;
+	// current_goal.yaw_rate = 0;
+	// current_goal.acceleration_or_force.x = 0;
+	// current_goal.acceleration_or_force.y = 0;
+	// current_goal.acceleration_or_force.z = 0;
+	// ROS_INFO("Initial position=(%f,%f,%f) yaw=%f",
+	// 		current_goal.position.x,
+	// 		current_goal.position.y,
+	// 		visionPoseTf.getOrigin().z(),
+	// 		current_goal.yaw);
 	// }
 	// catch (tf::TransformException & ex){
 	// 	ROS_ERROR("%s",ex.what());
@@ -273,15 +273,15 @@ int main(int argc, char **argv)
 
 	while(ros::ok()){
 
-          if (b_prem) {
-            if (set_mode_client.call(offb_set_mode) &&
-                offb_set_mode.response.mode_sent) {
-              ROS_INFO("Offboard enabled");
-              ROS_INFO("Vehicle arming... (5 seconds)");
-            }
-          }
+		if (b_prem) {
+			if (set_mode_client.call(offb_set_mode) &&
+				offb_set_mode.response.mode_sent) {
+				ROS_INFO("Offboard enabled");
+				ROS_INFO("Vehicle arming... (5 seconds)");
+			}
+		}
 
-                // this try catch to send the position has to be done every cycle
+		// this try catch to send the position has to be done every cycle
 		// regardless of the remote machine state otherwise px4 doesn't get
 		// vision data and stops, so it is kept outside the main if as in the
 		// original programme
