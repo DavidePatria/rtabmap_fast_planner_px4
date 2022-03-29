@@ -61,7 +61,9 @@ ros::Time lastRemoteBeat;
 // print only once entering the case where remote beat is not received and change value
 bool donotprint = false;
 // true if the botton B on the joystick is pressed
-bool b_prem;
+bool a_prem;
+
+// initialize to true so it doesn't takeoff at start
 bool wantToLand;
 
 //==============================================================================
@@ -93,20 +95,21 @@ void twist_cb(const geometry_msgs::Twist::ConstPtr& msg){
 }
 
 
+// A:0, B: 1, X:2, Y:3, LB:4, RB:5
 void joy_cb(const sensor_msgs::Joy::ConstPtr& msg){
 	// buttons have to stay pressed
-	if(msg->buttons[1] == 1) {
-		b_prem = true;
+	if(msg->buttons[0] == 1) {
+		a_prem = true;
 		ROS_INFO("a is pressed");
 	} else 
-		if(msg->buttons[1] == 0)
-			b_prem = false;
+		if(msg->buttons[0] == 0)
+			a_prem = false;
 
-	if(msg->buttons[2] == 1) {
+	if(msg->buttons[1] == 1) {
 		wantToLand = true;
 		ROS_INFO("wantToLand= %s", wantToLand ? "true":"false");
 	} else { 
-		if(msg->buttons[2] == 0) {
+		if(msg->buttons[1] == 0) {
 			wantToLand = false;
 			ROS_INFO("wantToLand= %s", wantToLand ? "true":"false");
 		}
@@ -274,7 +277,7 @@ int main(int argc, char **argv)
 
 	while(ros::ok()){
 
-		if (b_prem) {
+		if (a_prem) {
 			if (set_mode_client.call(offb_set_mode) &&
 				offb_set_mode.response.mode_sent) {
 				ROS_INFO("Offboard enabled");
