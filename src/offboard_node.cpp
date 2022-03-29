@@ -107,11 +107,11 @@ void joy_cb(const sensor_msgs::Joy::ConstPtr& msg){
 
 	if(msg->buttons[1] == 1) {
 		wantToLand = true;
-		ROS_INFO("wantToLand= %s", wantToLand ? "true":"false");
+		// ROS_INFO("wantToLand= %s", wantToLand ? "true":"false");
 	} else { 
 		if(msg->buttons[1] == 0) {
 			wantToLand = false;
-			ROS_INFO("wantToLand= %s", wantToLand ? "true":"false");
+			// ROS_INFO("wantToLand= %s", wantToLand ? "true":"false");
 		}
 	}
 
