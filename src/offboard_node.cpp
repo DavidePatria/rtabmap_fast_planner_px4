@@ -99,7 +99,17 @@ void joy_cb(const sensor_msgs::Joy::ConstPtr& msg){
 		ROS_INFO("a is pressed");
 	} else 
 		if(msg->buttons[1] == 0)
-		b_prem = false;
+			b_prem = false;
+
+	if(msg->buttons[2] == 1) {
+		wantToLand = true;
+		ROS_INFO("wantToLand= %s", wantToLand ? "true":"false");
+	} else { 
+		if(msg->buttons[2] == 0) {
+			wantToLand = false;
+			ROS_INFO("wantToLand= %s", wantToLand ? "true":"false");
+		}
+	}
 
 	if(msg->buttons[5] == 1)
 		// When holding right trigger, accept velocity in Z
@@ -289,15 +299,17 @@ int main(int argc, char **argv)
 		// if(current_state.mode == "AUTO.LAND" && wasFlying == true)
 		// b_prem is an external command for the wanted state (offboard or auto.land)
 		// that is going to be substituted by a service, somehow
-		if(current_state.mode == "AUTO.LAND" && b_prem) {
+		// if(current_state.mode == "AUTO.LAND" && b_prem) {
+		if(wantToLand) {
 			tf::StampedTransform visionPoseTf;
 			updatePose(current_pose, visionPoseTf);
 			ROS_INFO("Drone is in autolanding mode, skipping");
 			// FACENDUM: implement the descent when requested
-			while(!(approachGround(current_pose, current_goal)==1))
+			while(!(approachGround(current_pose, current_goal)==1)) {
 				current_pose.header.stamp = current_goal.header.stamp;
 				local_pos_pub.publish(current_goal);
 				vision_pos_pub.publish(current_pose);
+			}
 		}
 		else {
 			if( ros::Time().now() - lastRemoteBeat < ros::Duration(1) )	{
