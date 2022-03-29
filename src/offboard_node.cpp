@@ -227,42 +227,11 @@ int main(int argc, char **argv)
 	ros::spinOnce();
 
 
-
 	//==========================================================================
 	if(!listener.waitForTransform("/map", "/base_link", ros::Time(0), ros::Duration(5))) {
 		ROS_ERROR("Cannot get current position between /map and /base_link");
 		return -1;
 	}
-
-	// try{
-	// 	tf::StampedTransform visionPoseTf;
-	//
-	// 	listener.lookupTransform("/map", "/base_link", ros::Time(0), visionPoseTf);
-	//
-	// 	//update currentPose
-	// 	current_goal.coordinate_frame = mavros_msgs::PositionTarget::FRAME_LOCAL_NED;
-	// 	current_goal.type_mask = POSITION_CONTROL;
-	// 	current_goal.position.x = visionPoseTf.getOrigin().x();
-	// 	current_goal.position.y = visionPoseTf.getOrigin().y();
-	// 	current_goal.position.z = 1.5;
-	// 	current_goal.yaw = tf::getYaw(visionPoseTf.getRotation());
-	// 	current_goal.velocity.x = 0;
-	// 	current_goal.velocity.y = 0;
-	// 	current_goal.velocity.z = 0;
-	// 	current_goal.yaw_rate = 0;
-	// 	current_goal.acceleration_or_force.x = 0;
-	// 	current_goal.acceleration_or_force.y = 0;
-	// 	current_goal.acceleration_or_force.z = 0;
-	// 	ROS_INFO("Initial position=(%f,%f,%f) yaw=%f",
-	// 		current_goal.position.x,
-	// 		current_goal.position.y,
-	// 		visionPoseTf.getOrigin().z(),
-	// 		current_goal.yaw);
-	// }
-	// catch (tf::TransformException & ex){
-	// 	ROS_ERROR("%s",ex.what());
-	// 	return -1;
-	// }
 
 	//send a few setpoints before starting
 	for(int i = 100; ros::ok() && i > 0; --i){
@@ -300,10 +269,6 @@ int main(int argc, char **argv)
 		catch (tf::TransformException & ex){
 			ROS_ERROR("%s",ex.what());
 		}
-
-		// if(current_state.mode == "AUTO.LAND" && wasFlying == true)
-		// b_prem is an external command for the wanted state (offboard or auto.land)
-		// that is going to be substituted by a service, somehow
 
 		// Best practise: function with side effect should not be used as condition
 		if(wantToLand) {
