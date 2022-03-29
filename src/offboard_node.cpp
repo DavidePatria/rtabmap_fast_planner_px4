@@ -106,7 +106,7 @@ void joy_cb(const sensor_msgs::Joy::ConstPtr& msg){
 	// 	if(msg->buttons[0] == 0)
 	// 		a_prem = false;
 	if(msg->buttons[1] == 1) {
-		wantToLand = true;
+		wantToLand = false;
 	} 
 
 	// activate and deactivate wantToLand
@@ -115,7 +115,7 @@ void joy_cb(const sensor_msgs::Joy::ConstPtr& msg){
 	} 
 
 	if(msg->buttons[3] == 1) {
-		wantToLand = true;
+		wantToLand = false;
 	} 
 
 	// else { 
