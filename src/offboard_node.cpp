@@ -97,23 +97,33 @@ void twist_cb(const geometry_msgs::Twist::ConstPtr& msg){
 
 // A:0, B: 1, X:2, Y:3, LB:4, RB:5
 void joy_cb(const sensor_msgs::Joy::ConstPtr& msg){
-	// buttons have to stay pressed
+	// activate and deactivate arming
 	if(msg->buttons[0] == 1) {
 		a_prem = true;
 		ROS_INFO("a is pressed");
-	} else 
-		if(msg->buttons[0] == 0)
-			a_prem = false;
-
+	} 
+	// else 
+	// 	if(msg->buttons[0] == 0)
+	// 		a_prem = false;
 	if(msg->buttons[1] == 1) {
 		wantToLand = true;
-		// ROS_INFO("wantToLand= %s", wantToLand ? "true":"false");
-	} else { 
-		if(msg->buttons[1] == 0) {
-			wantToLand = false;
-			// ROS_INFO("wantToLand= %s", wantToLand ? "true":"false");
-		}
-	}
+	} 
+
+	// activate and deactivate wantToLand
+	if(msg->buttons[2] == 1) {
+		wantToLand = true;
+	} 
+
+	if(msg->buttons[3] == 1) {
+		wantToLand = true;
+	} 
+
+	// else { 
+	// 	if(msg->buttons[1] == 0) {
+	// 		wantToLand = false;
+	// 		// ROS_INFO("wantToLand= %s", wantToLand ? "true":"false");
+	// 	}
+	// }
 
 	if(msg->buttons[5] == 1)
 		// When holding right trigger, accept velocity in Z
