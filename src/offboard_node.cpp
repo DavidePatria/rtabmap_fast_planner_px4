@@ -269,8 +269,9 @@ int main(int argc, char **argv)
 		// regardless of the remote machine state otherwise px4 doesn't get
 		// vision data and stops, so it is kept outside the main if as in the
 		// original programme
+
+		tf::StampedTransform visionPoseTf;
 		try{
-			tf::StampedTransform visionPoseTf;
 			listener.lookupTransform("/map", "/base_link", ros::Time(0), visionPoseTf);
 
 			//update currentPose
@@ -286,19 +287,22 @@ int main(int argc, char **argv)
 			// updatePose(current_pose, visionPoseTf);
 			ROS_INFO("Attempting land");
 			} else {
-				if(!(approachGround(current_pose, current_goal) == 1) ) {
+				if(!(approachGround(current_pose, current_goal) == 1 && 
+					(ros::Time::now() - last_request > ros::Duration(5.0))) ){
 					ROS_INFO("sending auto.land");
 					set_mode_client.call(autol_set_mode);
+					last_request = ros::Time::now();
 				}
 			}
 
 		} else {
-			if( ros::Time().now() - lastRemoteBeat < ros::Duration(1) )	{
+			if( ros::Time().now() - lastRemoteBeat < ros::Duration(1.0) )	{
 				donotprint = false;
 				if( current_state.mode != "OFFBOARD" &&
 						(ros::Time::now() - last_request > ros::Duration(5.0))){
 					if( set_mode_client.call(offb_set_mode) &&
-							offb_set_mode.response.mode_sent){
+							offb_set_mode.response.mode_sent &&
+							ros::Time::now() - last_request > ros::Duration(5.0)){
 						ROS_INFO("Offboard enabled");
 						ROS_INFO("Vehicle arming... (5 seconds)");
 					}
@@ -347,7 +351,7 @@ int main(int argc, char **argv)
 					tf::Matrix3x3 mat(tf::Quaternion(current_pose.pose.orientation.x, current_pose.pose.orientation.y, current_pose.pose.orientation.z, current_pose.pose.orientation.w));
 					mat.getEulerYPR(yaw, pitch, roll);
 					current_goal.yaw = yaw;
-					ROS_INFO("Switch to position control (x=%f, y=%f, z=%f, yaw=%f)",
+					ROS_INFO("Switch to position control2 (x=%f, y=%f, z=%f, yaw=%f)",
 							current_goal.position.x, current_goal.position.y, current_goal.position.z, current_goal.yaw);
 				}
 
@@ -362,32 +366,28 @@ int main(int argc, char **argv)
 			// so if the message is too old
 			else {
 
-				// if the programme starts without a beat from the remote machine
-				// it won't take off at first, since is goes directly into this
-				// else that doesn't arm/OFFBOARD the drone
-				if(!donotprint){
+				if(!donotprint){ // not donotprint = do print
 					ROS_INFO("Remote beat topic not received");
-					// print once per case
+					// to print only on change of condition
 					donotprint = true;
 				}
 
-				if((current_goal.header.stamp.toSec() - lastTwistReceived.toSec() > 1) && (current_goal.type_mask != POSITION_CONTROL))
-				{
-					//switch to position mode with last position if twist is not received for more than 1 sec
+				//switch to position mode with last position if twist is not received for more than 1 sec
 
-					current_goal.coordinate_frame = mavros_msgs::PositionTarget::FRAME_LOCAL_NED;
+				current_goal.coordinate_frame = mavros_msgs::PositionTarget::FRAME_LOCAL_NED;
+				current_goal.position.x = current_pose.pose.position.x;
+				current_goal.position.y = current_pose.pose.position.y;
+				current_goal.position.z = 1.5;
+
+				current_goal.yaw = tf::getYaw(visionPoseTf.getRotation());
+
+				if((current_goal.type_mask != POSITION_CONTROL)) {
 					current_goal.type_mask = POSITION_CONTROL;
-					current_goal.position.x = current_pose.pose.position.x;
-					current_goal.position.y = current_pose.pose.position.y;
-					current_goal.position.z = 1.5;
-					current_goal.yaw = current_pose.pose.orientation.z;
-
-					tfScalar yaw, pitch, roll;
-					tf::Matrix3x3 mat(tf::Quaternion(current_pose.pose.orientation.x, current_pose.pose.orientation.y, current_pose.pose.orientation.z, current_pose.pose.orientation.w));
-					mat.getEulerYPR(yaw, pitch, roll);
-					current_goal.yaw = yaw;
-					ROS_INFO("Switch to position control (x=%f, y=%f, z=%f, yaw=%f)",
-							current_goal.position.x, current_goal.position.y, current_goal.position.z, current_goal.yaw);
+					ROS_INFO("Switch to position control1 (x=%f, y=%f, z=%f, yaw=%f)",
+							current_goal.position.x,
+							current_goal.position.y,
+							current_goal.position.z,
+							current_goal.yaw);
 				}
 
 				// current_pose.header.stamp = current_goal.header.stamp;
