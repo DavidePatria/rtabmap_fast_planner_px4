@@ -294,7 +294,6 @@ int main(int argc, char **argv)
 					last_request = ros::Time::now();
 				}
 			}
-
 		} else {
 			if( ros::Time().now() - lastRemoteBeat < ros::Duration(1.0) )	{
 				donotprint = false;
@@ -374,14 +373,17 @@ int main(int argc, char **argv)
 
 				//switch to position mode with last position if twist is not received for more than 1 sec
 
-				current_goal.coordinate_frame = mavros_msgs::PositionTarget::FRAME_LOCAL_NED;
-				current_goal.position.x = current_pose.pose.position.x;
-				current_goal.position.y = current_pose.pose.position.y;
-				current_goal.position.z = 1.5;
-
-				current_goal.yaw = tf::getYaw(visionPoseTf.getRotation());
+				current_goal.header.stamp = ros::Time::now();
 
 				if((current_goal.type_mask != POSITION_CONTROL)) {
+
+					current_goal.coordinate_frame = mavros_msgs::PositionTarget::FRAME_LOCAL_NED;
+					current_goal.position.x = current_pose.pose.position.x;
+					current_goal.position.y = current_pose.pose.position.y;
+					current_goal.position.z = 1.5;
+
+					current_goal.yaw = tf::getYaw(visionPoseTf.getRotation());
+
 					current_goal.type_mask = POSITION_CONTROL;
 					ROS_INFO("Switch to position control1 (x=%f, y=%f, z=%f, yaw=%f)",
 							current_goal.position.x,
