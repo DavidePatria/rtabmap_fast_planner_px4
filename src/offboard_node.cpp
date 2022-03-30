@@ -270,11 +270,10 @@ int main(int argc, char **argv)
 		// vision data and stops, so it is kept outside the main if as in the
 		// original programme
 
-		tf::StampedTransform visionPoseTf;
 		try{
+			tf::StampedTransform visionPoseTf;
 			listener.lookupTransform("/map", "/base_link", ros::Time(0), visionPoseTf);
 
-			//update currentPose
 			updatePose(current_pose, visionPoseTf);
 		}
 		catch (tf::TransformException & ex){
@@ -354,12 +353,12 @@ int main(int argc, char **argv)
 							current_goal.position.x, current_goal.position.y, current_goal.position.z, current_goal.yaw);
 				}
 
-				// current_pose.header.stamp = current_goal.header.stamp;
-				// local_pos_pub.publish(current_goal);
-				//
-				// // Vision pose should be published at a steady
-				// // frame rate so that EKF from px4 stays stable
-				// vision_pos_pub.publish(current_pose);
+				current_pose.header.stamp = current_goal.header.stamp;
+				local_pos_pub.publish(current_goal);
+
+				// Vision pose should be published at a steady
+				// frame rate so that EKF from px4 stays stable
+				vision_pos_pub.publish(current_pose);
 			}
 			// supposedly this else is if((ros::Time()::now() - lastRemoteBeat).toSec()>1.0)
 			// so if the message is too old
@@ -373,7 +372,7 @@ int main(int argc, char **argv)
 
 				//switch to position mode with last position if twist is not received for more than 1 sec
 
-				current_goal.header.stamp = ros::Time::now();
+				current_goal.header.stamp = ros::Time().now();
 
 				if((current_goal.type_mask != POSITION_CONTROL)) {
 
@@ -382,6 +381,7 @@ int main(int argc, char **argv)
 					current_goal.position.y = current_pose.pose.position.y;
 					current_goal.position.z = 1.5;
 
+					tf::StampedTransform visionPoseTf;
 					current_goal.yaw = tf::getYaw(visionPoseTf.getRotation());
 
 					current_goal.type_mask = POSITION_CONTROL;
@@ -392,21 +392,21 @@ int main(int argc, char **argv)
 							current_goal.yaw);
 				}
 
-				// current_pose.header.stamp = current_goal.header.stamp;
-				// local_pos_pub.publish(current_goal);
-				//
-				// // Vision pose should be published at a steady
-				// // frame rate so that EKF from px4 stays stable
-				// vision_pos_pub.publish(current_pose);
+				current_pose.header.stamp = current_goal.header.stamp;
+				local_pos_pub.publish(current_goal);
+
+				// Vision pose should be published at a steady
+				// frame rate so that EKF from px4 stays stable
+				vision_pos_pub.publish(current_pose);
 			}
 		}
 
-		current_pose.header.stamp = current_goal.header.stamp;
-		local_pos_pub.publish(current_goal);
-
-		// Vision pose should be published at a steady
-		// frame rate so that EKF from px4 stays stable
-		vision_pos_pub.publish(current_pose);
+		// current_pose.header.stamp = current_goal.header.stamp;
+		// local_pos_pub.publish(current_goal);
+		//
+		// // Vision pose should be published at a steady
+		// // frame rate so that EKF from px4 stays stable
+		// vision_pos_pub.publish(current_pose);
 
 		ros::spinOnce();
 		rate.sleep();
