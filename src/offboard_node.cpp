@@ -339,10 +339,9 @@ int main(int argc, char **argv)
 
 				current_goal.header.stamp = ros::Time::now();
 
+				//switch to position mode with last position if twist is not received for more than 1 sec
 				if((current_goal.header.stamp - lastTwistReceived > ros::Duration(1.0)) && (current_goal.type_mask != POSITION_CONTROL))
 				{
-					//switch to position mode with last position if twist is not received for more than 1 sec
-
 					setPosGoal( current_goal, current_pose);
 
 					tfScalar yaw, pitch, roll;
@@ -352,16 +351,8 @@ int main(int argc, char **argv)
 					ROS_INFO("Switch to position control2 (x=%f, y=%f, z=%f, yaw=%f)",
 							current_goal.position.x, current_goal.position.y, current_goal.position.z, current_goal.yaw);
 				}
-
-				// current_pose.header.stamp = current_goal.header.stamp;
-				// local_pos_pub.publish(current_goal);
-				//
-				// // Vision pose should be published at a steady
-				// // frame rate so that EKF from px4 stays stable
-				// vision_pos_pub.publish(current_pose);
 			}
-			// supposedly this else is if((ros::Time()::now() - lastRemoteBeat).toSec()>1.0)
-			// so if the message is too old
+			// else the message is too old
 			else {
 
 				if(!donotprint){ // not donotprint = do print
@@ -391,13 +382,6 @@ int main(int argc, char **argv)
 							current_goal.position.z,
 							current_goal.yaw);
 				}
-
-				// current_pose.header.stamp = current_goal.header.stamp;
-				// local_pos_pub.publish(current_goal);
-				//
-				// // Vision pose should be published at a steady
-				// // frame rate so that EKF from px4 stays stable
-				// vision_pos_pub.publish(current_pose);
 			}
 		}
 
