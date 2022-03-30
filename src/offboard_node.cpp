@@ -106,7 +106,7 @@ void joy_cb(const sensor_msgs::Joy::ConstPtr& msg){
 	// 	if(msg->buttons[0] == 0)
 	// 		a_prem = false;
 	if(msg->buttons[1] == 1) {
-		wantToLand = false;
+		a_prem = false;
 	} 
 
 	// activate and deactivate wantToLand
@@ -341,7 +341,7 @@ int main(int argc, char **argv)
 
 				current_goal.header.stamp = ros::Time::now();
 
-				if(current_goal.header.stamp.toSec() - lastTwistReceived.toSec() > 1 and current_goal.type_mask != POSITION_CONTROL)
+				if((current_goal.header.stamp - lastTwistReceived > ros::Duration(1.0)) && (current_goal.type_mask != POSITION_CONTROL))
 				{
 					//switch to position mode with last position if twist is not received for more than 1 sec
 
