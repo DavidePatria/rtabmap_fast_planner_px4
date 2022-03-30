@@ -353,12 +353,12 @@ int main(int argc, char **argv)
 							current_goal.position.x, current_goal.position.y, current_goal.position.z, current_goal.yaw);
 				}
 
-				current_pose.header.stamp = current_goal.header.stamp;
-				local_pos_pub.publish(current_goal);
-
-				// Vision pose should be published at a steady
-				// frame rate so that EKF from px4 stays stable
-				vision_pos_pub.publish(current_pose);
+				// current_pose.header.stamp = current_goal.header.stamp;
+				// local_pos_pub.publish(current_goal);
+				//
+				// // Vision pose should be published at a steady
+				// // frame rate so that EKF from px4 stays stable
+				// vision_pos_pub.publish(current_pose);
 			}
 			// supposedly this else is if((ros::Time()::now() - lastRemoteBeat).toSec()>1.0)
 			// so if the message is too old
@@ -392,21 +392,21 @@ int main(int argc, char **argv)
 							current_goal.yaw);
 				}
 
-				current_pose.header.stamp = current_goal.header.stamp;
-				local_pos_pub.publish(current_goal);
-
-				// Vision pose should be published at a steady
-				// frame rate so that EKF from px4 stays stable
-				vision_pos_pub.publish(current_pose);
+				// current_pose.header.stamp = current_goal.header.stamp;
+				// local_pos_pub.publish(current_goal);
+				//
+				// // Vision pose should be published at a steady
+				// // frame rate so that EKF from px4 stays stable
+				// vision_pos_pub.publish(current_pose);
 			}
 		}
 
-		// current_pose.header.stamp = current_goal.header.stamp;
-		// local_pos_pub.publish(current_goal);
-		//
-		// // Vision pose should be published at a steady
-		// // frame rate so that EKF from px4 stays stable
-		// vision_pos_pub.publish(current_pose);
+		current_pose.header.stamp = current_goal.header.stamp;
+		local_pos_pub.publish(current_goal);
+
+		// Vision pose should be published at a steady
+		// frame rate so that EKF from px4 stays stable
+		vision_pos_pub.publish(current_pose);
 
 		ros::spinOnce();
 		rate.sleep();
