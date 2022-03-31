@@ -1,0 +1,3 @@
+bool setTakeoff
+---
+bool modeChanged
