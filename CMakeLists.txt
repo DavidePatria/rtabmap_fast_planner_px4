@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(offboard_node)
+project(offboard_safety)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   message_generation
   roscpp
   std_msgs
+  tf
 )
 
 ## System dependencies are found with CMake's conventions
@@ -135,7 +136,9 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/offboard_node_node.cpp)
+add_executable(${PROJECT_NAME}_node src/offboard_node.cpp)
+target_link_libraries(${PROJECT_NAME}_node ${catkin_LIBRARIES})
+# set_target_properties(rtabmap_drone_example_offboard PROPERTIES OUTPUT_NAME "offboard")
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
