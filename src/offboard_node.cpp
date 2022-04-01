@@ -60,9 +60,13 @@ ros::Time lastRemoteBeat;
 
 bool donotprint = false;
 
+//botton pressed? used to change state of the drone
+bool a_prem;
+
+//used for reorganisation  to multi-file format
+mavros_msgs::State current_state;
 //==============================================================================
 // CALLABACK FUNCTIONS
-mavros_msgs::State current_state;
 
 
 void state_cb(const mavros_msgs::State::ConstPtr& msg){
@@ -87,8 +91,6 @@ void twist_cb(const geometry_msgs::Twist::ConstPtr& msg){
 		lastTwistReceived = ros::Time::now();
 	}
 }
-
-bool a_prem;
 
 void joy_cb(const sensor_msgs::Joy::ConstPtr& msg){
 	if(msg->buttons[1] == 1) {
@@ -143,6 +145,11 @@ int main(int argc, char **argv)
 	("/remote_beat", 1, remote_cb);
 	ros::Subscriber state_sub = nh.subscribe<mavros_msgs::State>
 	("mavros/state", 10, state_cb);
+	ros::Subscriber twist_sub = nh.subscribe<geometry_msgs::Twist>
+	("/cmd_vel", 1, twist_cb);
+	ros::Subscriber joy_sub = nh.subscribe<sensor_msgs::Joy>
+	("/joy", 1, joy_cb);
+
 	ros::Publisher local_pos_pub = nh.advertise<mavros_msgs::PositionTarget>
 	("mavros/setpoint_raw/local", 1);
 	ros::Publisher vision_pos_pub = nh.advertise<geometry_msgs::PoseStamped>
@@ -153,10 +160,7 @@ int main(int argc, char **argv)
 	("mavros/cmd/command");
 	ros::ServiceClient set_mode_client = nh.serviceClient<mavros_msgs::SetMode>
 	("mavros/set_mode");
-	ros::Subscriber twist_sub = nh.subscribe<geometry_msgs::Twist>
-	("/cmd_vel", 1, twist_cb);
-	ros::Subscriber joy_sub = nh.subscribe<sensor_msgs::Joy>
-	("/joy", 1, joy_cb);
+
 
 	//the setpoint publishing rate MUST be faster than 2Hz
 	// this is 50, way faster
