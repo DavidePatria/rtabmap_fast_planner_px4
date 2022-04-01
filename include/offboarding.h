@@ -20,8 +20,18 @@ class OffBoarding {
 public:
 	OffBoarding();
 	~OffBoarding();
+
 	bool is_beat_fresh();
+	bool is_request_old();
+	bool is_offboard();
+	bool is_armed();
+	bool is_autoland();
+	bool is_twist_old();
+
 	void set_beat();
+	void set_request_time();
+
+
 	void updatePose(geometry_msgs::PoseStamped &pose, const tf::StampedTransform &vision);
 	void setPosGoal(mavros_msgs::PositionTarget &goal, geometry_msgs::PoseStamped &pose );
 
@@ -40,12 +50,14 @@ private:
 	mavros_msgs::PositionTarget current_goal_;
 	mavros_msgs::State current_state_;
 
-	ros::Time letItDoItsThing_;
-	ros::Time lastTwistReceived_;
-	ros::Time lastRemoteBeat_;
+	ros::Time last_request_;
+	ros::Time let_it_do_its_thing_;
+	ros::Time last_twist_received_;
+	ros::Time last_remote_beat_;
 
 	ros::NodeHandle nh_;
 
+	// callback from subscribers
 	ros::Subscriber remote_sub_;
 	ros::Subscriber state_sub_;
 	ros::Subscriber twist_sub_;
