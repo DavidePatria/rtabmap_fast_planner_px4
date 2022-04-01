@@ -122,7 +122,6 @@ void setPosGoal(mavros_msgs::PositionTarget &goal, geometry_msgs::PoseStamped &p
 }
 
 
-
 int main(int argc, char **argv)
 {
 	ROS_INFO("about to start, get ready!");
@@ -159,7 +158,8 @@ int main(int argc, char **argv)
 	letItDoItsThing = ros::Time().now();
 
 	// wait for FCU connection
-	while(ros::ok() && !current_state.connected){
+	while(ros::ok() && offb.is_connected()){
+		 ROS_INFO("not connected yet!");
 		ros::spinOnce();
 		rate.sleep();
 	}

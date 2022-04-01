@@ -54,6 +54,7 @@ bool OffBoarding::is_request_old() {
 		return true;
 }
 
+// check if the field mode is the custom mode desired (that is "OFFBOARD")
 bool OffBoarding::is_offboard() {
 	if(current_state_.mode == "OFFBOARD")
 		return true;
@@ -61,6 +62,7 @@ bool OffBoarding::is_offboard() {
 		return false;
 }	
 
+// field armed is a bool, so it doesn't require checking for string as before
 bool OffBoarding::is_armed() {
 	if(current_state_.armed) 
 		return true;
@@ -68,6 +70,7 @@ bool OffBoarding::is_armed() {
 		return false;
 }
 
+// same type of check as the previous one for offboard
 bool OffBoarding::is_autoland() {
 	if(current_state_.mode == "AUTO.LAND")
 		return true;
@@ -79,10 +82,18 @@ bool OffBoarding::is_autoland() {
 // the time variable is set in cmd_vel callback
 // the twist age is checked against goal stamp
 bool OffBoarding::is_twist_old() {
-	if( (current_goal_.header.stamp - last_twist_received_ > ros::Duration(1.0)) )
+	if( (current_goal.header.stamp - last_twist_received_ > ros::Duration(1.0)) )
 		return false;
 	else
 		return true;
+}
+
+// check connetion
+bool OffBoarding::is_connected() {
+	if(current_state_.connected)
+		return true;
+	else
+		return false;
 }
 
 void OffBoarding::set_beat() {
@@ -108,18 +119,18 @@ void OffBoarding::state_cb_(const mavros_msgs::State::ConstPtr& msg) {
 void OffBoarding::twist_cb_(const geometry_msgs::Twist::ConstPtr& msg) {
 	// If beat is fresh publish the received twist, otherwise skip it.
 	if( is_beat_fresh() ){
-		if(current_goal_.type_mask == POSITION_CONTROL)
+		if(current_goal.type_mask == POSITION_CONTROL)
 		{
 			ROS_INFO("Switch to velocity control");
 		}
-		current_goal_.coordinate_frame = mavros_msgs::PositionTarget::FRAME_BODY_NED;
-		current_goal_.type_mask = velocity_mask_;
-		current_goal_.velocity.x = msg->linear.x;
-		current_goal_.velocity.y = msg->linear.y;
-		current_goal_.velocity.z = velocity_mask_ == VELOCITY2D_CONTROL?0:msg->linear.z;
-		current_goal_.position.z = 1.5;
-		current_goal_.yaw_rate = msg->angular.z;
-		current_goal_.yaw_rate = msg->angular.z;
+		current_goal.coordinate_frame = mavros_msgs::PositionTarget::FRAME_BODY_NED;
+		current_goal.type_mask = velocity_mask_;
+		current_goal.velocity.x = msg->linear.x;
+		current_goal.velocity.y = msg->linear.y;
+		current_goal.velocity.z = velocity_mask_ == VELOCITY2D_CONTROL?0:msg->linear.z;
+		current_goal.position.z = 1.5;
+		current_goal.yaw_rate = msg->angular.z;
+		current_goal.yaw_rate = msg->angular.z;
 		last_twist_received_ = ros::Time::now();
 	}
 }

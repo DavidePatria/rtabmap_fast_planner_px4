@@ -27,6 +27,7 @@ public:
 	bool is_armed();
 	bool is_autoland();
 	bool is_twist_old();
+	bool is_connected();
 
 	void set_beat();
 	void set_request_time();
