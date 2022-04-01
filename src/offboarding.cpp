@@ -11,11 +11,11 @@ OffBoarding::OffBoarding():nh_("") {
 	// short queue. to 1. might cause problems bu the topic type allows it
 	remote_sub_ = nh_.subscribe("/remote/beat", 1,
 						   &OffBoarding::remote_cb_, this);
-	state_sub_ = nh_.subscribe("mavros/state", 10,
+	state_sub_ = nh_.subscribe("/mavros/state", 10,
 						   &OffBoarding::state_cb_, this);
-	twist_sub_ = nh_.subscribe("/box_bot/imu/data3", 10,
+	twist_sub_ = nh_.subscribe("/cmd_vel", 10,
 						   &OffBoarding::remote_cb_, this);
-	joy_sub_ = nh_.subscribe("/box_bot/imu/data3", 10,
+	joy_sub_ = nh_.subscribe("/joy", 10,
 						   &OffBoarding::joy_cb_, this);
 	
 	local_pos_pub = nh_.advertise<mavros_msgs::PositionTarget>
@@ -23,7 +23,7 @@ OffBoarding::OffBoarding():nh_("") {
 	vision_pos_pub = nh_.advertise<geometry_msgs::PoseStamped>
 	("mavros/vision_pose/pose", 1);
 	
-	// ROS_INFO("Init Finished");
+	ROS_INFO("Init Finished");
 }
 
 OffBoarding::~OffBoarding() { ros::shutdown(); }

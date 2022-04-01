@@ -4,6 +4,9 @@
  * Stack and tested in Gazebo SITL
  */
 
+#include "offboarding.h"
+
+
 #include "ros/subscriber.h"
 #include "ros/time.h"
 #include "std_msgs/Empty.h"
@@ -54,46 +57,46 @@ mavros_msgs::State current_state;
 // CALLABACK FUNCTIONS
 
 
-void state_cb(const mavros_msgs::State::ConstPtr& msg){
-	current_state = *msg;
-}
-
-void twist_cb(const geometry_msgs::Twist::ConstPtr& msg){
-	// If beat is fresh publish the received twist, otherwise skip it.
-	if( (ros::Time().now() - lastRemoteBeat).toSec() < 1.0){
-		if(current_goal.type_mask == POSITION_CONTROL)
-		{
-			ROS_INFO("Switch to velocity control");
-		}
-		current_goal.coordinate_frame = mavros_msgs::PositionTarget::FRAME_BODY_NED;
-		current_goal.type_mask = velocity_mask;
-		current_goal.velocity.x = msg->linear.x;
-		current_goal.velocity.y = msg->linear.y;
-		current_goal.velocity.z = velocity_mask == VELOCITY2D_CONTROL?0:msg->linear.z;
-		current_goal.position.z = 1.5;
-		current_goal.yaw_rate = msg->angular.z;
-		current_goal.yaw_rate = msg->angular.z;
-		lastTwistReceived = ros::Time::now();
-	}
-}
-
-void joy_cb(const sensor_msgs::Joy::ConstPtr& msg){
-	if(msg->buttons[1] == 1) {
-		a_prem = true;
-		ROS_INFO("a is pressed");
-	}
-
-	if(msg->buttons[5] == 1)
-		// When holding right trigger, accept velocity in Z
-		velocity_mask = VELOCITY_CONTROL;
-	else
-		velocity_mask = VELOCITY2D_CONTROL;
-}
-
-void remote_cb(const std_msgs::Empty::ConstPtr& msg) {
-	// update time for last beat
-	lastRemoteBeat = ros::Time().now();
-}
+// void state_cb(const mavros_msgs::State::ConstPtr& msg){
+// 	current_state = *msg;
+// }
+//
+// void twist_cb(const geometry_msgs::Twist::ConstPtr& msg){
+// 	// If beat is fresh publish the received twist, otherwise skip it.
+// 	if( (ros::Time().now() - lastRemoteBeat).toSec() < 1.0){
+// 		if(current_goal.type_mask == POSITION_CONTROL)
+// 		{
+// 			ROS_INFO("Switch to velocity control");
+// 		}
+// 		current_goal.coordinate_frame = mavros_msgs::PositionTarget::FRAME_BODY_NED;
+// 		current_goal.type_mask = velocity_mask;
+// 		current_goal.velocity.x = msg->linear.x;
+// 		current_goal.velocity.y = msg->linear.y;
+// 		current_goal.velocity.z = velocity_mask == VELOCITY2D_CONTROL?0:msg->linear.z;
+// 		current_goal.position.z = 1.5;
+// 		current_goal.yaw_rate = msg->angular.z;
+// 		current_goal.yaw_rate = msg->angular.z;
+// 		lastTwistReceived = ros::Time::now();
+// 	}
+// }
+//
+// void joy_cb(const sensor_msgs::Joy::ConstPtr& msg){
+// 	if(msg->buttons[1] == 1) {
+// 		a_prem = true;
+// 		ROS_INFO("a is pressed");
+// 	}
+//
+// 	if(msg->buttons[5] == 1)
+// 		// When holding right trigger, accept velocity in Z
+// 		velocity_mask = VELOCITY_CONTROL;
+// 	else
+// 		velocity_mask = VELOCITY2D_CONTROL;
+// }
+//
+// void remote_cb(const std_msgs::Empty::ConstPtr& msg) {
+// 	// update time for last beat
+// 	lastRemoteBeat = ros::Time().now();
+// }
 
 //==============================================================================
 // ANTI-CLUTTER FUNCTIONS
@@ -125,15 +128,14 @@ int main(int argc, char **argv)
 	ros::NodeHandle nh;
 
 	// ros::ServiceClient client = nh.serviceClient<rtabmap_drone_example::MakeTakeoff>
-
-	ros::Subscriber remote_pub = nh.subscribe<std_msgs::Empty>
-	("/remote_beat", 1, remote_cb);
-	ros::Subscriber state_sub = nh.subscribe<mavros_msgs::State>
-	("mavros/state", 10, state_cb);
-	ros::Subscriber twist_sub = nh.subscribe<geometry_msgs::Twist>
-	("/cmd_vel", 1, twist_cb);
-	ros::Subscriber joy_sub = nh.subscribe<sensor_msgs::Joy>
-	("/joy", 1, joy_cb);
+	// ros::Subscriber remote_pub = nh.subscribe<std_msgs::Empty>
+	// ("/remote_beat", 1, remote_cb);
+	// ros::Subscriber state_sub = nh.subscribe<mavros_msgs::State>
+	// ("mavros/state", 10, state_cb);
+	// ros::Subscriber twist_sub = nh.subscribe<geometry_msgs::Twist>
+	// ("/cmd_vel", 1, twist_cb);
+	// ros::Subscriber joy_sub = nh.subscribe<sensor_msgs::Joy>
+	// ("/joy", 1, joy_cb);
 
 	ros::Publisher local_pos_pub = nh.advertise<mavros_msgs::PositionTarget>
 	("mavros/setpoint_raw/local", 1);
@@ -146,6 +148,8 @@ int main(int argc, char **argv)
 	("mavros/cmd/command");
 	ros::ServiceClient set_mode_client = nh.serviceClient<mavros_msgs::SetMode>
 	("mavros/set_mode");
+	
+	OffBoarding offboarding;
 
 
 	//the setpoint publishing rate MUST be faster than 2Hz
@@ -227,7 +231,8 @@ int main(int argc, char **argv)
 
 	//send a few setpoints before starting
 	for(int i = 100; ros::ok() && i > 0; --i){
-		local_pos_pub.publish(current_goal);
+		offboarding.local_pos_pub.publish(current_goal);
+		// local_pos_pub.publish(current_goal);
 		ros::spinOnce();
 		rate.sleep();
 	}
@@ -269,7 +274,7 @@ int main(int argc, char **argv)
 			updatePose(current_pose, visionPoseTf);
 		}
 		else {
-			if( ros::Time().now() - lastRemoteBeat < ros::Duration(1) )	{
+			if( offboarding.is_beat_fresh() )	{
 				donotprint = false;
 				if( current_state.mode != "OFFBOARD" &&
 						(ros::Time::now() - last_request > ros::Duration(5.0))){
