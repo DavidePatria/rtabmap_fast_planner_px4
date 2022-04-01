@@ -150,8 +150,6 @@ int main(int argc, char **argv)
 	("mavros/set_mode");
 	
 	OffBoarding offboarding;
-
-
 	//the setpoint publishing rate MUST be faster than 2Hz
 	// this is 50, way faster
 	ros::Rate rate(50.0);
@@ -184,7 +182,7 @@ int main(int argc, char **argv)
 	disarm_cmd.request.command = 400;
 	//disarm_cmd.request.param2 = 21196; // Kill no check landed
 
-	ros::Time last_request = ros::Time::now();
+	// ros::Time last_request = ros::Time::now();
 	lastTwistReceived = ros::Time::now();
 
 	tf::TransformListener listener;
@@ -268,7 +266,7 @@ int main(int argc, char **argv)
 		}
 
 		// if(current_state.mode == "AUTO.LAND" && wasFlying == true)
-		if(current_state.mode == "AUTO.LAND" && !a_prem ) {
+		if( offboarding.is_autoland() && !a_prem ) {
 			tf::StampedTransform visionPoseTf;
 			ROS_INFO("Drone is in autolanding mode, skipping");
 			updatePose(current_pose, visionPoseTf);
@@ -276,18 +274,18 @@ int main(int argc, char **argv)
 		else {
 			if( offboarding.is_beat_fresh() )	{
 				donotprint = false;
-				if( current_state.mode != "OFFBOARD" &&
-						(ros::Time::now() - last_request > ros::Duration(5.0))){
+				if( offboarding.is_offboard() &&
+						offboarding.is_request_old()){
 					if( set_mode_client.call(offb_set_mode) &&
 							offb_set_mode.response.mode_sent){
 						ROS_INFO("Offboard enabled");
 						ROS_INFO("Vehicle arming... (5 seconds)");
 					}
-					last_request = ros::Time::now();
+					offboarding.set_request_time();
 				} else {
 					if( !current_state.armed &&
 							!(current_goal.velocity.z < -0.4 && current_goal.yaw_rate < -0.4) && // left joystick down-right
-							(ros::Time::now() - last_request > ros::Duration(5.0))){
+							( offboarding.is_request_old() )){
 						if( arming_client.call(arm_cmd) &&
 								arm_cmd.response.success){
 							ROS_INFO("Vehicle armed");
@@ -297,12 +295,12 @@ int main(int argc, char **argv)
 									current_goal.position.z,
 									current_goal.yaw);
 						}
-						last_request = ros::Time::now();
+						offboarding.set_request_time();
 						//attempt to set the variable, might not be the right spot
 						wasFlying = true;
 					}
 					else if(current_goal.velocity.z < -0.4 && current_goal.yaw_rate < -0.4 && // left joystick down-right
-							(ros::Time::now() - last_request > ros::Duration(5.0))){
+							( offboarding.is_request_old() )){
 						if( command_client.call(disarm_cmd) &&
 								disarm_cmd.response.success){
 							ROS_INFO("Vehicle disarmed");
@@ -312,13 +310,13 @@ int main(int argc, char **argv)
 						{
 							ROS_INFO("Disarming failed! Still in flight?");
 						}
-						last_request = ros::Time::now();
+						offboarding.set_request_time();
 					}
 				}
 
 				current_goal.header.stamp = ros::Time::now();
 
-				if(current_goal.header.stamp.toSec() - lastTwistReceived.toSec() > 1 and current_goal.type_mask != POSITION_CONTROL)
+				if( offboarding.is_twist_old() and current_goal.type_mask != POSITION_CONTROL)
 				{
 					//switch to position mode with last position if twist is not received for more than 1 sec
 
@@ -334,10 +332,12 @@ int main(int argc, char **argv)
 
 				current_pose.header.stamp = current_goal.header.stamp;
 				local_pos_pub.publish(current_goal);
+				offboarding.local_pos_pub.publish(current_goal);
 
 				// Vision pose should be published at a steady
 				// frame rate so that EKF from px4 stays stable
-				vision_pos_pub.publish(current_pose);
+				// vision_pos_pub.publish(current_pose);
+				offboarding.vision_pos_pub.publish(current_pose);
 			}
 			// supposedly this else is if((ros::Time()::now() - lastRemoteBeat).toSec()>1.0)
 			// so if the message is too old
@@ -355,7 +355,7 @@ int main(int argc, char **argv)
 
 				current_goal.header.stamp = ros::Time::now();
 
-				if(current_goal.header.stamp.toSec() - lastTwistReceived.toSec() > 1 and current_goal.type_mask != POSITION_CONTROL)
+				if( offboarding.is_twist_old() && current_goal.type_mask != POSITION_CONTROL)
 				{
 					//switch to position mode with last position if twist is not received for more than 1 sec
 
