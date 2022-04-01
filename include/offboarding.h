@@ -38,6 +38,9 @@ public:
 	ros::Publisher local_pos_pub;
 	ros::Publisher vision_pos_pub;
 
+	mavros_msgs::PositionTarget current_goal;
+	geometry_msgs::PoseStamped current_pose;
+
 private:
 
 	unsigned short velocity_mask_ = VELOCITY2D_CONTROL;
@@ -47,7 +50,6 @@ private:
 	bool donotprint_ = false;
 	bool a_prem_;
 
-	mavros_msgs::PositionTarget current_goal_;
 	mavros_msgs::State current_state_;
 
 	ros::Time last_request_;

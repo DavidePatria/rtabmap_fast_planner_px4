@@ -17,7 +17,7 @@ OffBoarding::OffBoarding():nh_("") {
 	state_sub_ = nh_.subscribe("/mavros/state", 10,
 						   &OffBoarding::state_cb_, this);
 	twist_sub_ = nh_.subscribe("/cmd_vel", 10,
-						   &OffBoarding::remote_cb_, this);
+						   &OffBoarding::twist_cb_, this);
 	joy_sub_ = nh_.subscribe("/joy", 10,
 						   &OffBoarding::joy_cb_, this);
 	
@@ -25,6 +25,9 @@ OffBoarding::OffBoarding():nh_("") {
 	("mavros/setpoint_raw/local", 1);
 	vision_pos_pub = nh_.advertise<geometry_msgs::PoseStamped>
 	("mavros/vision_pose/pose", 1);
+
+	// initialize here, imitating the orignal programme
+	last_twist_received_ = ros::Time().now();
 	
 	ROS_INFO("Init Finished");
 }
@@ -89,6 +92,7 @@ void OffBoarding::set_beat() {
 void OffBoarding::set_request_time() {
 	last_request_ = ros::Time().now();
 }
+
 
 // !!!!
 // void OffBoarding::updatePose()

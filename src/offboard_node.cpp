@@ -6,6 +6,7 @@
 
 #include "offboarding.h"
 
+#include <ros/ros.h>
 
 #include "ros/subscriber.h"
 #include "ros/time.h"
@@ -124,6 +125,7 @@ void setPosGoal(mavros_msgs::PositionTarget &goal, geometry_msgs::PoseStamped &p
 
 int main(int argc, char **argv)
 {
+	ROS_INFO("about to start, get ready!");
 	ros::init(argc, argv, "offboard_node");
 	ros::NodeHandle nh;
 
@@ -149,7 +151,7 @@ int main(int argc, char **argv)
 	ros::ServiceClient set_mode_client = nh.serviceClient<mavros_msgs::SetMode>
 	("mavros/set_mode");
 	
-	OffBoarding offboarding;
+	OffBoarding offb;
 	//the setpoint publishing rate MUST be faster than 2Hz
 	// this is 50, way faster
 	ros::Rate rate(50.0);
@@ -183,7 +185,7 @@ int main(int argc, char **argv)
 	//disarm_cmd.request.param2 = 21196; // Kill no check landed
 
 	// ros::Time last_request = ros::Time::now();
-	lastTwistReceived = ros::Time::now();
+	// lastTwistReceived = ros::Time::now();
 
 	tf::TransformListener listener;
 
@@ -227,16 +229,17 @@ int main(int argc, char **argv)
 	// 	return -1;
 	// }
 
+	ROS_INFO("about to send setpoints");
 	//send a few setpoints before starting
 	for(int i = 100; ros::ok() && i > 0; --i){
-		offboarding.local_pos_pub.publish(current_goal);
+		offb.local_pos_pub.publish(current_goal);
 		// local_pos_pub.publish(current_goal);
 		ros::spinOnce();
 		rate.sleep();
 	}
 
-	geometry_msgs::PoseStamped current_pose;
-	current_pose.header.frame_id = "map";
+	// geometry_msgs::PoseStamped offboarding.current_pose;
+	offb.current_pose.header.frame_id = "map";
 
 	ROS_INFO("entering while");
 
@@ -259,33 +262,33 @@ int main(int argc, char **argv)
 			listener.lookupTransform("/map", "/base_link", ros::Time(0), visionPoseTf);
 
 			//update currentPose
-			updatePose(current_pose, visionPoseTf);
+			updatePose(offb.current_pose, visionPoseTf);
 		}
 		catch (tf::TransformException & ex){
 			ROS_ERROR("%s",ex.what());
 		}
 
 		// if(current_state.mode == "AUTO.LAND" && wasFlying == true)
-		if( offboarding.is_autoland() && !a_prem ) {
+		if( offb.is_autoland() && !a_prem ) {
 			tf::StampedTransform visionPoseTf;
 			ROS_INFO("Drone is in autolanding mode, skipping");
-			updatePose(current_pose, visionPoseTf);
+			updatePose(offb.current_pose, visionPoseTf);
 		}
 		else {
-			if( offboarding.is_beat_fresh() )	{
+			if( offb.is_beat_fresh() )	{
 				donotprint = false;
-				if( offboarding.is_offboard() &&
-						offboarding.is_request_old()){
+				if( offb.is_offboard() &&
+						offb.is_request_old()){
 					if( set_mode_client.call(offb_set_mode) &&
 							offb_set_mode.response.mode_sent){
 						ROS_INFO("Offboard enabled");
 						ROS_INFO("Vehicle arming... (5 seconds)");
 					}
-					offboarding.set_request_time();
+					offb.set_request_time();
 				} else {
 					if( !current_state.armed &&
 							!(current_goal.velocity.z < -0.4 && current_goal.yaw_rate < -0.4) && // left joystick down-right
-							( offboarding.is_request_old() )){
+							( offb.is_request_old() )){
 						if( arming_client.call(arm_cmd) &&
 								arm_cmd.response.success){
 							ROS_INFO("Vehicle armed");
@@ -295,12 +298,12 @@ int main(int argc, char **argv)
 									current_goal.position.z,
 									current_goal.yaw);
 						}
-						offboarding.set_request_time();
+						offb.set_request_time();
 						//attempt to set the variable, might not be the right spot
 						wasFlying = true;
 					}
 					else if(current_goal.velocity.z < -0.4 && current_goal.yaw_rate < -0.4 && // left joystick down-right
-							( offboarding.is_request_old() )){
+							( offb.is_request_old() )){
 						if( command_client.call(disarm_cmd) &&
 								disarm_cmd.response.success){
 							ROS_INFO("Vehicle disarmed");
@@ -310,34 +313,34 @@ int main(int argc, char **argv)
 						{
 							ROS_INFO("Disarming failed! Still in flight?");
 						}
-						offboarding.set_request_time();
+						offb.set_request_time();
 					}
 				}
 
 				current_goal.header.stamp = ros::Time::now();
 
-				if( offboarding.is_twist_old() and current_goal.type_mask != POSITION_CONTROL)
+				if( offb.is_twist_old() and current_goal.type_mask != POSITION_CONTROL)
 				{
 					//switch to position mode with last position if twist is not received for more than 1 sec
 
-					setPosGoal( current_goal, current_pose);
+					setPosGoal( current_goal, offb.current_pose);
 
 					tfScalar yaw, pitch, roll;
-					tf::Matrix3x3 mat(tf::Quaternion(current_pose.pose.orientation.x, current_pose.pose.orientation.y, current_pose.pose.orientation.z, current_pose.pose.orientation.w));
+					tf::Matrix3x3 mat(tf::Quaternion(offb.current_pose.pose.orientation.x, offb.current_pose.pose.orientation.y, offb.current_pose.pose.orientation.z, offb.current_pose.pose.orientation.w));
 					mat.getEulerYPR(yaw, pitch, roll);
 					current_goal.yaw = yaw;
 					ROS_INFO("Switch to position control (x=%f, y=%f, z=%f, yaw=%f)",
 							current_goal.position.x, current_goal.position.y, current_goal.position.z, current_goal.yaw);
 				}
 
-				current_pose.header.stamp = current_goal.header.stamp;
+				offb.current_pose.header.stamp = current_goal.header.stamp;
 				local_pos_pub.publish(current_goal);
-				offboarding.local_pos_pub.publish(current_goal);
+				offb.local_pos_pub.publish(current_goal);
 
 				// Vision pose should be published at a steady
 				// frame rate so that EKF from px4 stays stable
-				// vision_pos_pub.publish(current_pose);
-				offboarding.vision_pos_pub.publish(current_pose);
+				// vision_pos_pub.publish(offboarding.current_pose);
+				offb.vision_pos_pub.publish(offb.current_pose);
 			}
 			// supposedly this else is if((ros::Time()::now() - lastRemoteBeat).toSec()>1.0)
 			// so if the message is too old
@@ -355,31 +358,31 @@ int main(int argc, char **argv)
 
 				current_goal.header.stamp = ros::Time::now();
 
-				if( offboarding.is_twist_old() && current_goal.type_mask != POSITION_CONTROL)
+				if( offb.is_twist_old() && current_goal.type_mask != POSITION_CONTROL)
 				{
 					//switch to position mode with last position if twist is not received for more than 1 sec
 
 					current_goal.coordinate_frame = mavros_msgs::PositionTarget::FRAME_LOCAL_NED;
 					current_goal.type_mask = POSITION_CONTROL;
-					current_goal.position.x = current_pose.pose.position.x;
-					current_goal.position.y = current_pose.pose.position.y;
+					current_goal.position.x = offb.current_pose.pose.position.x;
+					current_goal.position.y = offb.current_pose.pose.position.y;
 					current_goal.position.z = 1.5;
-					current_goal.yaw = current_pose.pose.orientation.z;
+					current_goal.yaw = offb.current_pose.pose.orientation.z;
 
 					tfScalar yaw, pitch, roll;
-					tf::Matrix3x3 mat(tf::Quaternion(current_pose.pose.orientation.x, current_pose.pose.orientation.y, current_pose.pose.orientation.z, current_pose.pose.orientation.w));
+					tf::Matrix3x3 mat(tf::Quaternion(offb.current_pose.pose.orientation.x, offb.current_pose.pose.orientation.y, offb.current_pose.pose.orientation.z, offb.current_pose.pose.orientation.w));
 					mat.getEulerYPR(yaw, pitch, roll);
 					current_goal.yaw = yaw;
 					ROS_INFO("Switch to position control (x=%f, y=%f, z=%f, yaw=%f)",
 							current_goal.position.x, current_goal.position.y, current_goal.position.z, current_goal.yaw);
 				}
 
-				current_pose.header.stamp = current_goal.header.stamp;
+				offb.current_pose.header.stamp = current_goal.header.stamp;
 				local_pos_pub.publish(current_goal);
 
 				// Vision pose should be published at a steady
 				// frame rate so that EKF from px4 stays stable
-				vision_pos_pub.publish(current_pose);
+				vision_pos_pub.publish(offb.current_pose);
 			}
 		}
 
