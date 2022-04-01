@@ -154,6 +154,7 @@ int main(int argc, char **argv)
 	("mavros/setpoint_raw/local", 1);
 	ros::Publisher vision_pos_pub = nh.advertise<geometry_msgs::PoseStamped>
 	("mavros/vision_pose/pose", 1);
+
 	ros::ServiceClient arming_client = nh.serviceClient<mavros_msgs::CommandBool>
 	("mavros/cmd/arming");
 	ros::ServiceClient command_client = nh.serviceClient<mavros_msgs::CommandLong>
