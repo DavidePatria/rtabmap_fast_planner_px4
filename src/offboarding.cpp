@@ -3,6 +3,7 @@
 
 #include "ros/init.h"
 #include <offboarding.h>
+#include <ostream>
 #include <string>
 #include <iostream>
 // #include "ros/time.h"
@@ -10,7 +11,7 @@
 // initiate subscribers in constructor
 OffBoarding::OffBoarding():nh_("") {
 
-	ROS_INFO("Class instantiatied. Creatind subscribers");
+	ROS_INFO("Class instantiatied. Creating subscribers");
 	// short queue. to 1. might cause problems bu the topic type allows it
 	remote_sub_ = nh_.subscribe("/remote/beat", 1,
 						   &OffBoarding::remote_cb_, this);
@@ -64,10 +65,14 @@ bool OffBoarding::is_offboard() {
 
 // field armed is a bool, so it doesn't require checking for string as before
 bool OffBoarding::is_armed() {
-	if(current_state_.armed) 
-		return true;
-	else
-		return false;
+	ROS_INFO("Is connected: %s", current_state_.armed ? "true":"false");
+	// direct return of state value
+	return current_state_.armed;
+
+	// if(current_state_.armed) 
+	// 	return true;
+	// else
+	// 	return false;
 }
 
 // same type of check as the previous one for offboard
@@ -82,18 +87,29 @@ bool OffBoarding::is_autoland() {
 // the time variable is set in cmd_vel callback
 // the twist age is checked against goal stamp
 bool OffBoarding::is_twist_old() {
-	if( (current_goal.header.stamp - last_twist_received_ > ros::Duration(1.0)) )
-		return false;
-	else
-		return true;
+	bool condition =(current_goal.header.stamp - last_twist_received_ > ros::Duration(1.0));
+	ROS_INFO("Is twist old: %s", condition ? "true":"false" );
+	return condition;
+
+	// shorthand return withtout printing
+	// return current_state_.connected ? true : false;
+
+	// if( (current_goal.header.stamp - last_twist_received_ > ros::Duration(1.0)) )
+	// 	return false;
+	// else
+	// 	return true;
 }
 
 // check connetion
 bool OffBoarding::is_connected() {
-	if(current_state_.connected)
-		return true;
-	else
-		return false;
+	ROS_INFO("Is connected: %s", current_state_.connected ? "true":"false");
+	// direct return of state value
+	return current_state_.connected;
+	// return current_state_.connected ? true : false;
+	// if(current_state_.connected)
+	// 	return true;
+	// else
+	// 	return false;
 }
 
 void OffBoarding::set_beat() {
@@ -113,6 +129,7 @@ void OffBoarding::set_request_time() {
 // callbacks
 void OffBoarding::state_cb_(const mavros_msgs::State::ConstPtr& msg) {
 	current_state_ = *msg;
+	// std::cout << "mode is: " << msg->mode << std::endl;
 }
 
 
@@ -153,5 +170,6 @@ void OffBoarding::remote_cb_(const std_msgs::Empty::ConstPtr& msg) {
 	// lastRemoteBeat_ = ros::Time().now();
 	// set beat value through method
 	set_beat();
+	last_remote_beat_ = ros::Time().now();
 }
 
