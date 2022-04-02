@@ -32,6 +32,8 @@ public:
 	void set_beat();
 	void set_request_time();
 
+	// tf::TransformListener listener;
+
 
 	void updatePose(geometry_msgs::PoseStamped &pose, const tf::StampedTransform &vision);
 	void setPosGoal(mavros_msgs::PositionTarget &goal, geometry_msgs::PoseStamped &pose );
@@ -54,7 +56,7 @@ private:
 	mavros_msgs::State current_state_;
 
 	ros::Time last_request_;
-	ros::Time let_it_do_its_thing_;
+	// ros::Time let_it_do_its_thing_;
 	ros::Time last_twist_received_;
 	ros::Time last_remote_beat_;
 

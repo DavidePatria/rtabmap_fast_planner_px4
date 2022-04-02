@@ -40,7 +40,7 @@ unsigned short velocity_mask = VELOCITY2D_CONTROL;
 // for the first time the programme is launched, because later the drone being
 // in AUTO.LAND can solely mean that a manual activation has been done
 bool wasFlying = false;
-ros::Time letItDoItsThing;
+// ros::Time letItDoItsThing;
 
 mavros_msgs::PositionTarget current_goal;
 ros::Time lastTwistReceived;
@@ -140,8 +140,8 @@ int main(int argc, char **argv)
 
 	ros::Publisher local_pos_pub = nh.advertise<mavros_msgs::PositionTarget>
 	("mavros/setpoint_raw/local", 1);
-	ros::Publisher vision_pos_pub = nh.advertise<geometry_msgs::PoseStamped>
-	("mavros/vision_pose/pose", 1);
+	// ros::Publisher vision_pos_pub = nh.advertise<geometry_msgs::PoseStamped>
+	// ("mavros/vision_pose/pose", 1);
 
 	ros::ServiceClient arming_client = nh.serviceClient<mavros_msgs::CommandBool>
 	("mavros/cmd/arming");
@@ -155,11 +155,11 @@ int main(int argc, char **argv)
 	// this is 50, way faster
 	ros::Rate rate(50.0);
 	// set to the starting time before trying to change modes
-	letItDoItsThing = ros::Time().now();
+	// letItDoItsThing = ros::Time().now();
 
 	// wait for FCU connection
-	while(ros::ok() && offb.is_connected()){
-		 ROS_INFO("not connected yet!");
+	while(ros::ok() && !offb.is_connected()){
+		ROS_INFO("not connected yet!");
 		ros::spinOnce();
 		rate.sleep();
 	}
@@ -286,7 +286,7 @@ int main(int argc, char **argv)
 					}
 					offb.set_request_time();
 				} else {
-					if( !current_state.armed &&
+					if( !offb.is_armed() &&
 							!(current_goal.velocity.z < -0.4 && current_goal.yaw_rate < -0.4) && // left joystick down-right
 							( offb.is_request_old() )){
 						if( arming_client.call(arm_cmd) &&
@@ -334,7 +334,7 @@ int main(int argc, char **argv)
 				}
 
 				offb.current_pose.header.stamp = current_goal.header.stamp;
-				local_pos_pub.publish(current_goal);
+				// local_pos_pub.publish(current_goal);
 				offb.local_pos_pub.publish(current_goal);
 
 				// Vision pose should be published at a steady
@@ -378,11 +378,11 @@ int main(int argc, char **argv)
 				}
 
 				offb.current_pose.header.stamp = current_goal.header.stamp;
-				local_pos_pub.publish(current_goal);
+				offb.local_pos_pub.publish(current_goal);
 
 				// Vision pose should be published at a steady
 				// frame rate so that EKF from px4 stays stable
-				vision_pos_pub.publish(offb.current_pose);
+				offb.vision_pos_pub.publish(offb.current_pose);
 			}
 		}
 
