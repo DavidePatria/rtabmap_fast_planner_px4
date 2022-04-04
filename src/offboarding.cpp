@@ -29,6 +29,8 @@ OffBoarding::OffBoarding():nh_("") {
 
 	// initialize here, imitating the orignal programme
 	last_twist_received_ = ros::Time().now();
+
+	set_request_time();
 	
 	ROS_INFO("Init Finished");
 }
@@ -48,18 +50,21 @@ bool OffBoarding::is_beat_fresh() {
 	
 // check if last request is at least n seconds old
 bool OffBoarding::is_request_old() {
-	bool cond = (ros::Time::now() - last_request_) < ros::Duration(5.0);
+	bool cond = (ros::Time::now() - last_request_) > ros::Duration(5.0);
+	// ROS_INFO("request is old = %s", cond ? "true":"false" );
 	return cond;
 }
 
 // check if the field mode is the custom mode desired (that is "OFFBOARD")
 bool OffBoarding::is_offboard() {
-	return current_state_.mode == "OFFBOARD";
+	bool cond = current_state_.mode == "OFFBOARD";
+	// ROS_INFO("mode is offboard = %s", cond ? "true":"false" );
+	return cond;
 }	
 
 // field armed is a bool, so it doesn't require checking for string as before
 bool OffBoarding::is_armed() {
-	ROS_INFO("Is armed: %s", current_state_.armed ? "true":"false");
+	// ROS_INFO("Is armed: %s", current_state_.armed ? "true":"false");
 	// direct return of state value
 	return current_state_.armed;
 }
@@ -85,12 +90,13 @@ bool OffBoarding::is_twist_old() {
 
 // check connetion
 bool OffBoarding::is_connected() {
-	ROS_INFO("Is connected: %s", current_state_.connected ? "true":"false");
+	// ROS_INFO("Is connected: %s", current_state_.connected ? "true":"false");
 	// direct return of state value
 	return current_state_.connected;
 }
 
 void OffBoarding::set_request_time() {
+	// ROS_INFO("setted request time");
 	last_request_ = ros::Time().now();
 }
 

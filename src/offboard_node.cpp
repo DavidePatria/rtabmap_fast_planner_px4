@@ -281,7 +281,7 @@ int main(int argc, char **argv)
 		else {
 			if( offb.is_beat_fresh() )	{
 				donotprint = false;
-				if( offb.is_offboard() &&
+				if( !offb.is_offboard() &&
 						offb.is_request_old()){
 					if( set_mode_client.call(offb_set_mode) &&
 							offb_set_mode.response.mode_sent){
@@ -325,7 +325,7 @@ int main(int argc, char **argv)
 
 				// note about this condition: it could seem strange checking on the header just after the
 				// line that sets it but if the joystick is moved the goals are not published hence the check on the timestamp.
-				if( offb.is_twist_old() and current_goal.type_mask != POSITION_CONTROL)
+				if( offb.is_twist_old() && current_goal.type_mask != POSITION_CONTROL)
 				{
 					//switch to position mode with last position if twist is not received for more than 1 sec
 
