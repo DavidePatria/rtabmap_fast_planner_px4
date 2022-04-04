@@ -42,7 +42,7 @@ unsigned short velocity_mask = VELOCITY2D_CONTROL;
 bool wasFlying = false;
 // ros::Time letItDoItsThing;
 
-mavros_msgs::PositionTarget current_goal;
+// mavros_msgs::PositionTarget current_goal;
 ros::Time lastTwistReceived;
 // keep track of beat from remote computer
 ros::Time lastRemoteBeat;
@@ -50,7 +50,7 @@ ros::Time lastRemoteBeat;
 bool donotprint = false;
 
 //botton pressed? used to change state of the drone
-bool a_prem;
+// bool a_prem_;
 
 //used for reorganisation  to multi-file format
 mavros_msgs::State current_state;
@@ -83,7 +83,7 @@ mavros_msgs::State current_state;
 //
 // void joy_cb(const sensor_msgs::Joy::ConstPtr& msg){
 // 	if(msg->buttons[1] == 1) {
-// 		a_prem = true;
+// 		a_prem_ = true;
 // 		ROS_INFO("a is pressed");
 // 	}
 //
@@ -208,24 +208,24 @@ int main(int argc, char **argv)
 		listener.lookupTransform("/map", "/base_link", ros::Time(0), visionPoseTf);
 
 		//update currentPose
-		current_goal.coordinate_frame = mavros_msgs::PositionTarget::FRAME_LOCAL_NED;
-		current_goal.type_mask = POSITION_CONTROL;
-		current_goal.position.x = visionPoseTf.getOrigin().x();
-		current_goal.position.y = visionPoseTf.getOrigin().y();
-		current_goal.position.z = 1.5;
-		current_goal.yaw = tf::getYaw(visionPoseTf.getRotation());
-		current_goal.velocity.x = 0;
-		current_goal.velocity.y = 0;
-		current_goal.velocity.z = 0;
-		current_goal.yaw_rate = 0;
-		current_goal.acceleration_or_force.x = 0;
-		current_goal.acceleration_or_force.y = 0;
-		current_goal.acceleration_or_force.z = 0;
+		offb.current_goal.coordinate_frame = mavros_msgs::PositionTarget::FRAME_LOCAL_NED;
+		offb.current_goal.type_mask = POSITION_CONTROL;
+		offb.current_goal.position.x = visionPoseTf.getOrigin().x();
+		offb.current_goal.position.y = visionPoseTf.getOrigin().y();
+		offb.current_goal.position.z = 1.5;
+		offb.current_goal.yaw = tf::getYaw(visionPoseTf.getRotation());
+		offb.current_goal.velocity.x = 0;
+		offb.current_goal.velocity.y = 0;
+		offb.current_goal.velocity.z = 0;
+		offb.current_goal.yaw_rate = 0;
+		offb.current_goal.acceleration_or_force.x = 0;
+		offb.current_goal.acceleration_or_force.y = 0;
+		offb.current_goal.acceleration_or_force.z = 0;
 		ROS_INFO("Initial position=(%f,%f,%f) yaw=%f",
-				current_goal.position.x,
-				current_goal.position.y,
+				offb.current_goal.position.x,
+				offb.current_goal.position.y,
 				visionPoseTf.getOrigin().z(),
-				current_goal.yaw);
+				offb.current_goal.yaw);
 	}
 	catch (tf::TransformException & ex){
 		ROS_ERROR("%s",ex.what());
@@ -236,7 +236,7 @@ int main(int argc, char **argv)
 	ROS_INFO("about to send setpoints");
 	//send a few setpoints before starting
 	for(int i = 100; ros::ok() && i > 0; --i){
-		offb.local_pos_pub.publish(current_goal);
+		offb.local_pos_pub.publish(offb.current_goal);
 		// local_pos_pub.publish(current_goal);
 		ros::spinOnce();
 		rate.sleep();
@@ -249,7 +249,7 @@ int main(int argc, char **argv)
 
 	while(ros::ok()){
 
-		if(a_prem) {
+		if(offb.is_a_pressed()) {
 			if( set_mode_client.call(offb_set_mode) &&
 					offb_set_mode.response.mode_sent){
 				ROS_INFO("Offboard enabled");
@@ -273,43 +273,42 @@ int main(int argc, char **argv)
 		}
 
 		// if(current_state.mode == "AUTO.LAND" && wasFlying == true)
-		if( offb.is_autoland() && !a_prem ) {
+		if( offb.is_autoland() && !offb.is_a_pressed() ) {
 			tf::StampedTransform visionPoseTf;
 			ROS_INFO("Drone is in autolanding mode, skipping");
 			updatePose(offb.current_pose, visionPoseTf);
 		}
 		else {
-			if( offb.is_beat_fresh() )	{
+			if(offb.is_beat_fresh())	{
 				donotprint = false;
-				if( !offb.is_offboard() &&
-						offb.is_request_old()){
-					if( set_mode_client.call(offb_set_mode) &&
-							offb_set_mode.response.mode_sent){
+				if(!offb.is_offboard() && offb.is_request_old()){
+					if( set_mode_client.call(offb_set_mode) && offb_set_mode.response.mode_sent){
 						ROS_INFO("Offboard enabled");
 						ROS_INFO("Vehicle arming... (5 seconds)");
 					}
 					offb.set_request_time();
 				} else {
-					if( !offb.is_armed() &&
-							!(current_goal.velocity.z < -0.4 && current_goal.yaw_rate < -0.4) && // left joystick down-right
-							( offb.is_request_old() )){
-						if( arming_client.call(arm_cmd) &&
-								arm_cmd.response.success){
+					if(!offb.is_armed() &&
+						!(offb.current_goal.velocity.z < -0.4 &&
+						offb.current_goal.yaw_rate < -0.4) &&
+						// left joystick down-right
+						( offb.is_request_old() )){
+						if( arming_client.call(arm_cmd) && arm_cmd.response.success){
 							ROS_INFO("Vehicle armed");
 							ROS_INFO("Take off at 1.5 meter... to position=(%f,%f,%f) yaw=%f",
-									current_goal.position.x,
-									current_goal.position.y,
-									current_goal.position.z,
-									current_goal.yaw);
+									offb.current_goal.position.x,
+									offb.current_goal.position.y,
+									offb.current_goal.position.z,
+									offb.current_goal.yaw);
 						}
 						offb.set_request_time();
 						//attempt to set the variable, might not be the right spot
 						wasFlying = true;
 					}
-					else if(current_goal.velocity.z < -0.4 && current_goal.yaw_rate < -0.4 && // left joystick down-right
-							( offb.is_request_old() )){
-						if( command_client.call(disarm_cmd) &&
-								disarm_cmd.response.success){
+					else if(offb.current_goal.velocity.z < -0.4 &&
+						offb.current_goal.yaw_rate < -0.4 && // left joystick down-right
+						( offb.is_request_old() )){
+						if( command_client.call(disarm_cmd) && disarm_cmd.response.success){
 							ROS_INFO("Vehicle disarmed");
 							ros::shutdown();
 						}
@@ -321,27 +320,27 @@ int main(int argc, char **argv)
 					}
 				}
 
-				current_goal.header.stamp = ros::Time::now();
+				offb.current_goal.header.stamp = ros::Time::now();
 
 				// note about this condition: it could seem strange checking on the header just after the
 				// line that sets it but if the joystick is moved the goals are not published hence the check on the timestamp.
-				if( offb.is_twist_old() && current_goal.type_mask != POSITION_CONTROL)
+				if( offb.is_twist_old() && offb.current_goal.type_mask != POSITION_CONTROL)
 				{
 					//switch to position mode with last position if twist is not received for more than 1 sec
 
-					setPosGoal( current_goal, offb.current_pose);
+					setPosGoal( offb.current_goal, offb.current_pose);
 
 					tfScalar yaw, pitch, roll;
 					tf::Matrix3x3 mat(tf::Quaternion(offb.current_pose.pose.orientation.x, offb.current_pose.pose.orientation.y, offb.current_pose.pose.orientation.z, offb.current_pose.pose.orientation.w));
 					mat.getEulerYPR(yaw, pitch, roll);
-					current_goal.yaw = yaw;
+					offb.current_goal.yaw = yaw;
 					ROS_INFO("Switch to position control (x=%f, y=%f, z=%f, yaw=%f)",
-							current_goal.position.x, current_goal.position.y, current_goal.position.z, current_goal.yaw);
+							offb.current_goal.position.x, offb.current_goal.position.y, offb.current_goal.position.z, offb.current_goal.yaw);
 				}
 
-				offb.current_pose.header.stamp = current_goal.header.stamp;
+				offb.current_pose.header.stamp = offb.current_goal.header.stamp;
 				// local_pos_pub.publish(current_goal);
-				offb.local_pos_pub.publish(current_goal);
+				offb.local_pos_pub.publish(offb.current_goal);
 
 				// Vision pose should be published at a steady
 				// frame rate so that EKF from px4 stays stable
@@ -362,29 +361,29 @@ int main(int argc, char **argv)
 				}
 
 
-				current_goal.header.stamp = ros::Time::now();
+				offb.current_goal.header.stamp = ros::Time::now();
 
-				if( offb.is_twist_old() && current_goal.type_mask != POSITION_CONTROL)
+				if( offb.is_twist_old() && offb.current_goal.type_mask != POSITION_CONTROL)
 				{
 					//switch to position mode with last position if twist is not received for more than 1 sec
 
-					current_goal.coordinate_frame = mavros_msgs::PositionTarget::FRAME_LOCAL_NED;
-					current_goal.type_mask = POSITION_CONTROL;
-					current_goal.position.x = offb.current_pose.pose.position.x;
-					current_goal.position.y = offb.current_pose.pose.position.y;
-					current_goal.position.z = 1.5;
-					current_goal.yaw = offb.current_pose.pose.orientation.z;
+					offb.current_goal.coordinate_frame = mavros_msgs::PositionTarget::FRAME_LOCAL_NED;
+					offb.current_goal.type_mask = POSITION_CONTROL;
+					offb.current_goal.position.x = offb.current_pose.pose.position.x;
+					offb.current_goal.position.y = offb.current_pose.pose.position.y;
+					offb.current_goal.position.z = 1.5;
+					offb.current_goal.yaw = offb.current_pose.pose.orientation.z;
 
 					tfScalar yaw, pitch, roll;
 					tf::Matrix3x3 mat(tf::Quaternion(offb.current_pose.pose.orientation.x, offb.current_pose.pose.orientation.y, offb.current_pose.pose.orientation.z, offb.current_pose.pose.orientation.w));
 					mat.getEulerYPR(yaw, pitch, roll);
-					current_goal.yaw = yaw;
+					offb.current_goal.yaw = yaw;
 					ROS_INFO("Switch to position control (x=%f, y=%f, z=%f, yaw=%f)",
-							current_goal.position.x, current_goal.position.y, current_goal.position.z, current_goal.yaw);
+							offb.current_goal.position.x, offb.current_goal.position.y, offb.current_goal.position.z, offb.current_goal.yaw);
 				}
 
-				offb.current_pose.header.stamp = current_goal.header.stamp;
-				offb.local_pos_pub.publish(current_goal);
+				offb.current_pose.header.stamp = offb.current_goal.header.stamp;
+				offb.local_pos_pub.publish(offb.current_goal);
 
 				// Vision pose should be published at a steady
 				// frame rate so that EKF from px4 stays stable

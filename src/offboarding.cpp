@@ -75,7 +75,7 @@ bool OffBoarding::is_autoland() {
 }	
 
 bool OffBoarding::is_a_pressed() {
-	ROS_INFO("a is pressed");
+	// ROS_INFO("a is pressed");
 	return a_prem_;
 }
 
@@ -128,15 +128,22 @@ void OffBoarding::twist_cb_(const geometry_msgs::Twist::ConstPtr& msg) {
 		current_goal.position.z = 1.5;
 		current_goal.yaw_rate = msg->angular.z;
 		current_goal.yaw_rate = msg->angular.z;
+
 		last_twist_received_ = ros::Time::now();
 	}
 }
 
 void OffBoarding::joy_cb_(const sensor_msgs::Joy::ConstPtr& msg) {
-	if(msg->buttons[1] == 1) {
+	if(msg->buttons[0] == 1) {
 		a_prem_ = true;
 		ROS_INFO("a is pressed");
 	}
+
+	if(msg->buttons[1] == 1) {
+		a_prem_ = false;
+		ROS_INFO("a is pressed");
+	}
+
 
 	if(msg->buttons[5] == 1)
 		// When holding right trigger, accept velocity in Z
