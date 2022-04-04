@@ -199,35 +199,39 @@ int main(int argc, char **argv)
 	}
 
 
-	// try{
-	// 	tf::StampedTransform visionPoseTf;
-	//
-	// 	listener.lookupTransform("/map", "/base_link", ros::Time(0), visionPoseTf);
-	//
-	// 	//update currentPose
-	// 	current_goal.coordinate_frame = mavros_msgs::PositionTarget::FRAME_LOCAL_NED;
-	// 	current_goal.type_mask = POSITION_CONTROL;
-	// 	current_goal.position.x = visionPoseTf.getOrigin().x();
-	// 	current_goal.position.y = visionPoseTf.getOrigin().y();
-	// 	current_goal.position.z = 1.5;
-	// 	current_goal.yaw = tf::getYaw(visionPoseTf.getRotation());
-	// 	current_goal.velocity.x = 0;
-	// 	current_goal.velocity.y = 0;
-	// 	current_goal.velocity.z = 0;
-	// 	current_goal.yaw_rate = 0;
-	// 	current_goal.acceleration_or_force.x = 0;
-	// 	current_goal.acceleration_or_force.y = 0;
-	// 	current_goal.acceleration_or_force.z = 0;
-	// 	ROS_INFO("Initial position=(%f,%f,%f) yaw=%f",
-	// 			current_goal.position.x,
-	// 			current_goal.position.y,
-	// 			visionPoseTf.getOrigin().z(),
-	// 			current_goal.yaw);
-	// }
-	// catch (tf::TransformException & ex){
-	// 	ROS_ERROR("%s",ex.what());
-	// 	return -1;
-	// }
+	// ==================o===========================================================
+	// for now manually set the goal to arm the drone.
+	// setting it to the right values is required for it to work properly
+	try{
+		tf::StampedTransform visionPoseTf;
+
+		listener.lookupTransform("/map", "/base_link", ros::Time(0), visionPoseTf);
+
+		//update currentPose
+		current_goal.coordinate_frame = mavros_msgs::PositionTarget::FRAME_LOCAL_NED;
+		current_goal.type_mask = POSITION_CONTROL;
+		current_goal.position.x = visionPoseTf.getOrigin().x();
+		current_goal.position.y = visionPoseTf.getOrigin().y();
+		current_goal.position.z = 1.5;
+		current_goal.yaw = tf::getYaw(visionPoseTf.getRotation());
+		current_goal.velocity.x = 0;
+		current_goal.velocity.y = 0;
+		current_goal.velocity.z = 0;
+		current_goal.yaw_rate = 0;
+		current_goal.acceleration_or_force.x = 0;
+		current_goal.acceleration_or_force.y = 0;
+		current_goal.acceleration_or_force.z = 0;
+		ROS_INFO("Initial position=(%f,%f,%f) yaw=%f",
+				current_goal.position.x,
+				current_goal.position.y,
+				visionPoseTf.getOrigin().z(),
+				current_goal.yaw);
+	}
+	catch (tf::TransformException & ex){
+		ROS_ERROR("%s",ex.what());
+		return -1;
+	}
+	// =============================================================================
 
 	ROS_INFO("about to send setpoints");
 	//send a few setpoints before starting
@@ -319,6 +323,8 @@ int main(int argc, char **argv)
 
 				current_goal.header.stamp = ros::Time::now();
 
+				// note about this condition: it could seem strange checking on the header just after the
+				// line that sets it but if the joystick is moved the goals are not published hence the check on the timestamp.
 				if( offb.is_twist_old() and current_goal.type_mask != POSITION_CONTROL)
 				{
 					//switch to position mode with last position if twist is not received for more than 1 sec
