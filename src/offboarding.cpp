@@ -13,7 +13,7 @@ OffBoarding::OffBoarding():nh_("") {
 
 	ROS_INFO("Class instantiatied. Creating subscribers");
 	// short queue. to 1. might cause problems bu the topic type allows it
-	remote_sub_ = nh_.subscribe("/remote/beat", 1,
+	remote_sub_ = nh_.subscribe("/remote_beat", 1,
 						   &OffBoarding::remote_cb_, this);
 	state_sub_ = nh_.subscribe("/mavros/state", 10,
 						   &OffBoarding::state_cb_, this);
@@ -41,26 +41,20 @@ OffBoarding::~OffBoarding() { ros::shutdown(); }
 // simply check is the private attribute representing last time the callback
 // triggered from remote computer has happened
 bool OffBoarding::is_beat_fresh() {
-	if( (ros::Time().now() - last_remote_beat_) < ros::Duration(1.0))
-		return true;
-	else
-		return false;
+	bool cond = (ros::Time().now() - last_remote_beat_) < ros::Duration(1.0);
+	// ROS_INFO("Beat is fresh as fish");
+	return cond;
 }
 	
 // check if last request is at least n seconds old
 bool OffBoarding::is_request_old() {
-	if( (ros::Time::now() - last_request_ < ros::Duration(5.0)) )
-		return false;
-	else
-		return true;
+	bool cond = (ros::Time::now() - last_request_) < ros::Duration(5.0);
+	return cond;
 }
 
 // check if the field mode is the custom mode desired (that is "OFFBOARD")
 bool OffBoarding::is_offboard() {
-	if(current_state_.mode == "OFFBOARD")
-		return true;
-	else 
-		return false;
+	return current_state_.mode == "OFFBOARD";
 }	
 
 // field armed is a bool, so it doesn't require checking for string as before
@@ -68,36 +62,25 @@ bool OffBoarding::is_armed() {
 	ROS_INFO("Is connected: %s", current_state_.armed ? "true":"false");
 	// direct return of state value
 	return current_state_.armed;
-
-	// if(current_state_.armed) 
-	// 	return true;
-	// else
-	// 	return false;
 }
 
 // same type of check as the previous one for offboard
 bool OffBoarding::is_autoland() {
-	if(current_state_.mode == "AUTO.LAND")
-		return true;
-	else 
-		return false;
+	return current_state_.mode == "AUTO.LAND";
 }	
+
+bool OffBoarding::is_a_pressed() {
+	ROS_INFO("a is pressed");
+	return a_prem_;
+}
 
 // if last twist if old switch to position control.
 // the time variable is set in cmd_vel callback
 // the twist age is checked against goal stamp
 bool OffBoarding::is_twist_old() {
-	bool condition =(current_goal.header.stamp - last_twist_received_ > ros::Duration(1.0));
-	ROS_INFO("Is twist old: %s", condition ? "true":"false" );
+	bool condition = (current_goal.header.stamp - last_twist_received_ > ros::Duration(1.0));
+	// ROS_INFO("Is twist old: %s", condition ? "true":"false" );
 	return condition;
-
-	// shorthand return withtout printing
-	// return current_state_.connected ? true : false;
-
-	// if( (current_goal.header.stamp - last_twist_received_ > ros::Duration(1.0)) )
-	// 	return false;
-	// else
-	// 	return true;
 }
 
 // check connetion
@@ -105,11 +88,6 @@ bool OffBoarding::is_connected() {
 	ROS_INFO("Is connected: %s", current_state_.connected ? "true":"false");
 	// direct return of state value
 	return current_state_.connected;
-	// return current_state_.connected ? true : false;
-	// if(current_state_.connected)
-	// 	return true;
-	// else
-	// 	return false;
 }
 
 void OffBoarding::set_request_time() {

@@ -26,13 +26,13 @@ public:
 	bool is_offboard();
 	bool is_armed();
 	bool is_autoland();
+	bool is_a_pressed();
 	bool is_twist_old();
 	bool is_connected();
 
 	void set_request_time();
 
 	// tf::TransformListener listener;
-
 
 	void updatePose(geometry_msgs::PoseStamped &pose, const tf::StampedTransform &vision);
 	void setPosGoal(mavros_msgs::PositionTarget &goal, geometry_msgs::PoseStamped &pose );
