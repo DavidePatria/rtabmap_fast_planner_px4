@@ -59,7 +59,7 @@ bool OffBoarding::is_offboard() {
 
 // field armed is a bool, so it doesn't require checking for string as before
 bool OffBoarding::is_armed() {
-	ROS_INFO("Is connected: %s", current_state_.armed ? "true":"false");
+	ROS_INFO("Is armed: %s", current_state_.armed ? "true":"false");
 	// direct return of state value
 	return current_state_.armed;
 }
