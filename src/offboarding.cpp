@@ -112,10 +112,6 @@ bool OffBoarding::is_connected() {
 	// 	return false;
 }
 
-void OffBoarding::set_beat() {
-	last_remote_beat_ = ros::Time().now();
-}
-
 void OffBoarding::set_request_time() {
 	last_request_ = ros::Time().now();
 }
@@ -166,10 +162,8 @@ void OffBoarding::joy_cb_(const sensor_msgs::Joy::ConstPtr& msg) {
 }
 
 void OffBoarding::remote_cb_(const std_msgs::Empty::ConstPtr& msg) {
-	// update time for last beat
-	// lastRemoteBeat_ = ros::Time().now();
-	// set beat value through method
-	set_beat();
+	// update last beat time 
+	// ROS_INFO("beat updated after %f secs, or whatever", last_remote_beat_.toSec());
 	last_remote_beat_ = ros::Time().now();
 }
 

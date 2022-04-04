@@ -29,7 +29,6 @@ public:
 	bool is_twist_old();
 	bool is_connected();
 
-	void set_beat();
 	void set_request_time();
 
 	// tf::TransformListener listener;
