@@ -14,18 +14,25 @@ OffBoarding::OffBoarding():nh_("") {
 	ROS_INFO("Class instantiatied. Creating subscribers");
 	// short queue. to 1. might cause problems bu the topic type allows it
 	remote_sub_ = nh_.subscribe("/remote_beat", 1,
-						   &OffBoarding::remote_cb_, this);
+		&OffBoarding::remote_cb_, this);
 	state_sub_ = nh_.subscribe("/mavros/state", 10,
-						   &OffBoarding::state_cb_, this);
+		&OffBoarding::state_cb_, this);
 	twist_sub_ = nh_.subscribe("/cmd_vel", 10,
-						   &OffBoarding::twist_cb_, this);
+		&OffBoarding::twist_cb_, this);
 	joy_sub_ = nh_.subscribe("/joy", 10,
-						   &OffBoarding::joy_cb_, this);
+		&OffBoarding::joy_cb_, this);
 	
+	arming_client = nh_.serviceClient<mavros_msgs::CommandBool>
+		("mavros/cmd/arming");
+	command_client = nh_.serviceClient<mavros_msgs::CommandLong>
+		("mavros/cmd/command");
+	set_mode_client = nh_.serviceClient<mavros_msgs::SetMode>
+		("mavros/set_mode");
+
 	local_pos_pub = nh_.advertise<mavros_msgs::PositionTarget>
-	("mavros/setpoint_raw/local", 1);
+		("mavros/setpoint_raw/local", 1);
 	vision_pos_pub = nh_.advertise<geometry_msgs::PoseStamped>
-	("mavros/vision_pose/pose", 1);
+		("mavros/vision_pose/pose", 1);
 
 	// initialize here, imitating the orignal programme
 	last_twist_received_ = ros::Time().now();
@@ -119,7 +126,7 @@ void OffBoarding::set_goal_vel_zero() {
 
 // set the internal current_pose variable to the transform gotten usin an
 // external method
-void OffBoarding::updatePose(const tf::StampedTransform &transf) {
+void OffBoarding::update_pose(const tf::StampedTransform &transf) {
 	current_pose.pose.position.x    = transf.getOrigin().x();
 	current_pose.pose.position.y    = transf.getOrigin().y();
 	current_pose.pose.position.z    = transf.getOrigin().z();
@@ -127,6 +134,15 @@ void OffBoarding::updatePose(const tf::StampedTransform &transf) {
 	current_pose.pose.orientation.y = transf.getRotation().y();
 	current_pose.pose.orientation.z = transf.getRotation().z();
 	current_pose.pose.orientation.w = transf.getRotation().w();
+}
+
+// get a position and set the internal goal variable to the supplied pose
+void OffBoarding::set_pos_goal(geometry_msgs::PoseStamped &pose) {
+	current_goal.coordinate_frame = mavros_msgs::PositionTarget::FRAME_LOCAL_NED;
+	current_goal.type_mask = POSITION_CONTROL;
+	current_goal.position.x = pose.pose.position.x;
+	current_goal.position.y = pose.pose.position.y;
+	current_goal.position.z = 1.5;
 }
 
 

@@ -7,6 +7,10 @@
 
 #include <mavros_msgs/State.h>
 #include <mavros_msgs/PositionTarget.h>
+// for mavros services
+#include <mavros_msgs/CommandBool.h>
+#include <mavros_msgs/CommandLong.h>
+#include <mavros_msgs/SetMode.h>
 
 #include <std_msgs/Empty.h>
 #include <geometry_msgs/Twist.h>
@@ -32,18 +36,16 @@ public:
 	bool is_joystick_down();
 
 	void set_request_time();
-
 	void set_goal_vel_zero();
-
-	// tf::TransformListener listener;
-
-
-	void updatePose(const tf::StampedTransform &transf);
-	// void setPosGoal(mavros_msgs::PositionTarget &goal, geometry_msgs::PoseStamped &pose );
-	void setPosGoal(mavros_msgs::PositionTarget &goal, geometry_msgs::PoseStamped &pose );
+	void update_pose(const tf::StampedTransform &transf);
+	void set_pos_goal(geometry_msgs::PoseStamped &pose );
 
 	ros::Publisher local_pos_pub;
 	ros::Publisher vision_pos_pub;
+
+	ros::ServiceClient arming_client;
+	ros::ServiceClient command_client;
+	ros::ServiceClient set_mode_client;
 
 	mavros_msgs::PositionTarget current_goal;
 	geometry_msgs::PoseStamped current_pose;
@@ -59,8 +61,8 @@ private:
 
 	mavros_msgs::State current_state_;
 
-	ros::Time last_request_;
 	// ros::Time let_it_do_its_thing_;
+	ros::Time last_request_;
 	ros::Time last_twist_received_;
 	ros::Time last_remote_beat_;
 

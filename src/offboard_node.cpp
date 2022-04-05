@@ -32,63 +32,22 @@
 #define POSITION_CONTROL 0b101111111000
 unsigned short velocity_mask = VELOCITY2D_CONTROL;
 
-//==============================================================================
-// GLOBAL VARIBALES
-
-bool wasFlying = false;
-
 bool donotprint = false;
-
-//==============================================================================
-// ANTI-CLUTTER FUNCTIONS
-//
-
-// void updatePose(geometry_msgs::PoseStamped &pose, const tf::StampedTransform &vision) {
-// 	pose.pose.position.x    = vision.getOrigin().x();
-// 	pose.pose.position.y    = vision.getOrigin().y();
-// 	pose.pose.position.z    = vision.getOrigin().z();
-// 	pose.pose.orientation.x = vision.getRotation().x();
-// 	pose.pose.orientation.y = vision.getRotation().y();
-// 	pose.pose.orientation.z = vision.getRotation().z();
-// 	pose.pose.orientation.w = vision.getRotation().w();
-// }
-
-void setPosGoal(mavros_msgs::PositionTarget &goal, geometry_msgs::PoseStamped &pose ) {
-	goal.coordinate_frame = mavros_msgs::PositionTarget::FRAME_LOCAL_NED;
-	goal.type_mask = POSITION_CONTROL;
-	goal.position.x = pose.pose.position.x;
-	goal.position.y = pose.pose.position.y;
-	goal.position.z = 1.5;
-}
-
 
 int main(int argc, char **argv)
 {
 	ROS_INFO("about to start, get ready!");
 	ros::init(argc, argv, "offboard_node");
-	ros::NodeHandle nh;
+	// ros::NodeHandle nh;
 
 	// ros::ServiceClient client = nh.serviceClient<rtabmap_drone_example::MakeTakeoff>
-	// ros::Subscriber remote_pub = nh.subscribe<std_msgs::Empty>
-	// ("/remote_beat", 1, remote_cb);
-	// ros::Subscriber state_sub = nh.subscribe<mavros_msgs::State>
-	// ("mavros/state", 10, state_cb);
-	// ros::Subscriber twist_sub = nh.subscribe<geometry_msgs::Twist>
-	// ("/cmd_vel", 1, twist_cb);
-	// ros::Subscriber joy_sub = nh.subscribe<sensor_msgs::Joy>
-	// ("/joy", 1, joy_cb);
 
-	ros::Publisher local_pos_pub = nh.advertise<mavros_msgs::PositionTarget>
-	("mavros/setpoint_raw/local", 1);
-	// ros::Publisher vision_pos_pub = nh.advertise<geometry_msgs::PoseStamped>
-	// ("mavros/vision_pose/pose", 1);
-
-	ros::ServiceClient arming_client = nh.serviceClient<mavros_msgs::CommandBool>
-	("mavros/cmd/arming");
-	ros::ServiceClient command_client = nh.serviceClient<mavros_msgs::CommandLong>
-	("mavros/cmd/command");
-	ros::ServiceClient set_mode_client = nh.serviceClient<mavros_msgs::SetMode>
-	("mavros/set_mode");
+	// ros::ServiceClient arming_client = nh.serviceClient<mavros_msgs::CommandBool>
+	// ("mavros/cmd/arming");
+	// ros::ServiceClient command_client = nh.serviceClient<mavros_msgs::CommandLong>
+	// ("mavros/cmd/command");
+	// ros::ServiceClient set_mode_client = nh.serviceClient<mavros_msgs::SetMode>
+	// ("mavros/set_mode");
 	
 	OffBoarding offb;
 	//the setpoint publishing rate MUST be faster than 2Hz
@@ -154,14 +113,9 @@ int main(int argc, char **argv)
 		offb.current_goal.position.y = visionPoseTf.getOrigin().y();
 		offb.current_goal.position.z = 1.5;
 		offb.current_goal.yaw = tf::getYaw(visionPoseTf.getRotation());
+
 		offb.set_goal_vel_zero();
-		// offb.current_goal.velocity.x = 0;
-		// offb.current_goal.velocity.y = 0;
-		// offb.current_goal.velocity.z = 0;
-		// offb.current_goal.yaw_rate = 0;
-		// offb.current_goal.acceleration_or_force.x = 0;
-		// offb.current_goal.acceleration_or_force.y = 0;
-		// offb.current_goal.acceleration_or_force.z = 0;
+
 		ROS_INFO("Initial position=(%f,%f,%f) yaw=%f",
 				offb.current_goal.position.x,
 				offb.current_goal.position.y,
@@ -191,7 +145,7 @@ int main(int argc, char **argv)
 	while(ros::ok()){
 
 		if(offb.is_a_pressed()) {
-			if( set_mode_client.call(offb_set_mode) &&
+			if( offb.set_mode_client.call(offb_set_mode) &&
 					offb_set_mode.response.mode_sent){
 				ROS_INFO("Offboard enabled");
 				ROS_INFO("Vehicle arming... (5 seconds)");
@@ -207,7 +161,7 @@ int main(int argc, char **argv)
 			listener.lookupTransform("/map", "/base_link", ros::Time(0), visionPoseTf);
 
 			//update currentPose
-			offb.updatePose(visionPoseTf);
+			offb.update_pose(visionPoseTf);
 		}
 		catch (tf::TransformException & ex){
 			ROS_ERROR("%s",ex.what());
@@ -217,20 +171,20 @@ int main(int argc, char **argv)
 		if(offb.is_autoland() && !offb.is_a_pressed()) {
 			tf::StampedTransform visionPoseTf;
 			ROS_INFO("Drone is in autolanding mode, skipping");
-			offb.updatePose(visionPoseTf);
+			offb.update_pose(visionPoseTf);
 		}
 		else {
 			if(offb.is_beat_fresh()) {
 				donotprint = false;
 				if(!offb.is_offboard() && offb.is_request_old()){
-					if( set_mode_client.call(offb_set_mode) && offb_set_mode.response.mode_sent){
+					if( offb.set_mode_client.call(offb_set_mode) && offb_set_mode.response.mode_sent){
 						ROS_INFO("Offboard enabled");
 						ROS_INFO("Vehicle arming... (5 seconds)");
 					}
 					offb.set_request_time();
 				} else {
 					if(!offb.is_armed() && !offb.is_joystick_down() && offb.is_request_old()){
-						if( arming_client.call(arm_cmd) && arm_cmd.response.success){
+						if( offb.arming_client.call(arm_cmd) && arm_cmd.response.success){
 							ROS_INFO("Vehicle armed");
 							ROS_INFO("Take off at 1.5 meter... to position=(%f,%f,%f) yaw=%f",
 									offb.current_goal.position.x,
@@ -240,10 +194,9 @@ int main(int argc, char **argv)
 						}
 						offb.set_request_time();
 						//attempt to set the variable, might not be the right spot
-						wasFlying = true;
 					}
 					else if(offb.is_joystick_down() && offb.is_request_old()){
-						if( command_client.call(disarm_cmd) && disarm_cmd.response.success){
+						if( offb.command_client.call(disarm_cmd) && disarm_cmd.response.success){
 							ROS_INFO("Vehicle disarmed");
 							ros::shutdown();
 						} else {
@@ -260,7 +213,7 @@ int main(int argc, char **argv)
 				if( offb.is_twist_old() && offb.current_goal.type_mask != POSITION_CONTROL) {
 					//switch to position mode with last position if twist is not received for more than 1 sec
 
-					setPosGoal( offb.current_goal, offb.current_pose);
+					offb.set_pos_goal(offb.current_pose);
 
 					tfScalar yaw, pitch, roll;
 					tf::Matrix3x3 mat(tf::Quaternion(offb.current_pose.pose.orientation.x, offb.current_pose.pose.orientation.y, offb.current_pose.pose.orientation.z, offb.current_pose.pose.orientation.w));
