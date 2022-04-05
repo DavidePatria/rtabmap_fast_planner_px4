@@ -56,7 +56,7 @@ private:
 
 	// state tracking variables
 	bool was_flying_;
-	bool donotprint_ = false;
+	bool donotprint_;
 	bool a_prem_;
 
 	mavros_msgs::State current_state_;

@@ -38,6 +38,10 @@ OffBoarding::OffBoarding():nh_("") {
 	last_twist_received_ = ros::Time().now();
 
 	set_request_time();
+
+	// initialize variables in the constructor
+	donotprint_ = false;
+	a_prem_ = false;
 	
 	ROS_INFO("Init Finished");
 }
@@ -177,12 +181,12 @@ void OffBoarding::twist_cb_(const geometry_msgs::Twist::ConstPtr& msg) {
 void OffBoarding::joy_cb_(const sensor_msgs::Joy::ConstPtr& msg) {
 	if(msg->buttons[0] == 1) {
 		a_prem_ = true;
-		ROS_INFO("a is pressed");
+		// ROS_INFO("a is pressed");
 	}
 
 	if(msg->buttons[1] == 1) {
 		a_prem_ = false;
-		ROS_INFO("a is pressed");
+		// ROS_INFO("a is pressed");
 	}
 
 

@@ -146,9 +146,21 @@ int main(int argc, char **argv)
 
 		if(offb.is_a_pressed()) {
 			if( offb.set_mode_client.call(offb_set_mode) &&
-					offb_set_mode.response.mode_sent){
+					offb_set_mode.response.mode_sent &&
+					offb.is_request_old() ) {
 				ROS_INFO("Offboard enabled");
 				ROS_INFO("Vehicle arming... (5 seconds)");
+				offb.set_request_time();
+
+				// messing around with retake-off because it doesn't work.
+				// try sending points again
+				for(int i = 100; ros::ok() && i > 0; --i){
+					offb.current_goal.position.z = 1.5;
+					offb.local_pos_pub.publish(offb.current_goal);
+					// local_pos_pub.publish(current_goal);
+					ros::spinOnce();
+					rate.sleep();
+				}
 			}
 		}
 
