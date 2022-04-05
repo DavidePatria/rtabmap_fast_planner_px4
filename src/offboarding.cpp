@@ -95,6 +95,8 @@ bool OffBoarding::is_connected() {
 	return current_state_.connected;
 }
 
+// check if left joystick is down right
+// this joystick moves the drone by setting the goal)
 bool OffBoarding::is_joystick_down() {
 	bool cond = current_goal.velocity.z < -0.4 && current_goal.yaw_rate < -0.4;
 	return cond;

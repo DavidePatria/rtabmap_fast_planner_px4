@@ -288,11 +288,7 @@ int main(int argc, char **argv)
 					}
 					offb.set_request_time();
 				} else {
-					if(!offb.is_armed() &&
-						!(offb.current_goal.velocity.z < -0.4 &&
-						offb.current_goal.yaw_rate < -0.4) &&
-						// left joystick down-right
-						( offb.is_request_old() )){
+					if(!offb.is_armed() && !offb.is_joystick_down() && offb.is_request_old()){
 						if( arming_client.call(arm_cmd) && arm_cmd.response.success){
 							ROS_INFO("Vehicle armed");
 							ROS_INFO("Take off at 1.5 meter... to position=(%f,%f,%f) yaw=%f",
@@ -305,9 +301,7 @@ int main(int argc, char **argv)
 						//attempt to set the variable, might not be the right spot
 						wasFlying = true;
 					}
-					else if(offb.current_goal.velocity.z < -0.4 &&
-						offb.current_goal.yaw_rate < -0.4 && // left joystick down-right
-						( offb.is_request_old() )){
+					else if(offb.is_joystick_down() && offb.is_request_old()){
 						if( command_client.call(disarm_cmd) && disarm_cmd.response.success){
 							ROS_INFO("Vehicle disarmed");
 							ros::shutdown();
