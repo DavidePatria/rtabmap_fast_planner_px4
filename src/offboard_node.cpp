@@ -35,69 +35,8 @@ unsigned short velocity_mask = VELOCITY2D_CONTROL;
 //==============================================================================
 // GLOBAL VARIBALES
 
-// Variable to check is the drone has flew at least once.
-// Since the drone begins in AUTO.LAND this is used to let it switch to OFFBOARD
-// for the first time the programme is launched, because later the drone being
-// in AUTO.LAND can solely mean that a manual activation has been done
 bool wasFlying = false;
-// ros::Time letItDoItsThing;
-
-// mavros_msgs::PositionTarget current_goal;
-ros::Time lastTwistReceived;
-// keep track of beat from remote computer
-ros::Time lastRemoteBeat;
-
 bool donotprint = false;
-
-//botton pressed? used to change state of the drone
-// bool a_prem_;
-
-//used for reorganisation  to multi-file format
-mavros_msgs::State current_state;
-//==============================================================================
-// CALLABACK FUNCTIONS
-
-
-// void state_cb(const mavros_msgs::State::ConstPtr& msg){
-// 	current_state = *msg;
-// }
-//
-// void twist_cb(const geometry_msgs::Twist::ConstPtr& msg){
-// 	// If beat is fresh publish the received twist, otherwise skip it.
-// 	if( (ros::Time().now() - lastRemoteBeat).toSec() < 1.0){
-// 		if(current_goal.type_mask == POSITION_CONTROL)
-// 		{
-// 			ROS_INFO("Switch to velocity control");
-// 		}
-// 		current_goal.coordinate_frame = mavros_msgs::PositionTarget::FRAME_BODY_NED;
-// 		current_goal.type_mask = velocity_mask;
-// 		current_goal.velocity.x = msg->linear.x;
-// 		current_goal.velocity.y = msg->linear.y;
-// 		current_goal.velocity.z = velocity_mask == VELOCITY2D_CONTROL?0:msg->linear.z;
-// 		current_goal.position.z = 1.5;
-// 		current_goal.yaw_rate = msg->angular.z;
-// 		current_goal.yaw_rate = msg->angular.z;
-// 		lastTwistReceived = ros::Time::now();
-// 	}
-// }
-//
-// void joy_cb(const sensor_msgs::Joy::ConstPtr& msg){
-// 	if(msg->buttons[1] == 1) {
-// 		a_prem_ = true;
-// 		ROS_INFO("a is pressed");
-// 	}
-//
-// 	if(msg->buttons[5] == 1)
-// 		// When holding right trigger, accept velocity in Z
-// 		velocity_mask = VELOCITY_CONTROL;
-// 	else
-// 		velocity_mask = VELOCITY2D_CONTROL;
-// }
-//
-// void remote_cb(const std_msgs::Empty::ConstPtr& msg) {
-// 	// update time for last beat
-// 	lastRemoteBeat = ros::Time().now();
-// }
 
 //==============================================================================
 // ANTI-CLUTTER FUNCTIONS
@@ -279,7 +218,7 @@ int main(int argc, char **argv)
 			updatePose(offb.current_pose, visionPoseTf);
 		}
 		else {
-			if(offb.is_beat_fresh())	{
+			if(offb.is_beat_fresh()) {
 				donotprint = false;
 				if(!offb.is_offboard() && offb.is_request_old()){
 					if( set_mode_client.call(offb_set_mode) && offb_set_mode.response.mode_sent){
@@ -305,9 +244,7 @@ int main(int argc, char **argv)
 						if( command_client.call(disarm_cmd) && disarm_cmd.response.success){
 							ROS_INFO("Vehicle disarmed");
 							ros::shutdown();
-						}
-						else
-						{
+						} else {
 							ROS_INFO("Disarming failed! Still in flight?");
 						}
 						offb.set_request_time();
@@ -318,8 +255,7 @@ int main(int argc, char **argv)
 
 				// note about this condition: it could seem strange checking on the header just after the
 				// line that sets it but if the joystick is moved the goals are not published hence the check on the timestamp.
-				if( offb.is_twist_old() && offb.current_goal.type_mask != POSITION_CONTROL)
-				{
+				if( offb.is_twist_old() && offb.current_goal.type_mask != POSITION_CONTROL) {
 					//switch to position mode with last position if twist is not received for more than 1 sec
 
 					setPosGoal( offb.current_goal, offb.current_pose);
@@ -357,8 +293,7 @@ int main(int argc, char **argv)
 
 				offb.current_goal.header.stamp = ros::Time::now();
 
-				if( offb.is_twist_old() && offb.current_goal.type_mask != POSITION_CONTROL)
-				{
+				if( offb.is_twist_old() && offb.current_goal.type_mask != POSITION_CONTROL) {
 					//switch to position mode with last position if twist is not received for more than 1 sec
 
 					offb.current_goal.coordinate_frame = mavros_msgs::PositionTarget::FRAME_LOCAL_NED;
