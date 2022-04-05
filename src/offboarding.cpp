@@ -95,6 +95,11 @@ bool OffBoarding::is_connected() {
 	return current_state_.connected;
 }
 
+bool OffBoarding::is_joystick_down() {
+	bool cond = current_goal.velocity.z < -0.4 && current_goal.yaw_rate < -0.4;
+	return cond;
+}
+
 void OffBoarding::set_request_time() {
 	// ROS_INFO("setted request time");
 	last_request_ = ros::Time().now();

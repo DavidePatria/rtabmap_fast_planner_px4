@@ -29,6 +29,7 @@ public:
 	bool is_a_pressed();
 	bool is_twist_old();
 	bool is_connected();
+	bool is_joystick_down();
 
 	void set_request_time();
 
