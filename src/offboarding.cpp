@@ -107,9 +107,27 @@ void OffBoarding::set_request_time() {
 	last_request_ = ros::Time().now();
 }
 
+void OffBoarding::set_goal_vel_zero() {
+	current_goal.velocity.x = 0;
+	current_goal.velocity.y = 0;
+	current_goal.velocity.z = 0;
+	current_goal.yaw_rate = 0;
+	current_goal.acceleration_or_force.x = 0;
+	current_goal.acceleration_or_force.y = 0;
+	current_goal.acceleration_or_force.z = 0;
+}
 
-// !!!!
-// void OffBoarding::updatePose()
+// set the internal current_pose variable to the transform gotten usin an
+// external method
+void OffBoarding::updatePose(const tf::StampedTransform &transf) {
+	current_pose.pose.position.x    = transf.getOrigin().x();
+	current_pose.pose.position.y    = transf.getOrigin().y();
+	current_pose.pose.position.z    = transf.getOrigin().z();
+	current_pose.pose.orientation.x = transf.getRotation().x();
+	current_pose.pose.orientation.y = transf.getRotation().y();
+	current_pose.pose.orientation.z = transf.getRotation().z();
+	current_pose.pose.orientation.w = transf.getRotation().w();
+}
 
 
 //==============================================================================

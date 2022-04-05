@@ -36,21 +36,22 @@ unsigned short velocity_mask = VELOCITY2D_CONTROL;
 // GLOBAL VARIBALES
 
 bool wasFlying = false;
+
 bool donotprint = false;
 
 //==============================================================================
 // ANTI-CLUTTER FUNCTIONS
 //
 
-void updatePose(geometry_msgs::PoseStamped &pose, const tf::StampedTransform &vision) {
-	pose.pose.position.x    = vision.getOrigin().x();
-	pose.pose.position.y    = vision.getOrigin().y();
-	pose.pose.position.z    = vision.getOrigin().z();
-	pose.pose.orientation.x = vision.getRotation().x();
-	pose.pose.orientation.y = vision.getRotation().y();
-	pose.pose.orientation.z = vision.getRotation().z();
-	pose.pose.orientation.w = vision.getRotation().w();
-}
+// void updatePose(geometry_msgs::PoseStamped &pose, const tf::StampedTransform &vision) {
+// 	pose.pose.position.x    = vision.getOrigin().x();
+// 	pose.pose.position.y    = vision.getOrigin().y();
+// 	pose.pose.position.z    = vision.getOrigin().z();
+// 	pose.pose.orientation.x = vision.getRotation().x();
+// 	pose.pose.orientation.y = vision.getRotation().y();
+// 	pose.pose.orientation.z = vision.getRotation().z();
+// 	pose.pose.orientation.w = vision.getRotation().w();
+// }
 
 void setPosGoal(mavros_msgs::PositionTarget &goal, geometry_msgs::PoseStamped &pose ) {
 	goal.coordinate_frame = mavros_msgs::PositionTarget::FRAME_LOCAL_NED;
@@ -153,13 +154,14 @@ int main(int argc, char **argv)
 		offb.current_goal.position.y = visionPoseTf.getOrigin().y();
 		offb.current_goal.position.z = 1.5;
 		offb.current_goal.yaw = tf::getYaw(visionPoseTf.getRotation());
-		offb.current_goal.velocity.x = 0;
-		offb.current_goal.velocity.y = 0;
-		offb.current_goal.velocity.z = 0;
-		offb.current_goal.yaw_rate = 0;
-		offb.current_goal.acceleration_or_force.x = 0;
-		offb.current_goal.acceleration_or_force.y = 0;
-		offb.current_goal.acceleration_or_force.z = 0;
+		offb.set_goal_vel_zero();
+		// offb.current_goal.velocity.x = 0;
+		// offb.current_goal.velocity.y = 0;
+		// offb.current_goal.velocity.z = 0;
+		// offb.current_goal.yaw_rate = 0;
+		// offb.current_goal.acceleration_or_force.x = 0;
+		// offb.current_goal.acceleration_or_force.y = 0;
+		// offb.current_goal.acceleration_or_force.z = 0;
 		ROS_INFO("Initial position=(%f,%f,%f) yaw=%f",
 				offb.current_goal.position.x,
 				offb.current_goal.position.y,
@@ -205,17 +207,17 @@ int main(int argc, char **argv)
 			listener.lookupTransform("/map", "/base_link", ros::Time(0), visionPoseTf);
 
 			//update currentPose
-			updatePose(offb.current_pose, visionPoseTf);
+			offb.updatePose(visionPoseTf);
 		}
 		catch (tf::TransformException & ex){
 			ROS_ERROR("%s",ex.what());
 		}
 
 		// if(current_state.mode == "AUTO.LAND" && wasFlying == true)
-		if( offb.is_autoland() && !offb.is_a_pressed() ) {
+		if(offb.is_autoland() && !offb.is_a_pressed()) {
 			tf::StampedTransform visionPoseTf;
 			ROS_INFO("Drone is in autolanding mode, skipping");
-			updatePose(offb.current_pose, visionPoseTf);
+			offb.updatePose(visionPoseTf);
 		}
 		else {
 			if(offb.is_beat_fresh()) {

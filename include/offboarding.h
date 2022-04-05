@@ -33,10 +33,13 @@ public:
 
 	void set_request_time();
 
+	void set_goal_vel_zero();
+
 	// tf::TransformListener listener;
 
 
-	void updatePose(geometry_msgs::PoseStamped &pose, const tf::StampedTransform &vision);
+	void updatePose(const tf::StampedTransform &transf);
+	// void setPosGoal(mavros_msgs::PositionTarget &goal, geometry_msgs::PoseStamped &pose );
 	void setPosGoal(mavros_msgs::PositionTarget &goal, geometry_msgs::PoseStamped &pose );
 
 	ros::Publisher local_pos_pub;
