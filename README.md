@@ -5,6 +5,17 @@ Overview video (click to watch on Youtube):
 
 [![Youtube](https://i.imgur.com/UKLtD7L.gif)](https://youtu.be/A487ybS7E4E)
 
+## Important notes:
+
+Given the need to test this package in different scenarios and in the future employ a drone that isn't the default one used by gazebo simulations some changes have been made.
+
+The original version of this package spawns a drone specifically configured for rtabamap, with a projection in front of it and other additions.
+In particular the launch sources a px4 parameter file that is custom made to make the backed in simulation run smoothly.
+By changing this and copying the usual mechanism used in many other places it ensures to launch a more generic model not aimed at performances in the specific showcase but rather at simulation fidelity.
+
+For this reason some files have been moved modified to accomplish this task and spawn a regular black drone.
+
+
 ## Commands for mapping with realsense D435i
 
 From [this wiki](http://wiki.ros.org/rtabmap_ros/Tutorials/HandHeldMapping), the commands are the following:
