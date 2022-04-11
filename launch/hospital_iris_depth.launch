@@ -6,17 +6,17 @@
 	<!-- MAVROS posix SITL environment launch script -->
 	<!-- launches MAVROS, PX4 SITL, Gazebo environment, and spawns vehicle -->
 	<!-- vehicle pose -->
-	<arg name="x" default="-2"/>
-	<arg name="y" default="-0.5"/>
+	<arg name="x" default="0"/>
+	<arg name="y" default="11"/>
 	<arg name="z" default="0"/>
 	<arg name="R" default="0"/>
 	<arg name="P" default="0"/>
-	<arg name="Y" default="0"/>
+	<arg name="Y" default="-1.56"/>
 	<!-- vehicle model and world -->
 	<arg name="est" default="ekf2"/>
 	<arg name="vehicle" default="iris"/>
-	<arg name="world" default="$(find px4_tests)/worlds/small_house.world"/>
-	<arg name="sdf" default="$(find px4_tests)/models/iris_depth_camera/iris_depth_camera.sdf"/>
+	<arg name="world" default="$(find rtabmap_drone_example)/worlds/hospital.world"/>
+	<arg name="sdf" default="$(find rtabmap_drone_example)/models/iris_depth_camera/iris_depth_camera.sdf"/>
 	
 	<!-- added from px4/posix_sitl.launch -->
 	<!-- <env name="PX4_SIM_MODEL" value="$(arg vehicle)" /> -->
@@ -67,10 +67,10 @@
 	</include>
 
 	<!-- launch publisher node for camera_link transform  -->
-	<node pkg="tf2_ros" type="static_transform_publisher" name="odom_link_broadcaster" args="0 0 0 0 0 0 1 odom base_link" />
-	<node pkg="tf2_ros" type="static_transform_publisher" name="camera_link_broadcaster" args="0.1 0 0 0 0 0 1 base_link camera_link" />
+	<!-- <node pkg="tf2_ros" type="static_transform_publisher" name="odom_link_broadcaster" args="0 0 0 0 0 0 1 odom base_link" /> -->
+	<!-- <node pkg="tf2_ros" type="static_transform_publisher" name="camera_link_broadcaster" args="0.1 0 0 0 0 0 1 base_link camera_link" /> -->
 
 	<!-- transform for the frame used by the global planner -->
-	<node pkg="tf2_ros" type="static_transform_publisher" name="local_origin_broadcaster" args="0 0 0 0 0 0 1 map local_origin" />
+	<!-- <node pkg="tf2_ros" type="static_transform_publisher" name="local_origin_broadcaster" args="0 0 0 0 0 0 1 map local_origin" /> -->
 
 </launch>

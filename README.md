@@ -15,6 +15,8 @@ By changing this and copying the usual mechanism used in many other places it en
 
 For this reason some files have been moved modified to accomplish this task and spawn a regular black drone.
 
+One problem is that built-in iris model is well provided with links to camera and other apparati, this would need to be included, but it might be more time sentitive to directly setup with the holibro model.
+
 
 ## Commands for mapping with realsense D435i
 
