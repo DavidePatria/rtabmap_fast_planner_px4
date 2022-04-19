@@ -1,3 +1,17 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+
+- [rtabmap_drone_example](#rtabmap_drone_example)
+    - [Important notes:](#important-notes)
+    - [Commands for mapping with realsense D435i](#commands-for-mapping-with-realsense-d435i)
+    - [Dependencies](#dependencies)
+        - [PX4 v1.12.3](#px4-v1123)
+    - [Usage](#usage)
+    - [particular configuration](#particular-configuration)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # rtabmap_drone_example
 2D navigation example of a drone using [move_base](http://wiki.ros.org/move_base) with [mavros](http://wiki.ros.org/mavros)/[px4](https://github.com/PX4/PX4-Autopilot) and [rtabmap](wiki.ros.org/rtabmap_ros) visual SLAM. 
 
@@ -109,6 +123,14 @@ catkin_make
 
 ## Usage
 
+The original package uses a custom iris model that doesn't play nice when put in other environments other than the custom one created for the repository.
+In order to have simulations with a dry iris the launch files had to be distinguished and modified.
+Therefore the files that contain "iris“ in their name are specific to dry iris.
+
+Below procedures for both original and added simulations are described
+
+### simulations from original package
+
 ```
 roslaunch rtabmap_drone_example gazebo.launch
 roslaunch rtabmap_drone_example slam.launch
@@ -131,6 +153,11 @@ rosrun rtabmap_ros patrol.py _time:=5 Room1 Room2 Room3
 
 ![](https://raw.githubusercontent.com/matlabbe/rtabmap_drone_example/master/doc/example.jpg)
 
+### modified simulations
+
+`rviz.launch` stays the same, but `slam_iris.launch` is used instead of the other one as the topic names are different and were changed.
+
+Spawning the drones is integrated into the launch files for gazebo, so is "iris" is specified a vanilla drone is spawned instead of the custom one.
 ## particular configuration
 
 In a commit the issue relative to the configuration of `rtabmapviz` has been resolved an a `.ini` file has been added to the repo and it is passed to `rtabmap.launch` as an argument.
