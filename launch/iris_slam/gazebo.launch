@@ -1,7 +1,6 @@
 <?xml version="1.0"?>
 <launch>
     <!-- gazebo configs -->
-
     <arg name="gui" default="true"/>
     <arg name="debug" default="false"/>
     <arg name="verbose" default="false"/>
@@ -10,7 +9,7 @@
     <arg name="world_name" default="apt"/> <!-- apt, room -->
     <arg name="world" default="$(find rtabmap_drone_example)/worlds/$(arg world_name).world"/>
     <arg name="fixed_velodyne" default="false"/>
-   <arg name="vertical_velodyne" default="false"/>
+    <arg name="vertical_velodyne" default="false"/>
     <arg name="rotation_speed" default="0.785398163"/>
 
     <!-- Gazebo sim -->
@@ -24,10 +23,7 @@
     </include>
 
     <!-- Spawn drone -->
-    <include file="$(find rtabmap_drone_example)/launch/spawn_drone.launch">
+	<include file="$(find rtabmap_drone_example)/launch/iris_slam/spawn_drone.launch">
+        <arg name="yaw" value="-1.5"/>
     </include>
-
-    <include file="$(find rtabmap_drone_example)/launch/slam.launch"> </include>
-    <include file="$(find rtabmap_drone_example)/launch/rviz.launch"> </include>
-
 </launch>

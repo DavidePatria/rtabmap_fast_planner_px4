@@ -1,4 +1,5 @@
 <?xml version="1.0"?>
+<!-- hospital world and no drone at all -->
 <launch>
     <!-- gazebo configs -->
 

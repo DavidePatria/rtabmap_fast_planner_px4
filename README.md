@@ -8,6 +8,8 @@
     - [Dependencies](#dependencies)
         - [PX4 v1.12.3](#px4-v1123)
     - [Usage](#usage)
+        - [simulations from original package](#simulations-from-original-package)
+        - [modified simulations](#modified-simulations)
     - [particular configuration](#particular-configuration)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
