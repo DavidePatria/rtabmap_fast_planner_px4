@@ -38,7 +38,9 @@ public:
 	void set_request_time();
 	void set_goal_vel_zero();
 	void update_pose(const tf::StampedTransform &transf);
-	void set_pos_goal(geometry_msgs::PoseStamped &pose );
+	void set_pos_goal(geometry_msgs::PoseStamped &pose);
+	void set_autoland(bool request);
+	void go_autoland();
 
 	ros::Publisher local_pos_pub;
 	ros::Publisher vision_pos_pub;
@@ -58,6 +60,7 @@ private:
 	bool was_flying_;
 	bool donotprint_;
 	bool a_prem_;
+	bool want_to_autoland_;
 
 	mavros_msgs::State current_state_;
 

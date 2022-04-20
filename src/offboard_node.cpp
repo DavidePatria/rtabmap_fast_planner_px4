@@ -181,6 +181,7 @@ int main(int argc, char **argv)
 
 		// if(current_state.mode == "AUTO.LAND" && wasFlying == true)
 		if(offb.is_autoland() && !offb.is_a_pressed()) {
+			// insert the newly created function to lower position here
 			tf::StampedTransform visionPoseTf;
 			ROS_INFO("Drone is in autolanding mode, skipping");
 			offb.update_pose(visionPoseTf);

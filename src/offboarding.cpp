@@ -149,6 +149,21 @@ void OffBoarding::set_pos_goal(geometry_msgs::PoseStamped &pose) {
 	current_goal.position.z = 1.5;
 }
 
+// method to be used by the service to set the "mode" to autolanding
+// accepts a bool and uses it to set the "mode"
+void OffBoarding::set_autoland(bool request) {
+	if(want_to_autoland_ == request) ROS_INFO("autoland already set to %s", request ? "true":"false");
+	else want_to_autoland_ = request;
+}
+
+// lower pose and switch to autoland when close enough to the ground
+// to be used in the main loop
+void OffBoarding::go_autoland() {
+	current_pose.pose.position.x = current_pose.pose.position.x;
+	current_pose.pose.position.y = current_pose.pose.position.y;
+	current_pose.pose.position.z = 0.3;
+}
+
 
 //==============================================================================
 // callbacks
