@@ -4,8 +4,6 @@
  * Stack and tested in Gazebo SITL
  */
 
-#include "offboarding.h"
-
 #include <ros/ros.h>
 
 #include "ros/subscriber.h"
@@ -31,6 +29,11 @@
 #define VELOCITY_CONTROL 0b011111000111
 #define POSITION_CONTROL 0b101111111000
 unsigned short velocity_mask = VELOCITY2D_CONTROL;
+
+// header including class that contains the methods for flight control
+#include "offboarding.h"
+
+// #include "takeoff_custom_srv_server.cpp"
 
 bool donotprint = false;
 

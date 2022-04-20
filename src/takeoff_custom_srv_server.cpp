@@ -4,11 +4,20 @@
 #include "ros/subscriber.h"
 #include "std_msgs/Bool.h"
 
+// should this be ifdefined?
+#include "offboarding.h"
+
 class TeichingOfServis {
 	public:
-		TeichingOfServis() {
-			pub_land = nh.advertise<std_msgs::Bool>("land_stream", 1);
+		TeichingOfServis(OffBoarding &offb) {
+		// pub_land = nh.advertise<std_msgs::Bool>("land_stream", 1);
+		// instead of changing the "landing variable" through a subscriber
+		// callback it is better to pass the offboarding class to the service 
+		// so it can use the method to change the variable that sets the 
+		// autolanding procedure
+		
 		}
+
 		
 		bool send_takeoff(offboard_safety::MakeTakeoff::Request &req, offboard_safety::MakeTakeoff::Response &res) {
 			pub_land.publish(&req);
@@ -26,7 +35,8 @@ class TeichingOfServis {
 
 int main(int argc, char **argv) {
 
-	TeichingOfServis teicoff;
+	// fix constructor to get the object reference from the main
+	TeichingOfServis teicoff(&offb);
 
 	ros::init(argc, argv, "custom_takeoff");
 	ros::NodeHandle nh;
