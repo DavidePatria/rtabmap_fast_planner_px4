@@ -81,6 +81,10 @@ private:
 	void twist_cb_(const geometry_msgs::Twist::ConstPtr& msg);
 	void joy_cb_(const sensor_msgs::Joy::ConstPtr& msg);
 	void remote_cb_(const std_msgs::Empty::ConstPtr& msg);
+
+	// pointer to member function to be passed to TeichingOfServis
+	// which will be instantiated here
+	// void (*pointer)(){&this->set_autoland};
 };
 
 #endif
