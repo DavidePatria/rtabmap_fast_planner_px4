@@ -166,19 +166,36 @@ bool OffBoarding::set_offboard() {
 		ROS_INFO("already in OFFBOARD mode"); 
 		return false;
 	} else {
-		return(set_mode_client.call(offb_set_mode_) &&
-			offb_set_mode_.response.mode_sent);
+		if(set_mode_client.call(offb_set_mode_) && offb_set_mode_.response.mode_sent) {
+			ROS_INFO("Already in OFFBOARD");
+			set_request_time();
+			return true;
+		} else {
+			ROS_INFO("unable to set OFFBOARD");
+			return false;
+		}
 	}
 }
 
 // ADD CHECK ON ARMED STATE
 bool OffBoarding::set_arm() {
 	if(is_offboard()) {
-		ROS_INFO("already in ARMED"); 
+		ROS_INFO("Already ARMED"); 
 		return false;
 	} else {
-		return (arming_client.call(arm_cmd_) &&
-			arm_cmd_.response.success);
+		if(arming_client.call(arm_cmd_) && arm_cmd_.response.success) {
+			ROS_INFO("Drone ARMED");
+			ROS_INFO("Take off at 1.5 meter... to position=(%f,%f,%f) yaw=%f",
+					current_goal.position.x,
+					current_goal.position.y,
+					current_goal.position.z,
+					current_goal.yaw);
+			set_request_time();
+			return true;
+		} else {
+			ROS_INFO("unable to ARM");
+			return false;
+		}
 	}
 }
 
@@ -187,8 +204,14 @@ bool OffBoarding::set_autoland() {
 		ROS_INFO("Already in AUTO.LAND mode"); 
 		return false;
 	} else {
-		return(set_mode_client.call(autol_set_mode_) &&
-		autol_set_mode_.response.mode_sent);
+		if(set_mode_client.call(autol_set_mode_) && autol_set_mode_.response.mode_sent) {
+			ROS_INFO("AUTO.LAND enabled");
+			set_request_time();
+			return true;
+		} else {
+			ROS_INFO("unable to set AUTO.LAND");
+			return false;
+		}
 	}
 }
 

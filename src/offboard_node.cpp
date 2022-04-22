@@ -139,9 +139,7 @@ int main(int argc, char **argv)
 	while(ros::ok()){
 
 		if(offb.is_a_pressed()) {
-			if( offb.set_mode_client.call(offb_set_mode) &&
-					offb_set_mode.response.mode_sent &&
-					offb.is_request_old() ) {
+			if( offb.set_offboard() && offb.is_request_old() ) {
 				ROS_INFO("Offboard enabled");
 				ROS_INFO("Vehicle arming... (5 seconds)");
 				offb.set_request_time();
@@ -179,28 +177,16 @@ int main(int argc, char **argv)
 			tf::StampedTransform visionPoseTf;
 			ROS_INFO("Drone is in autolanding mode, skipping");
 			offb.update_pose(visionPoseTf);
+			offb.go_autoland();
 		}
 		else {
 			if(offb.is_beat_fresh()) {
 				donotprint = false;
 				if(!offb.is_offboard() && offb.is_request_old()){
-					if( offb.set_mode_client.call(offb_set_mode) && offb_set_mode.response.mode_sent){
-						ROS_INFO("Offboard enabled");
-						ROS_INFO("Vehicle arming... (5 seconds)");
-					}
-					offb.set_request_time();
+					offb.set_offboard();
 				} else {
 					if(!offb.is_armed() && !offb.is_joystick_down() && offb.is_request_old()){
-						if( offb.arming_client.call(arm_cmd) && arm_cmd.response.success){
-							ROS_INFO("Vehicle armed");
-							ROS_INFO("Take off at 1.5 meter... to position=(%f,%f,%f) yaw=%f",
-									offb.current_goal.position.x,
-									offb.current_goal.position.y,
-									offb.current_goal.position.z,
-									offb.current_goal.yaw);
-						}
-						offb.set_request_time();
-						//attempt to set the variable, might not be the right spot
+						offb.set_arm();
 					}
 					else if(offb.is_joystick_down() && offb.is_request_old()){
 						if( offb.command_client.call(disarm_cmd) && disarm_cmd.response.success){

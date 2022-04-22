@@ -18,7 +18,7 @@ TeichingOfServis::TeichingOfServis(OffBoarding *offboarding):nh_(""), point_(off
 
 
 bool TeichingOfServis::send_takeoff(offboard_safety::MakeTakeoff::Request &req, offboard_safety::MakeTakeoff::Response &res) {
-	point_->set_autoland(req.setTakeoff);
+	point_->toggle_up_down(req.setTakeoff);
 	return true;
 }
 
