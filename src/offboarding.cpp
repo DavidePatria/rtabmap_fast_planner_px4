@@ -162,13 +162,14 @@ void OffBoarding::set_pos_goal(geometry_msgs::PoseStamped &pose) {
 }
 
 bool OffBoarding::set_offboard() {
+	set_request_time();
+
 	if(is_offboard()) {
 		ROS_INFO("already in OFFBOARD mode"); 
 		return false;
 	} else {
 		if(set_mode_client.call(offb_set_mode_) && offb_set_mode_.response.mode_sent) {
 			ROS_INFO("Already in OFFBOARD");
-			set_request_time();
 			return true;
 		} else {
 			ROS_INFO("unable to set OFFBOARD");
@@ -179,6 +180,8 @@ bool OffBoarding::set_offboard() {
 
 // ADD CHECK ON ARMED STATE
 bool OffBoarding::set_arm() {
+	set_request_time();
+
 	if(is_offboard()) {
 		ROS_INFO("Already ARMED"); 
 		return false;
@@ -190,7 +193,6 @@ bool OffBoarding::set_arm() {
 					current_goal.position.y,
 					current_goal.position.z,
 					current_goal.yaw);
-			set_request_time();
 			return true;
 		} else {
 			ROS_INFO("unable to ARM");
@@ -200,13 +202,14 @@ bool OffBoarding::set_arm() {
 }
 
 bool OffBoarding::set_autoland() {
+	set_request_time();
+
 	if(is_autoland()) {
 		ROS_INFO("Already in AUTO.LAND mode"); 
 		return false;
 	} else {
 		if(set_mode_client.call(autol_set_mode_) && autol_set_mode_.response.mode_sent) {
 			ROS_INFO("AUTO.LAND enabled");
-			set_request_time();
 			return true;
 		} else {
 			ROS_INFO("unable to set AUTO.LAND");
