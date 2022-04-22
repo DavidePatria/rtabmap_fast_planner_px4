@@ -7,16 +7,16 @@
 #include "ros/subscriber.h"
 #include "std_msgs/Bool.h"
 
+class OffBoarding;
 
 class TeichingOfServis {
 	public:
-		TeichingOfServis();
-
+		TeichingOfServis(OffBoarding *offboard);
 		
 	private:
+		ros::ServiceServer service_;
+		OffBoarding *point_;
 		ros::NodeHandle nh_;
-		ros::Subscriber sub_land_;
-		ros::Publisher pub_land_;
 		bool send_takeoff(offboard_safety::MakeTakeoff::Request &req, offboard_safety::MakeTakeoff::Response &res);
 };
 

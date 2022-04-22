@@ -5,37 +5,21 @@
 #include "std_msgs/Bool.h"
 
 // should this be ifdefined?
-// #include "offboarding.h"
+#include "offboarding.h"
 
 // forward declaration instead of include. needs checking
-class OffBoarding;
+// class OffBoarding;
 
-class TeichingOfServis {
-	public:
-		TeichingOfServis(OffBoarding *offboardin):nh_("") {
-		// pub_land = nh.advertise<std_msgs::Bool>("land_stream", 1);
-		// instead of changing the "landing variable" through a subscriber
-		// callback it is better to pass the offboarding class to the service 
-		// so it can use the method to change the variable that sets the 
-		// autolanding procedure
-		
-		ros::ServiceServer service = nh_.advertiseService("custom/make_takeoff", &TeichingOfServis::send_takeoff, this);
+TeichingOfServis::TeichingOfServis(OffBoarding *offboarding):nh_(""), point_(offboarding) {
+	service_ = nh_.advertiseService("custom/make_takeoff", &TeichingOfServis::send_takeoff, this);
+	ROS_INFO("make_takeoff server has started");
+}
 
-		ROS_INFO("make_takeoff server has started");
-		ros::spin();
-		}
 
-		
-	private:
-		ros::NodeHandle nh_;
-		ros::Subscriber sub_land_;
-		ros::Publisher pub_land_;
-
-		bool send_takeoff(offboard_safety::MakeTakeoff::Request &req, offboard_safety::MakeTakeoff::Response &res) {
-			
-			return true;
-		};
-};
+bool TeichingOfServis::send_takeoff(offboard_safety::MakeTakeoff::Request &req, offboard_safety::MakeTakeoff::Response &res) {
+	point_->set_autoland(req.setTakeoff);
+	return true;
+}
 
 
 
