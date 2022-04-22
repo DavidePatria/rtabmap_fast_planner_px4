@@ -1,4 +1,5 @@
 <?xml version="1.0"?>
+<<<<<<< HEAD
 <launch>
 	<!-- this file launches small_house world and iris_depth_camera -->
 
@@ -30,4 +31,37 @@
 	<!-- gazebo model -->
 	<!-- <node name="$(anon vehicle_spawn)" pkg="gazebo_ros" type="spawn_model" output="screen" args="-sdf -file $(arg sdf) -model $(arg vehicle) -x $(arg x) -y $(arg y) -z $(arg z) -R $(arg R) -P $(arg P) -Y $(arg Y)"/> -->
 
+=======
+<!-- hospital world and no drone at all -->
+<launch>
+    <!-- gazebo configs -->
+
+    <arg name="gui" default="true"/>
+    <arg name="debug" default="false"/>
+    <arg name="verbose" default="false"/>
+    <arg name="paused" default="false"/>
+    <arg name="respawn_gazebo" default="false"/>
+    <arg name="world_name" default="hospital"/>
+    <arg name="world" default="$(find rtabmap_drone_example)/worlds/$(arg world_name).world"/>
+    <arg name="fixed_velodyne" default="false"/>
+    <arg name="vertical_velodyne" default="false"/>
+    <arg name="rotation_speed" default="0.785398163"/>
+
+    <!-- Gazebo sim -->
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <arg name="gui" value="$(arg gui)"/>
+        <arg name="world_name" value="$(arg world)"/>
+        <arg name="debug" value="$(arg debug)"/>
+        <arg name="verbose" value="$(arg verbose)"/>
+        <arg name="paused" value="$(arg paused)"/>
+        <arg name="respawn_gazebo" value="$(arg respawn_gazebo)"/>
+    </include>
+
+    <!-- Spawn drone -->
+ <!--    <include file="$(find rtabmap_drone_example)/launch/spawn_drone.launch"> -->
+	<!-- <arg name="x" default="0.0"/> -->
+	<!-- <arg name="y" default="11.4"/> -->
+	<!-- <arg name="z" default="0.0"/> -->
+ <!--    <arg name="yaw" value="-1.56"/> -->
+>>>>>>> 9ad862ac3ac8412287dfa0e848899956c754d316
 </launch>

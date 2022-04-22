@@ -1,3 +1,11 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+
+- [changes](#changes)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # changes 
 
 The executable `rgbd_sync` should be used to avoid syncing problem, the only issue being that it containes hard coded topic names.
