@@ -42,15 +42,6 @@ int main(int argc, char **argv)
 	ROS_INFO("about to start, get ready!");
 	ros::init(argc, argv, "offboard_node");
 	// ros::NodeHandle nh;
-
-	// ros::ServiceClient client = nh.serviceClient<rtabmap_drone_example::MakeTakeoff>
-
-	// ros::ServiceClient arming_client = nh.serviceClient<mavros_msgs::CommandBool>
-	// ("mavros/cmd/arming");
-	// ros::ServiceClient command_client = nh.serviceClient<mavros_msgs::CommandLong>
-	// ("mavros/cmd/command");
-	// ros::ServiceClient set_mode_client = nh.serviceClient<mavros_msgs::SetMode>
-	// ("mavros/set_mode");
 	
 	OffBoarding offb;
 	//the setpoint publishing rate MUST be faster than 2Hz
@@ -182,8 +173,8 @@ int main(int argc, char **argv)
 			ROS_ERROR("%s",ex.what());
 		}
 
-		// if(current_state.mode == "AUTO.LAND" && wasFlying == true)
-		if(offb.is_autoland() && !offb.is_a_pressed()) {
+		// determine is the service set the drone to fly or not
+		if(offb.is_want_to_autoland() && !offb.is_a_pressed()) {
 			// insert the newly created function to lower position here
 			tf::StampedTransform visionPoseTf;
 			ROS_INFO("Drone is in autolanding mode, skipping");
