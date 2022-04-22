@@ -27,6 +27,7 @@ public:
 	OffBoarding();
 	~OffBoarding();
 
+	// getter methods
 	bool is_beat_fresh();
 	bool is_request_old();
 	bool is_offboard();
@@ -38,12 +39,18 @@ public:
 	bool is_joystick_down();
 	bool is_want_to_autoland();
 
+	// various setter methods
 	void set_request_time();
 	void set_goal_vel_zero();
 	void update_pose(const tf::StampedTransform &transf);
 	void set_pos_goal(geometry_msgs::PoseStamped &pose);
-	void set_autoland(bool request);
+
+	// set modes methods
 	bool set_offboard();
+	bool set_arm();
+	bool set_autoland();
+
+	void toggle_up_down(bool request);
 	void go_autoland();
 
 	ros::Publisher local_pos_pub;
@@ -62,7 +69,7 @@ private:
 
 	// private messages for mavros services
 	mavros_msgs::SetMode offb_set_mode_;
-	// mavros_msgs::SetMode autol_set_mode_;
+	mavros_msgs::SetMode autol_set_mode_;
 	mavros_msgs::CommandBool arm_cmd_;
 	mavros_msgs::CommandLong disarm_cmd_;
 

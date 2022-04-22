@@ -45,7 +45,7 @@ OffBoarding::OffBoarding():nh_(""), takeoff_srv_(this) {
 	want_to_autoland_ = false;
 
 	offb_set_mode_.request.custom_mode = "OFFBOARD";
-	// autol_set_mode_;
+	autol_set_mode_.request.custom_mode = "AUTO.LAND";
 	arm_cmd_.request.value = true;
 	disarm_cmd_.request.broadcast = false;
 	disarm_cmd_.request.command = 400;
@@ -161,16 +161,42 @@ void OffBoarding::set_pos_goal(geometry_msgs::PoseStamped &pose) {
 	current_goal.position.z = 1.5;
 }
 
-// method to be used by the service to set the "mode" to autolanding
-// accepts a bool and uses it to set the "mode"
-void OffBoarding::set_autoland(bool request) {
-	if(want_to_autoland_ == request) ROS_INFO("autoland already set to %s", request ? "true":"false");
-	else want_to_autoland_ = request;
+bool OffBoarding::set_offboard() {
+	if(is_offboard()) {
+		ROS_INFO("already in OFFBOARD mode"); 
+		return false;
+	} else {
+		return(set_mode_client.call(offb_set_mode_) &&
+			offb_set_mode_.response.mode_sent);
+	}
 }
 
-bool OffBoarding::set_offboard() {
-	return(set_mode_client.call(offb_set_mode_) &&
-	offb_set_mode_.response.mode_sent);
+// ADD CHECK ON ARMED STATE
+bool OffBoarding::set_arm() {
+	if(is_offboard()) {
+		ROS_INFO("already in ARMED"); 
+		return false;
+	} else {
+		return (arming_client.call(arm_cmd_) &&
+			arm_cmd_.response.success);
+	}
+}
+
+bool OffBoarding::set_autoland() {
+	if(is_autoland()) {
+		ROS_INFO("Already in AUTO.LAND mode"); 
+		return false;
+	} else {
+		return(set_mode_client.call(autol_set_mode_) &&
+		autol_set_mode_.response.mode_sent);
+	}
+}
+
+// method to be used by the service to set the "mode" to autolanding
+// accepts a bool and uses it to set the "mode"
+void OffBoarding::toggle_up_down(bool request) {
+	if(want_to_autoland_ == request) ROS_INFO("autoland already set to %s", request ? "true":"false");
+	else want_to_autoland_ = request;
 }
 
 // lower pose and switch to autoland when close enough to the ground
@@ -184,7 +210,7 @@ void OffBoarding::go_autoland() {
 	// if low enough switch to autoland, which is smoother if the dron
 	// is already low
 	} else {
-
+		set_autoland();
 	}
 }
 
