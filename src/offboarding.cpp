@@ -229,11 +229,11 @@ void OffBoarding::toggle_up_down(bool request) {
 // to be used in the main loop
 void OffBoarding::go_autoland() {
 	// if to high keep descending
-	if(current_pose.pose.position.z > 0.3) {
-		current_pose.pose.position.x = current_pose.pose.position.x;
-		current_pose.pose.position.y = current_pose.pose.position.y;
-		current_pose.pose.position.z = 0.3;
-	// if low enough switch to autoland, which is smoother if the dron
+	if(current_pose.pose.position.z > 0.2) {
+		current_goal.position.x = current_pose.pose.position.x;
+		current_goal.position.y = current_pose.pose.position.y;
+		current_goal.position.z = 0.2;
+	// if low enough switch to autoland, which is smoother if the drone
 	// is already low
 	} else {
 		set_autoland();
