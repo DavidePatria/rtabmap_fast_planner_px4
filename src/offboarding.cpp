@@ -42,6 +42,14 @@ OffBoarding::OffBoarding():nh_(""), takeoff_srv_(this) {
 	// initialize variables in the constructor
 	donotprint_ = false;
 	a_prem_ = false;
+	want_to_autoland_ = false;
+
+	offb_set_mode_.request.custom_mode = "OFFBOARD";
+	// autol_set_mode_;
+	arm_cmd_.request.value = true;
+	disarm_cmd_.request.broadcast = false;
+	disarm_cmd_.request.command = 400;
+
 	
 	ROS_INFO("Init Finished");
 }
@@ -113,8 +121,12 @@ bool OffBoarding::is_joystick_down() {
 	return cond;
 }
 
+bool OffBoarding::is_want_to_autoland() {
+	return want_to_autoland_; 
+}
+
 void OffBoarding::set_request_time() {
-	// ROS_INFO("setted request time");
+	// ROS_INFO("set request time");
 	last_request_ = ros::Time().now();
 }
 
@@ -156,14 +168,25 @@ void OffBoarding::set_autoland(bool request) {
 	else want_to_autoland_ = request;
 }
 
+bool OffBoarding::set_offboard() {
+	return(set_mode_client.call(offb_set_mode_) &&
+	offb_set_mode_.response.mode_sent);
+}
+
 // lower pose and switch to autoland when close enough to the ground
 // to be used in the main loop
 void OffBoarding::go_autoland() {
-	current_pose.pose.position.x = current_pose.pose.position.x;
-	current_pose.pose.position.y = current_pose.pose.position.y;
-	current_pose.pose.position.z = 0.3;
-}
+	// if to high keep descending
+	if(current_pose.pose.position.z > 0.3) {
+		current_pose.pose.position.x = current_pose.pose.position.x;
+		current_pose.pose.position.y = current_pose.pose.position.y;
+		current_pose.pose.position.z = 0.3;
+	// if low enough switch to autoland, which is smoother if the dron
+	// is already low
+	} else {
 
+	}
+}
 
 //==============================================================================
 // callbacks

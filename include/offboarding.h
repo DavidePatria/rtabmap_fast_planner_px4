@@ -36,12 +36,14 @@ public:
 	bool is_twist_old();
 	bool is_connected();
 	bool is_joystick_down();
+	bool is_want_to_autoland();
 
 	void set_request_time();
 	void set_goal_vel_zero();
 	void update_pose(const tf::StampedTransform &transf);
 	void set_pos_goal(geometry_msgs::PoseStamped &pose);
 	void set_autoland(bool request);
+	bool set_offboard();
 	void go_autoland();
 
 	ros::Publisher local_pos_pub;
@@ -58,7 +60,15 @@ private:
 
 	unsigned short velocity_mask_ = VELOCITY2D_CONTROL;
 
+	// private messages for mavros services
+	mavros_msgs::SetMode offb_set_mode_;
+	// mavros_msgs::SetMode autol_set_mode_;
+	mavros_msgs::CommandBool arm_cmd_;
+	mavros_msgs::CommandLong disarm_cmd_;
+
+	// class where the custom takeoff service is defined
 	TeichingOfServis takeoff_srv_;
+
 	// state tracking variables
 	bool was_flying_;
 	bool donotprint_;

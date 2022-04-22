@@ -10,6 +10,7 @@
 // forward declaration instead of include. needs checking
 // class OffBoarding;
 
+// pointer to main class so the service can call a method in it
 TeichingOfServis::TeichingOfServis(OffBoarding *offboarding):nh_(""), point_(offboarding) {
 	service_ = nh_.advertiseService("custom/make_takeoff", &TeichingOfServis::send_takeoff, this);
 	ROS_INFO("make_takeoff server has started");
