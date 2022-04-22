@@ -179,28 +179,6 @@ bool OffBoarding::set_offboard() {
 }
 
 // ADD CHECK ON ARMED STATE
-bool OffBoarding::set_arm() {
-	set_request_time();
-
-	if(is_offboard()) {
-		ROS_INFO("Already ARMED"); 
-		return false;
-	} else {
-		if(arming_client.call(arm_cmd_) && arm_cmd_.response.success) {
-			ROS_INFO("Drone ARMED");
-			ROS_INFO("Take off at 1.5 meter... to position=(%f,%f,%f) yaw=%f",
-					current_goal.position.x,
-					current_goal.position.y,
-					current_goal.position.z,
-					current_goal.yaw);
-			return true;
-		} else {
-			ROS_INFO("unable to ARM");
-			return false;
-		}
-	}
-}
-
 bool OffBoarding::set_autoland() {
 	set_request_time();
 
@@ -217,6 +195,46 @@ bool OffBoarding::set_autoland() {
 		}
 	}
 }
+
+bool OffBoarding::set_arm() {
+	set_request_time();
+
+	if(is_armed()) {
+		ROS_INFO("Already ARMED"); 
+		return false;
+	} else {
+		if(arming_client.call(arm_cmd_) && arm_cmd_.response.success) {
+			ROS_INFO("Drone ARMED");
+			ROS_INFO("Take off to position=(%f,%f,%f) yaw=%f",
+					current_goal.position.x,
+					current_goal.position.y,
+					current_goal.position.z,
+					current_goal.yaw);
+			return true;
+		} else {
+			ROS_INFO("unable to ARM");
+			return false;
+		}
+	}
+}
+
+bool OffBoarding::set_disarm() {
+	set_request_time();
+
+	if(!is_armed()) {
+		ROS_INFO("Already DISARMED"); 
+		return false;
+	} else {
+		if(command_client.call(disarm_cmd_) && disarm_cmd_.response.success) {
+			ROS_INFO("Drone DISARMED");
+			return true;
+		} else {
+			ROS_INFO("unable to DISARM");
+			return false;
+		}
+	}
+}
+
 
 // method to be used by the service to set the "mode" to autolanding
 // accepts a bool and uses it to set the "mode"

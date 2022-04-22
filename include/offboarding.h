@@ -47,8 +47,10 @@ public:
 
 	// set modes methods
 	bool set_offboard();
-	bool set_arm();
 	bool set_autoland();
+	bool set_arm();
+	bool set_disarm();
+
 
 	void toggle_up_down(bool request);
 	void go_autoland();
