@@ -64,17 +64,17 @@ int main(int argc, char **argv)
 
 	// define a new message for setting au
 	// let's try removing the takeoff after start and see if it creates problems
-	mavros_msgs::SetMode offb_set_mode;
-	mavros_msgs::SetMode autol_set_mode;
-	offb_set_mode.request.custom_mode = "OFFBOARD";
+	// mavros_msgs::SetMode offb_set_mode;
+	// mavros_msgs::SetMode autol_set_mode;
+	// offb_set_mode.request.custom_mode = "OFFBOARD";
 	// autol_set_mode.request.custom_mode = "AUTO.LAND";
 	//
-	mavros_msgs::CommandBool arm_cmd;
-	arm_cmd.request.value = true;
+	// mavros_msgs::CommandBool arm_cmd;
+	// arm_cmd.request.value = true;
 
-	mavros_msgs::CommandLong disarm_cmd;
-	disarm_cmd.request.broadcast = false;
-	disarm_cmd.request.command = 400;
+	// mavros_msgs::CommandLong disarm_cmd;
+	// disarm_cmd.request.broadcast = false;
+	// disarm_cmd.request.command = 400;
 	//disarm_cmd.request.param2 = 21196; // Kill no check landed
 
 	// ros::Time last_request = ros::Time::now();
@@ -171,8 +171,9 @@ int main(int argc, char **argv)
 			ROS_ERROR("%s",ex.what());
 		}
 
+		// THE REQUEST TIME HERE MIGHT CAUSE PROBLEMS
 		// determine is the service set the drone to fly or not
-		if(offb.is_want_to_autoland() && !offb.is_a_pressed()) {
+		if(offb.is_want_to_autoland() && offb.is_request_old() && !offb.is_a_pressed()) {
 			// insert the newly created function to lower position here
 			tf::StampedTransform visionPoseTf;
 			ROS_INFO("Drone is in autolanding mode, skipping");
@@ -189,7 +190,7 @@ int main(int argc, char **argv)
 						offb.set_arm();
 					}
 					else if(offb.is_joystick_down() && offb.is_request_old()){
-						if( offb.command_client.call(disarm_cmd) && disarm_cmd.response.success){
+						if( offb.set_disarm()){
 							ROS_INFO("Vehicle disarmed");
 							ros::shutdown();
 						} else {
