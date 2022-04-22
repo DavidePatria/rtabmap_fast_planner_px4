@@ -9,7 +9,7 @@
 // #include "ros/time.h"
 
 // initiate subscribers in constructor
-OffBoarding::OffBoarding():nh_("") {
+OffBoarding::OffBoarding():nh_(""), takeoff_srv_(this) {
 
 	ROS_INFO("Class instantiatied. Creating subscribers");
 	// short queue. to 1. might cause problems bu the topic type allows it

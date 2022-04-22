@@ -20,6 +20,8 @@
 #define VELOCITY_CONTROL 0b011111000111
 #define POSITION_CONTROL 0b101111111000
 
+#include "takeoff_custom_srv_server.h"
+
 class OffBoarding {
 public:
 	OffBoarding();
@@ -56,6 +58,7 @@ private:
 
 	unsigned short velocity_mask_ = VELOCITY2D_CONTROL;
 
+	TeichingOfServis takeoff_srv_;
 	// state tracking variables
 	bool was_flying_;
 	bool donotprint_;
@@ -84,7 +87,6 @@ private:
 
 	// pointer to member function to be passed to TeichingOfServis
 	// which will be instantiated here
-	// void (*pointer)(){&this->set_autoland};
 };
 
 #endif
