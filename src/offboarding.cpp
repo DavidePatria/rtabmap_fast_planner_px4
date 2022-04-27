@@ -254,6 +254,7 @@ void OffBoarding::go_autoland() {
 	// if low enough switch to autoland, which is smoother if the drone
 	// is already low
 	} else {
+		ROS_INFO("altitude is: %f\n", current_goal.position.z);
 		set_autoland();
 	}
 }
