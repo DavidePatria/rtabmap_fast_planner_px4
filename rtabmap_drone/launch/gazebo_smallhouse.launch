@@ -24,7 +24,7 @@
     </include>
 
     <!-- Spawn drone -->
-    <include file="$(find rtabmap_drone_example)/launch/spawn_drone.launch">
+	<include file="$(find rtabmap_drone_example)/launch/iris_slam/spawn_drone.launch">
 	<arg name="x" default="-2"/>
 	<arg name="y" default="-0.5"/>
 	<arg name="z" default="0"/>

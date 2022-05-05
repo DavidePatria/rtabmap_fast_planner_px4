@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package>
-  <name>rtabmap_drone_example</name>
+  <name>rtabmap_drone</name>
   <version>0.0.0</version>
   <description>The rtabmap_drone_example package</description>
 
