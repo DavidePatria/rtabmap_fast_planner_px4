@@ -73,6 +73,17 @@
 	<!-- wait_for_transorm doesn't fail -->
 	<node pkg="pos_cmd_2_pos_targ" type="pos_conv.py" name="pos_conv" />
 
+	<!-- start offboard_node here and also republish so when offboard_node starts there is -->
+	<!-- already a transform between map and bsse_link to be found -->
+	<group if="$(eval offb == true)">
+		<node pkg="offboard_safety" type="offboard_node" name="offboard_node">
+		</node>
+
+		<node pkg="offboard_safety" type="remote_pub.py" name="remote_pub_node">
+		</node>
+	</group>
+
+
 
 	<!-- has mentioned at the top this belongs to the original repository and is disable by default -->
 	<group if="$(eval_only == true)">

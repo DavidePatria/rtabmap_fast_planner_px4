@@ -27,13 +27,5 @@
 	<include file="$(find rtabmap_drone)/launch/iris_slam/spawn_drone.launch">
         <arg name="yaw" value="-1.5"/>
     </include>
-	
-	<group if="$(eval offb == true)">
-		<node pkg="offboard_safety" type="offboard_node" name="offboard_node">
-		</node>
-
-		<node pkg="offboard_safety" type="remote_pub.py" name="remote_pub_node">
-		</node>
-	</group>
 
 </launch>
