@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import rospy
-from std_msgs.msg import String
+from std_msgs.msg import Empty
 
 
 class RemotePub():
@@ -10,9 +10,8 @@ class RemotePub():
 
     def __init__(self):
         rospy.init_node("remote_computer_dummy")
-        pub = rospy.Publisher('/remote_beat ', String, queue_size=1)
-        msg = String()
-        msg = ""
+        pub = rospy.Publisher('/remote_beat', Empty, queue_size=1)
+        msg = Empty()
 
         rate = rospy.Rate(3)
         rospy.loginfo("starting remote beat publisher")
