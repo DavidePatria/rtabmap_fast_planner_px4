@@ -15,7 +15,7 @@
 	<!-- vehicle model and world -->
 	<arg name="est" default="ekf2"/>
 	<arg name="vehicle" default="iris"/>
-	<arg name="world" default="$(find rtabmap_drone)/worlds/hospital.world"/>
+	<arg name="world_path" default="$(find rtabmap_drone)/worlds/hospital.world"/>
 	<arg name="sdf" default="$(find rtabmap_drone)/models/iris_depth_camera/iris_depth_camera.sdf"/>
 	
 	<!-- added from px4/posix_sitl.launch -->
