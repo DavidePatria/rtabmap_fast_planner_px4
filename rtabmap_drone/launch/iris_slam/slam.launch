@@ -9,7 +9,7 @@
 	<!-- the original package launches a lot of stuff with the slam, like move_base and others -->
 	<!-- for since these are being externalised the default behaviour here is to not launch  -->
 	<!-- anything else than the slam -->
-	<arg name="slam_ony" default="true"/>
+	<arg name="slam_only" default="true"/>
 
 	<arg name="rgb_arg"	    default= "/r200/camera/color/image_raw" />
 	<arg name="depth_arg"	    default= "/r200/camera/depth/image_raw" />
@@ -68,42 +68,52 @@
 		<arg name="database_path" value="$(arg map_path)" />
 	</include>
 
-	<!-- Costmap -->
-	<node pkg="nodelet" type="nodelet" name="camera_points_xyz" args="standalone rtabmap_ros/point_cloud_xyz">
-		<remap from="depth/image"       to="/r200/camera/depth/image_raw"/>
-		<remap from="depth/camera_info" to="/r200/camera/depth/camera_info"/>
-		<remap from="cloud"             to="camera_cloud" />
 
-		<param name="decimation"  type="double" value="4"/>
-		<param name="voxel_size"  type="double" value="0.0"/>
-		<param name="approx_sync" type="bool"   value="true"/>
-	</node> 
+	<!-- launch conversion node here in the package bundled in this very git repo so the first  -->
+	<!-- wait_for_transorm doesn't fail -->
+	<node pkg="pos_cmd_2_pos_targ" type="pos_conv.py" name="pos_conv" />
 
-	<!-- navigation -->  
-	<node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
-		<remap from="map" to="/rtabmap/grid_map"/>
-	<remap from="odom" to="/rtabmap/odom"/>
-	<param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS" />  
-	<rosparam file="$(find rtabmap_drone)/param/costmap_common_params.yaml" command="load" ns="global_costmap" />
-	<rosparam file="$(find rtabmap_drone)/param/costmap_common_params.yaml" command="load" ns="local_costmap" />
-	<rosparam file="$(find rtabmap_drone)/param/global_costmap_params.yaml" command="load" />
-	<rosparam file="$(find rtabmap_drone)/param/local_costmap_params.yaml" command="load" />
-	<rosparam file="$(find rtabmap_drone)/param/base_local_planner_params.yaml" command="load" />
-	</node>
-	<node name="empty_voxels_markers" pkg="rtabmap_ros" type="voxel_markers" args="voxel_grid:=/move_base/local_costmap/voxel_layer/voxel_grid visualization_marker:=/voxels_empty">
-	    <param name="cell_type" value="0"/>
-	</node>
-	<node name="marked_voxels_markers" pkg="rtabmap_ros" type="voxel_markers" args="voxel_grid:=/move_base/local_costmap/voxel_layer/voxel_grid visualization_marker:=/voxels_marked" />
-	
-	<!-- joystick -->
-	<rosparam file="$(find rtabmap_drone)/config/joy_config.yaml" />
-	<node pkg="joy" type="joy_node" name="joy_node">
-		<param name="autorepeat_rate" value="5"/>
-	</node>
-	<node pkg="teleop_twist_joy" type="teleop_node" name="teleop_node" output="screen">
-		<param name="autorepeat_rate" value="5"/>
-	</node>
-	
+
+	<!-- has mentioned at the top this belongs to the original repository and is disable by default -->
+	<group if="$(eval_only == true)">
+		<!-- Costmap -->
+		<node pkg="nodelet" type="nodelet" name="camera_points_xyz" args="standalone rtabmap_ros/point_cloud_xyz">
+			<remap from="depth/image"       to="/r200/camera/depth/image_raw"/>
+			<remap from="depth/camera_info" to="/r200/camera/depth/camera_info"/>
+			<remap from="cloud"             to="camera_cloud" />
+
+			<param name="decimation"  type="double" value="4"/>
+			<param name="voxel_size"  type="double" value="0.0"/>
+			<param name="approx_sync" type="bool"   value="true"/>
+		</node> 
+
+		<!-- navigation -->  
+		<node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+			<remap from="map" to="/rtabmap/grid_map"/>
+		<remap from="odom" to="/rtabmap/odom"/>
+		<param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS" />  
+		<rosparam file="$(find rtabmap_drone)/param/costmap_common_params.yaml" command="load" ns="global_costmap" />
+		<rosparam file="$(find rtabmap_drone)/param/costmap_common_params.yaml" command="load" ns="local_costmap" />
+		<rosparam file="$(find rtabmap_drone)/param/global_costmap_params.yaml" command="load" />
+		<rosparam file="$(find rtabmap_drone)/param/local_costmap_params.yaml" command="load" />
+		<rosparam file="$(find rtabmap_drone)/param/base_local_planner_params.yaml" command="load" />
+		</node>
+		<node name="empty_voxels_markers" pkg="rtabmap_ros" type="voxel_markers" args="voxel_grid:=/move_base/local_costmap/voxel_layer/voxel_grid visualization_marker:=/voxels_empty">
+			<param name="cell_type" value="0"/>
+		</node>
+		<node name="marked_voxels_markers" pkg="rtabmap_ros" type="voxel_markers" args="voxel_grid:=/move_base/local_costmap/voxel_layer/voxel_grid visualization_marker:=/voxels_marked" />
+		
+		<!-- joystick -->
+		<rosparam file="$(find rtabmap_drone)/config/joy_config.yaml" />
+		<node pkg="joy" type="joy_node" name="joy_node">
+			<param name="autorepeat_rate" value="5"/>
+		</node>
+		<node pkg="teleop_twist_joy" type="teleop_node" name="teleop_node" output="screen">
+			<param name="autorepeat_rate" value="5"/>
+		</node>
+	</group>
+
+
 	<!-- Ground truth -->
 	<!-- still haven't figured out the usefulness of this which is false by default -->
 	<node if="$(arg ground_truth)" pkg="tf" type="static_transform_publisher" name="worldtomap_broadcaster" args="0 0 0 0 0 0 1 world map 100" />
