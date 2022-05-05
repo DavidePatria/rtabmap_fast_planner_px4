@@ -9,7 +9,7 @@
     <arg name="paused" default="false"/>
     <arg name="respawn_gazebo" default="false"/>
     <arg name="world_name" default="hospital"/>
-    <arg name="world" default="$(find rtabmap_drone_example)/worlds/$(arg world_name).world"/>
+    <arg name="world" default="$(find rtabmap_drone)/worlds/$(arg world_name).world"/>
     <arg name="fixed_velodyne" default="false"/>
     <arg name="vertical_velodyne" default="false"/>
     <arg name="rotation_speed" default="0.785398163"/>
@@ -25,7 +25,7 @@
     </include>
 
     <!-- Spawn drone -->
- <!--    <include file="$(find rtabmap_drone_example)/launch/spawn_drone.launch"> -->
+ <!--    <include file="$(find rtabmap_drone)/launch/spawn_drone.launch"> -->
 	<!-- <arg name="x" default="0.0"/> -->
 	<!-- <arg name="y" default="11.4"/> -->
 	<!-- <arg name="z" default="0.0"/> -->

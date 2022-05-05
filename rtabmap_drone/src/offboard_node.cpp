@@ -175,7 +175,7 @@ int main(int argc, char **argv)
 	ros::init(argc, argv, "offboard_node");
 	ros::NodeHandle nh;
 
-	// ros::ServiceClient client = nh.serviceClient<rtabmap_drone_example::MakeTakeoff>
+	// ros::ServiceClient client = nh.serviceClient<rtabmap_drone::MakeTakeoff>
 
 	ros::Subscriber remote_pub = nh.subscribe<std_msgs::Empty>
 	("/remote_beat", 1, remote_cb);

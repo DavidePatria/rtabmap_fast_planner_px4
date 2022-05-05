@@ -2,7 +2,7 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
 
-- [rtabmap_drone_example](#rtabmap_drone_example)
+- [rtabmap_drone](#rtabmap_drone)
     - [Important notes:](#important-notes)
     - [Commands for mapping with realsense D435i](#commands-for-mapping-with-realsense-d435i)
     - [Dependencies](#dependencies)
@@ -14,7 +14,7 @@
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-# rtabmap_drone_example
+# rtabmap_drone
 2D navigation example of a drone using [move_base](http://wiki.ros.org/move_base) with [mavros](http://wiki.ros.org/mavros)/[px4](https://github.com/PX4/PX4-Autopilot) and [rtabmap](wiki.ros.org/rtabmap_ros) visual SLAM. 
 
 Overview video (click to watch on Youtube):
@@ -134,15 +134,15 @@ Below procedures for both original and added simulations are described
 ### simulations from original package
 
 ```
-roslaunch rtabmap_drone_example gazebo.launch
-roslaunch rtabmap_drone_example slam.launch
-roslaunch rtabmap_drone_example rviz.launch
+roslaunch rtabmap_drone gazebo.launch
+roslaunch rtabmap_drone slam.launch
+roslaunch rtabmap_drone rviz.launch
 
 # Arm and take off:
-rosrun rtabmap_drone_example offboard
+rosrun rtabmap_drone offboard
 
 # Frontier exploration:
-roslaunch rtabmap_drone_example explore.launch
+roslaunch rtabmap_drone explore.launch
 
 # Places of interest labeling (when the drone is in the desired location):
 rosservice call /rtabmap/set_label 0 Room1
@@ -153,7 +153,7 @@ rosrun rtabmap_ros patrol.py _time:=5 Room1 Room2 Room3
  * Manual control: If a joystick is plugged, you can send twists by holding L1 and moving the joysticks. Hold L1+L2 with left joystick down to land (be gentle to land smoothly), then hold left joystick in bottom-right position to disarm after the drone is on the ground.
  * Autonomous control: use "2D Nav Goal" button in RVIZ to set a goal to reach 
 
-![](https://raw.githubusercontent.com/matlabbe/rtabmap_drone_example/master/doc/example.jpg)
+![](https://raw.githubusercontent.com/matlabbe/rtabmap_drone/master/doc/example.jpg)
 
 ### modified simulations
 

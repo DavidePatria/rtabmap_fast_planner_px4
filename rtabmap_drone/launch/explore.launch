@@ -2,7 +2,7 @@
 <launch>
 
    <node pkg="explore_lite" type="explore" respawn="false" name="explore" output="screen">
-      <rosparam file="$(find rtabmap_drone_example)/config/exploration.yaml" command="load" />
+      <rosparam file="$(find rtabmap_drone)/config/exploration.yaml" command="load" />
    </node>
 
 </launch>

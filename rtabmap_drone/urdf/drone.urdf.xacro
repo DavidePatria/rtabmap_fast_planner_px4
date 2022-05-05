@@ -5,7 +5,7 @@
   <xacro:arg name="stl_path" default="mavlink_sitl_gazebo/models/iris/meshes"/>
   <xacro:property name="scale" value="$(arg scale)" />
   <xacro:property name="stl_path" value="$(arg stl_path)" />
-  <xacro:include filename="$(find rtabmap_drone_example)/urdf/drone.gazebo"/>
+  <xacro:include filename="$(find rtabmap_drone)/urdf/drone.gazebo"/>
 
    <link name='base_link'>
       <inertial>
@@ -278,7 +278,7 @@
 
 
   <!-- Import macro for realsense-RS200 camera-->
-  <xacro:include filename="$(find rtabmap_drone_example)/urdf/realsense-RS200.macro.xacro"/>
+  <xacro:include filename="$(find rtabmap_drone)/urdf/realsense-RS200.macro.xacro"/>
     
   <joint name="base_camera_joint" type="fixed">
     <origin xyz="${scale*0.1} 0 0" rpy="0 0 0" /> 

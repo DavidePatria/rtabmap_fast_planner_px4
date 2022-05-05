@@ -2,7 +2,7 @@
 <package>
   <name>rtabmap_drone</name>
   <version>0.0.0</version>
-  <description>The rtabmap_drone_example package</description>
+  <description>The rtabmap_drone package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->

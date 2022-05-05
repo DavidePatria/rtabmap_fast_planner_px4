@@ -4,8 +4,8 @@
   <!-- vehicle model -->
   <arg name="est" default="ekf2"/>
   <arg name="vehicle" default="iris_rtabmap"/>
-  <arg name="urdf" default="$(find rtabmap_drone_example)/urdf/drone.urdf.xacro"/>
-  <arg name="rcS" default="$(find rtabmap_drone_example)/config/rcS"/>
+  <arg name="urdf" default="$(find rtabmap_drone)/urdf/drone.urdf.xacro"/>
+  <arg name="rcS" default="$(find rtabmap_drone)/config/rcS"/>
   <env name="PX4_SIM_MODEL" value="$(arg vehicle)" />
   <env name="PX4_ESTIMATOR" value="$(arg est)" />
   <arg name="scale" default="0.6"/>
@@ -35,7 +35,7 @@
    <!-- MAVROS -->
   <include file="$(find mavros)/launch/node.launch">
     <arg name="pluginlists_yaml" value="$(find mavros)/launch/px4_pluginlists.yaml" />
-    <arg name="config_yaml" value="$(find rtabmap_drone_example)/config/px4_config.yaml" />
+    <arg name="config_yaml" value="$(find rtabmap_drone)/config/px4_config.yaml" />
 
     <arg name="fcu_url" value="$(arg fcu_url)" />
     <arg name="gcs_url" value="" /> <!-- GCS link is provided by SITL -->
@@ -49,7 +49,7 @@
   <!-- hack to get TF working in RVIZ for joints -->
   <node pkg="tf" type="static_transform_publisher" name="base_link_imu"
         args="0 0 0 0 0 0 base_link imu_link 100" />
-  <node pkg="rtabmap_drone_example" type="rotor_tf.py" name="rotor_tf">
+  <node pkg="rtabmap_drone" type="rotor_tf.py" name="rotor_tf">
      <param name="scale" value="$(arg scale)"/>
   </node>
 </launch>

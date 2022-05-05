@@ -1,13 +1,14 @@
 <?xml version="1.0"?>
 <launch>
     <!-- gazebo configs -->
+	<arg name="offb" default="false"/>
     <arg name="gui" default="true"/>
     <arg name="debug" default="false"/>
     <arg name="verbose" default="false"/>
     <arg name="paused" default="false"/>
     <arg name="respawn_gazebo" default="false"/>
     <arg name="world_name" default="apt"/> <!-- apt, room -->
-    <arg name="world" default="$(find rtabmap_drone_example)/worlds/$(arg world_name).world"/>
+    <arg name="world" default="$(find rtabmap_drone)/worlds/$(arg world_name).world"/>
     <arg name="fixed_velodyne" default="false"/>
     <arg name="vertical_velodyne" default="false"/>
     <arg name="rotation_speed" default="0.785398163"/>
@@ -23,7 +24,16 @@
     </include>
 
     <!-- Spawn drone -->
-	<include file="$(find rtabmap_drone_example)/launch/iris_slam/spawn_drone.launch">
+	<include file="$(find rtabmap_drone)/launch/iris_slam/spawn_drone.launch">
         <arg name="yaw" value="-1.5"/>
     </include>
+	
+	<group if="$(eval offb == true)">
+		<node pkg="offboard_safety" type="offboard_node" name="offboard_node">
+		</node>
+
+		<node pkg="offboard_safety" type="remote_pub.py" name="remote_pub_node">
+		</node>
+	</group>
+
 </launch>

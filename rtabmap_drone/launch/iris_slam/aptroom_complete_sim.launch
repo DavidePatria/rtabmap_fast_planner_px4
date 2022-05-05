@@ -8,7 +8,7 @@
     <arg name="paused" default="false"/>
     <arg name="respawn_gazebo" default="false"/>
     <arg name="world_name" default="apt"/> <!-- apt, room -->
-    <arg name="world" default="$(find rtabmap_drone_example)/worlds/$(arg world_name).world"/>
+    <arg name="world" default="$(find rtabmap_drone)/worlds/$(arg world_name).world"/>
     <arg name="fixed_velodyne" default="false"/>
    <arg name="vertical_velodyne" default="false"/>
     <arg name="rotation_speed" default="0.785398163"/>
@@ -24,8 +24,8 @@
     </include>
 
     <!-- Spawn drone -->
-	<include file="$(find rtabmap_drone_example)/launch/iris_slam/spawn_drone.launch"> </include>
-    <include file="$(find rtabmap_drone_example)/launch/iris_slam/slam.launch"> </include>
-    <include file="$(find rtabmap_drone_example)/launch/rviz.launch"> </include>
+	<include file="$(find rtabmap_drone)/launch/iris_slam/spawn_drone.launch"> </include>
+    <include file="$(find rtabmap_drone)/launch/iris_slam/slam.launch"> </include>
+    <include file="$(find rtabmap_drone)/launch/rviz.launch"> </include>
 
 </launch>

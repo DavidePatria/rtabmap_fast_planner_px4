@@ -36,7 +36,7 @@
       <arg name="frame_id"            value ="base_link" />
       <arg name="odom_guess_frame_id" value ="base_link_stabilized" />
 	  <!-- manually added argument in conjunction to the add of a .ini config file in the referenced folder -->
-	  <arg name="gui_cfg" value ="$(find rtabmap_drone_example)/config/rtabmap_gui.ini" />
+	  <arg name="gui_cfg" value ="$(find rtabmap_drone)/config/rtabmap_gui.ini" />
 
 
 	  <arg name="rgbd_sync" value ="true"/>
@@ -79,11 +79,11 @@
        <remap from="map" to="/rtabmap/grid_map"/>
        <remap from="odom" to="/rtabmap/odom"/>
        <param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS" />  
-       <rosparam file="$(find rtabmap_drone_example)/param/costmap_common_params.yaml" command="load" ns="global_costmap" />
-       <rosparam file="$(find rtabmap_drone_example)/param/costmap_common_params.yaml" command="load" ns="local_costmap" />
-       <rosparam file="$(find rtabmap_drone_example)/param/global_costmap_params.yaml" command="load" />
-       <rosparam file="$(find rtabmap_drone_example)/param/local_costmap_params.yaml" command="load" />
-       <rosparam file="$(find rtabmap_drone_example)/param/base_local_planner_params.yaml" command="load" />
+       <rosparam file="$(find rtabmap_drone)/param/costmap_common_params.yaml" command="load" ns="global_costmap" />
+       <rosparam file="$(find rtabmap_drone)/param/costmap_common_params.yaml" command="load" ns="local_costmap" />
+       <rosparam file="$(find rtabmap_drone)/param/global_costmap_params.yaml" command="load" />
+       <rosparam file="$(find rtabmap_drone)/param/local_costmap_params.yaml" command="load" />
+       <rosparam file="$(find rtabmap_drone)/param/base_local_planner_params.yaml" command="load" />
     </node>
    <node name="empty_voxels_markers" pkg="rtabmap_ros" type="voxel_markers" args="voxel_grid:=/move_base/local_costmap/voxel_layer/voxel_grid visualization_marker:=/voxels_empty">
        <param name="cell_type" value="0"/>
@@ -91,7 +91,7 @@
    <node name="marked_voxels_markers" pkg="rtabmap_ros" type="voxel_markers" args="voxel_grid:=/move_base/local_costmap/voxel_layer/voxel_grid visualization_marker:=/voxels_marked" />
 
     <!-- joystick -->
-    <rosparam file="$(find rtabmap_drone_example)/config/joy_config.yaml" />
+    <rosparam file="$(find rtabmap_drone)/config/joy_config.yaml" />
     <node pkg="joy" type="joy_node" name="joy_node">
         <param name="autorepeat_rate" value="5"/>
     </node>

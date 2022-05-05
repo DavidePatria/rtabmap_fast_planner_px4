@@ -108,7 +108,7 @@ generate_messages(
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES rtabmap_drone_example
+#  LIBRARIES rtabmap_drone
 #  CATKIN_DEPENDS mavros move_base roscpp rospy rtabmap_ros std_msgs geometry_msgs
 #  DEPENDS system_lib
 )
@@ -126,7 +126,7 @@ include_directories(
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/rtabmap_drone_example.cpp
+#   src/${PROJECT_NAME}/rtabmap_drone.cpp
 # )
 
 ## Add cmake target dependencies of the library
@@ -137,12 +137,12 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/rtabmap_drone_example_node.cpp)
+# add_executable(${PROJECT_NAME}_node src/rtabmap_drone_node.cpp)
 
-add_executable(rtabmap_drone_example_offboard src/offboard_node.cpp)
-#add_dependencies(rtabmap_drone_example_offboard ${${PROJECT_NAME}_EXPORTED_TARGETS})
-target_link_libraries(rtabmap_drone_example_offboard ${catkin_LIBRARIES})
-set_target_properties(rtabmap_drone_example_offboard PROPERTIES OUTPUT_NAME "offboard")
+add_executable(rtabmap_drone_offboard src/offboard_node.cpp)
+#add_dependencies(rtabmap_drone_offboard ${${PROJECT_NAME}_EXPORTED_TARGETS})
+target_link_libraries(rtabmap_drone_offboard ${catkin_LIBRARIES})
+set_target_properties(rtabmap_drone_offboard PROPERTIES OUTPUT_NAME "offboard")
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -206,7 +206,7 @@ set_target_properties(rtabmap_drone_example_offboard PROPERTIES OUTPUT_NAME "off
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_rtabmap_drone_example.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_rtabmap_drone.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
