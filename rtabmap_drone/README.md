@@ -34,42 +34,6 @@ For this reason some files have been moved modified to accomplish this task and 
 One problem is that built-in iris model is well provided with links to camera and other apparati, this would need to be included, but it might be more time sentitive to directly setup with the holibro model.
 
 
-## Commands for mapping with realsense D435i
-
-From [this wiki](http://wiki.ros.org/rtabmap_ros/Tutorials/HandHeldMapping), the commands are the following:
-
-To launch the stream from the camera:
-```
-roslaunch realsense2_camera rs_camera.launch \
-    align_depth:=true \
-    unite_imu_method:="linear_interpolation" \
-    enable_gyro:=true \
-     enable_accel:=true
-```
-
-To launch the imu node:
-```
-rosrun imu_filter_madgwick imu_filter_node \
-    _use_mag:=false \
-    _publish_tf:=false \
-    _world_frame:="enu" \
-    /imu/data_raw:=/camera/imu \
-    /imu/data:=/rtabmap/imu
-
-```
-
-To launch rtabviz and starta mapping:
-```
-roslaunch rtabmap_ros rtabmap.launch \
-    rtabmap_args:="--delete_db_on_start --Optimizer/GravitySigma 0.3" \
-    depth_topic:=/camera/aligned_depth_to_color/image_raw \
-    rgb_topic:=/camera/color/image_raw \
-    camera_info_topic:=/camera/color/camera_info \
-    approx_sync:=false \
-    wait_imu_to_init:=true \
-    imu_topic:=/rtabmap/imu
-```
-
 ## Dependencies
 
 Tested on ROS Melodic and ROS Noetic with the corresponding PX4 versions below.
@@ -139,7 +103,11 @@ roslaunch rtabmap_drone slam.launch
 roslaunch rtabmap_drone rviz.launch
 
 # Arm and take off:
-rosrun rtabmap_drone offboard
+rosrun offboard_safety offboard_node
+
+# Publish on control topic (meant for remote computer in real drone case). refer to the other
+# Package for an explanation of the usefulness of this
+rostopic pub -r 5 /remote_beat std_msgs/Empty "{}"
 
 # Frontier exploration:
 roslaunch rtabmap_drone explore.launch
@@ -150,6 +118,11 @@ rosservice call /rtabmap/set_label 0 Room1
 # Patrolling (stopping in place for 5 seconds):
 rosrun rtabmap_ros patrol.py _time:=5 Room1 Room2 Room3
 ```
+in alternative to manually launching `offboard_node` and publishing on the topic
+`roslaunch rtabmap_drone gazebo.launch offb:=true`
+which will start the node and another script that publishes, useful for simulating, where safety isn't needed.
+
+
  * Manual control: If a joystick is plugged, you can send twists by holding L1 and moving the joysticks. Hold L1+L2 with left joystick down to land (be gentle to land smoothly), then hold left joystick in bottom-right position to disarm after the drone is on the ground.
  * Autonomous control: use "2D Nav Goal" button in RVIZ to set a goal to reach 
 
@@ -165,3 +138,41 @@ Spawning the drones is integrated into the launch files for gazebo, so is "iris"
 In a commit the issue relative to the configuration of `rtabmapviz` has been resolved an a `.ini` file has been added to the repo and it is passed to `rtabmap.launch` as an argument.
 But, butt, is contains a path to `$HOME` inside which it was generated, therefore it might cause problems. 
 Therefore, if after launching `slam.launch` the ciclets in rtabmapviz are too big the configuration hasn't been applied.
+
+
+## Commands for mapping with realsense D435i
+
+From [this wiki](http://wiki.ros.org/rtabmap_ros/Tutorials/HandHeldMapping), the commands are the following:
+
+To launch the stream from the camera:
+```
+roslaunch realsense2_camera rs_camera.launch \
+    align_depth:=true \
+    unite_imu_method:="linear_interpolation" \
+    enable_gyro:=true \
+     enable_accel:=true
+```
+
+To launch the imu node:
+```
+rosrun imu_filter_madgwick imu_filter_node \
+    _use_mag:=false \
+    _publish_tf:=false \
+    _world_frame:="enu" \
+    /imu/data_raw:=/camera/imu \
+    /imu/data:=/rtabmap/imu
+
+```
+
+To launch rtabviz and starta mapping:
+```
+roslaunch rtabmap_ros rtabmap.launch \
+    rtabmap_args:="--delete_db_on_start --Optimizer/GravitySigma 0.3" \
+    depth_topic:=/camera/aligned_depth_to_color/image_raw \
+    rgb_topic:=/camera/color/image_raw \
+    camera_info_topic:=/camera/color/camera_info \
+    approx_sync:=false \
+    wait_imu_to_init:=true \
+    imu_topic:=/rtabmap/imu
+```
+
