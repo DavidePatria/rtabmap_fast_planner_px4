@@ -110,6 +110,7 @@ catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES rtabmap_drone
 #  CATKIN_DEPENDS mavros move_base roscpp rospy rtabmap_ros std_msgs geometry_msgs
+	CATKIN_DEPENDS message_runtime
 #  DEPENDS system_lib
 )
 

@@ -85,7 +85,7 @@ int main(int argc, char **argv)
 	// ROS_INFO("Setting offboard mode... (5 seconds)");
 	ros::spinOnce();
 
-	if(!listener.waitForTransform("/map", "/base_link", ros::Time(0), ros::Duration(10)))
+	if(!listener.waitForTransform("/map", "/base_link", ros::Time(0), ros::Duration(5)))
 	{
 		ROS_ERROR("Cannot get current position between /map and /base_link");
 		return -1;
