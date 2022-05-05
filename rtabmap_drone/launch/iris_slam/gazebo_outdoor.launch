@@ -8,8 +8,8 @@
     <arg name="paused" default="false"/>
     <arg name="respawn_gazebo" default="false"/>
 
-    <arg name="world_name" default="small_house"/>
-    <arg name="world" default="$(find rtabmap_drone)/worlds/$(arg world_name).world"/>
+    <arg name="world" default="small_house"/>
+    <arg name="world_path" default="$(find rtabmap_drone)/worlds/$(arg world).world"/>
 
     <arg name="fixed_velodyne" default="false"/>
     <arg name="vertical_velodyne" default="false"/>
@@ -18,7 +18,7 @@
     <!-- Gazebo sim -->
     <include file="$(find gazebo_ros)/launch/empty_world.launch">
         <arg name="gui" value="$(arg gui)"/>
-        <arg name="world_name" value="$(arg world)"/>
+        <arg name="world_name" value="$(arg world_path)"/>
         <arg name="debug" value="$(arg debug)"/>
         <arg name="verbose" value="$(arg verbose)"/>
         <arg name="paused" value="$(arg paused)"/>
