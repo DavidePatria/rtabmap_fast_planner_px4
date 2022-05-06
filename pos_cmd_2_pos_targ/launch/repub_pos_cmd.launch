@@ -1,3 +1,0 @@
-<launch>
-    <node pkg="pos_cmd_2_pos_targ" type="pos_conv.py" name="pos_conv" />
-</launch>

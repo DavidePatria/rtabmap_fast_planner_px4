@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(pos_cmd_2_pos_targ)
+project(stack_util)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -105,7 +105,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES pos_cmd_2_pos_targ
+#  LIBRARIES stack_util
 #  CATKIN_DEPENDS mavros_msgs quadrotor_msgs rospy tf
 #  DEPENDS system_lib
 )
@@ -123,7 +123,7 @@ include_directories(
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/pos_cmd_2_pos_targ.cpp
+#   src/${PROJECT_NAME}/stack_util.cpp
 # )
 
 ## Add cmake target dependencies of the library
