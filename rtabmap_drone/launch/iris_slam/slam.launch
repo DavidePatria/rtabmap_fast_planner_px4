@@ -5,6 +5,7 @@
 	<arg name="rtabmapviz"   default="true"/>
 	<arg name="ground_truth" default="false"/>
 	<arg name="map_path"     default="~/.ros/rtabmap.db"/>
+	<arg name="offb"         default="true"/>
 
 	<!-- the original package launches a lot of stuff with the slam, like move_base and others -->
 	<!-- for since these are being externalised the default behaviour here is to not launch  -->
@@ -71,11 +72,13 @@
 
 	<!-- launch conversion node here in the package bundled in this very git repo so the first  -->
 	<!-- wait_for_transorm doesn't fail -->
-	<node pkg="pos_cmd_2_pos_targ" type="pos_conv.py" name="pos_conv" />
+	<!-- repub is not crucial for the success of the startup operation. it makes more sense to keep the -->
+	<!-- conversion in fast-planner as it makes it compliant with px4 standards -->
+	<!-- <node pkg="pos_cmd_2_pos_targ" type="pos_conv.py" name="pos_conv" /> -->
 
 	<!-- start offboard_node here and also republish so when offboard_node starts there is -->
 	<!-- already a transform between map and bsse_link to be found -->
-	<group if="$(eval offb == true)">
+	<group if="$(arg offb)">
 		<node pkg="offboard_safety" type="offboard_node" name="offboard_node">
 		</node>
 
@@ -86,7 +89,7 @@
 
 
 	<!-- has mentioned at the top this belongs to the original repository and is disable by default -->
-	<group if="$(eval_only == true)">
+	<group if="$(arg offb)">
 		<!-- Costmap -->
 		<node pkg="nodelet" type="nodelet" name="camera_points_xyz" args="standalone rtabmap_ros/point_cloud_xyz">
 			<remap from="depth/image"       to="/r200/camera/depth/image_raw"/>
