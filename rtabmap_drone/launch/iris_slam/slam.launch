@@ -12,6 +12,12 @@
 	<!-- anything else than the slam -->
 	<arg name="slam_only" default="true"/>
 
+	<!-- launch the script to repub the camera pose so fast-planner can use it -->
+	<!-- TO DO: check that the topic names is the same -->
+	<arg name="repub_camera_pose" default="true"/>
+
+	<node if="$(arg repub_camera_pose)" pkg="rtabmap_drone" type="camera_pose_publisher.py" name="camera_pose_publisher"> </node> 
+
 	<arg name="rgb_arg"	    default= "/r200/camera/color/image_raw" />
 	<arg name="depth_arg"	    default= "/r200/camera/depth/image_raw" />
 	<arg name="camera_info_arg" default= "/r200/camera/color/camera_info" />
@@ -89,7 +95,7 @@
 
 
 	<!-- has mentioned at the top this belongs to the original repository and is disable by default -->
-	<group if="$(arg offb)">
+	<group unless="$(arg slam_only)">
 		<!-- Costmap -->
 		<node pkg="nodelet" type="nodelet" name="camera_points_xyz" args="standalone rtabmap_ros/point_cloud_xyz">
 			<remap from="depth/image"       to="/r200/camera/depth/image_raw"/>
