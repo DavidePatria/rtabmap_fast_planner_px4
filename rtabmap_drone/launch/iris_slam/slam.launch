@@ -7,6 +7,7 @@
 	<arg name="map_path"     default="~/.ros/rtabmap.db"/>
 	<arg name="offb"         default="true"/>
 
+
 	<!-- the original package launches a lot of stuff with the slam, like move_base and others -->
 	<!-- for since these are being externalised the default behaviour here is to not launch  -->
 	<!-- anything else than the slam -->
@@ -92,6 +93,8 @@
 		</node>
 	</group>
 
+	<!-- launch geometric controller -->
+	<include file="$(find rtabmap_dron)/launch/geometric_controller.launch"> </include>
 
 
 	<!-- has mentioned at the top this belongs to the original repository and is disable by default -->
