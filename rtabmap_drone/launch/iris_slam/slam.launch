@@ -6,6 +6,7 @@
 	<arg name="ground_truth" default="false"/>
 	<arg name="map_path"     default="~/.ros/rtabmap.db"/>
 	<arg name="offb"         default="true"/>
+	<arg name="control"      default="true"/>
 
 
 	<!-- the original package launches a lot of stuff with the slam, like move_base and others -->
@@ -94,7 +95,7 @@
 	</group>
 
 	<!-- launch geometric controller -->
-	<include file="$(find rtabmap_dron)/launch/geometric_controller.launch"> </include>
+	<include if="$(arg control)" file="$(find rtabmap_drone)/launch/geometric_controller.launch"> </include>
 
 
 	<!-- has mentioned at the top this belongs to the original repository and is disable by default -->
