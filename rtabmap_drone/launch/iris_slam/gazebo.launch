@@ -1,7 +1,6 @@
 <?xml version="1.0"?>
 <launch>
 	<!-- gazebo configs -->
-	<arg name="offb" default="false"/>
 	<arg name="gui" default="true"/>
 	<arg name="debug" default="false"/>
 	<arg name="verbose" default="false"/>

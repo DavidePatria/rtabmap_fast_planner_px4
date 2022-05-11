@@ -8,6 +8,8 @@ from geometry_msgs.msg import PoseStamped
 if __name__ == '__main__':
     rospy.init_node('camera_pose_publisher')
 
+    # In the original file the frames are passed as arguments in the launch file
+    # which means they are parameters available in ros server parameters.
     # parent_frame = rospy.get_param('~parent_frame', 'map')
     # camera_frame = rospy.get_param('~child_frame','camera_link')
     # pose_topic = rospy.get_param('~pose_topic','camera/pose')
