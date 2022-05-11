@@ -130,15 +130,24 @@ which will start the node and another script that publishes, useful for simulati
 
 ### modified simulations
 
-`rviz.launch` stays the same, but `slam_iris.launch` is used instead of the other one as the topic names are different and were changed.
+<!-- `rviz.launch` stays the same, but `slam_iris.launch` is used instead of the other one as the topic names are different and were changed. -->
+<!---->
+<!-- Spawning the drones is integrated into the launch files for gazebo, so is "iris" is specified a vanilla drone is spawned instead of the custom one. -->
 
-Spawning the drones is integrated into the launch files for gazebo, so is "iris" is specified a vanilla drone is spawned instead of the custom one.
+The new simulation mechanism relays on the `offboard_node` which is crucial to redirect the position as computerd by rtabmap, therefore the node launch is included in `slam.launch`, where arguments are also provided to deactivate various parts of the simulation. 
+Check the launch file for more details.
+
+
+
+
 ## particular configuration
 
 In a commit the issue relative to the configuration of `rtabmapviz` has been resolved an a `.ini` file has been added to the repo and it is passed to `rtabmap.launch` as an argument.
 But, butt, is contains a path to `$HOME` inside which it was generated, therefore it might cause problems. 
 Therefore, if after launching `slam.launch` the ciclets in rtabmapviz are too big the configuration hasn't been applied.
 
+
+# miscellanea
 
 ## Commands for mapping with realsense D435i
 
