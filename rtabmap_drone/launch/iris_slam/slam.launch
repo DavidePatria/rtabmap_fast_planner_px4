@@ -37,9 +37,10 @@
 		<param name="base_frame_id" value="base_link"/>
 	</node>
 
+	<!-- potentially harmful has rtabmap shall not be connected to anything and solely serves the purpose of providing a position -->
 	<!-- To connect rtabmap planning stuff with move_base below -->
-	<param name="/rtabmap/rtabmap/use_action_for_goal" value="true"/>
-	<remap from="/rtabmap/move_base" to="/move_base"/>
+	<!-- <param name="/rtabmap/rtabmap/use_action_for_goal" value="true"/> -->
+	<!-- <remap from="/rtabmap/move_base" to="/move_base"/> -->
 
 	<!-- VSLAM -->
 	<param name="/rtabmap/rtabmap/latch" value="false"/> <!-- For some reason, if we latch grid_map, the global costmap inflation layer will create holes on robot path. To avoid holes, republish grid_map on each update (latching disabled). -->
