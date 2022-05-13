@@ -2,12 +2,13 @@
 	<!-- geomtric controller already subscribes to the correct topics as it is made to work wit px4 -->
 	<!-- so no further integration steps are rquired for it to work with rtabmap and the other packages -->
 	<arg name="mav_name" default="iris"/>
+	<!-- according to the value 1 for the ctrl_mode is ERROR_QUATERNION and 2 is ERROR_GEOMETRIC  -->
 	<arg name="command_input" default="2" />
 	<arg name="gazebo_simulation" default="true" />
-	<arg name="max_acc" default="5.0" />
+	<arg name="max_acc" default="1.0" />
 	<arg name="init_pos_x" default="0.0" />
 	<arg name="init_pos_y" default="0.0" />
-	<arg name="init_pos_z" default="2.0" />
+	<arg name="init_pos_z" default="1.0" />
 
 	<node pkg="geometric_controller" type="geometric_controller_node" name="geometric_controller" output="screen">
 		<param name="mav_name" type="string" value="$(arg mav_name)" />
