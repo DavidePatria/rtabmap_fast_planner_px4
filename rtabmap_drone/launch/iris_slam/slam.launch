@@ -90,8 +90,14 @@
 		<node pkg="offboard_safety" type="offboard_node" name="offboard_node">
 		</node>
 
+		<!-- node that satisfies the condition for the remote beat to ease the simulation -->
 		<node pkg="offboard_safety" type="remote_pub.py" name="remote_pub_node">
 		</node>
+	</group>
+
+	<!-- if offbaord node is deactivated then just launch the programme to repub vision pose -->
+	<group unless="$(arg offb)">
+		<node pkg="offboard_safety" type="vision_pose" name="vision_pose"> </node>
 	</group>
 
 	<!-- launch geometric controller -->
