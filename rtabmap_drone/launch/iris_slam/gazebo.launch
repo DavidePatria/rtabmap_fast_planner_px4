@@ -25,22 +25,22 @@
 	</include>
 
 	not every world as free space at the origin, so custom positions are employed
-	<group if="$(arg world == hospital)">
+	<group if="$(eval world == 'hospital')">
 		<arg name="x" default="0.0"/>
 		<arg name="y" default="11.4"/>
 		<arg name="z" default="0.0"/>
 	</group>
-	<group if="$(arg world == small_house)">
-		<arg name="x" default="-2"/>
-		<arg name="y" default="-0.5"/>
+	<group if="$(eval world == 'small_house')">
+		<arg name="x" default="-3.0"/>
+		<arg name="y" default="-1.0"/>
 		<arg name="z" default="0"/>
 	</group>
 
 	<arg name="yaw" value="-1.56"/>
 
 	<!-- Spawn drone from rtabmap -->
-	<include if="$(arg vehicle == rtabmap)" file="$(find rtabmap_drone)/launch/iris_slam/spawn_drone.launch"> </include>
+	<include if="$(eval vehicle == 'rtabmap')" file="$(find rtabmap_drone)/launch/iris_slam/spawn_drone.launch"> </include>
 	<!-- Spawn drone from default package -->
-	<include if="$(arg vehicle == iris_depth)" file="$(find rtabmap_drone)/launch/iris_slam/spawn_drone.launch"> </include>
+	<include if="$(eval vehicle == 'iris_depth')" file="$(find rtabmap_drone)/launch/spawn_iris_depth.launch"> </include>
 
 </launch>
