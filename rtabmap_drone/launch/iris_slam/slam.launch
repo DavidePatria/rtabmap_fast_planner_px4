@@ -7,6 +7,7 @@
 	<arg name="map_path"     default="~/.ros/rtabmap.db"/>
 	<arg name="offb"         default="true"/>
 	<arg name="control"      default="true"/>
+	<arg name="vehicle"      default="rtabmap"/>
 
 
 	<!-- the original package launches a lot of stuff with the slam, like move_base and others -->
@@ -109,9 +110,18 @@
 	<group unless="$(arg slam_only)">
 		<!-- Costmap -->
 		<node pkg="nodelet" type="nodelet" name="camera_points_xyz" args="standalone rtabmap_ros/point_cloud_xyz">
-			<remap from="depth/image"       to="/r200/camera/depth/image_raw"/>
-			<remap from="depth/camera_info" to="/r200/camera/depth/camera_info"/>
-			<remap from="cloud"             to="camera_cloud" />
+				
+			<group if="$(eval vehicle == 'rtabmap')">
+				<remap from="depth/image"       to="/r200/camera/depth/image_raw"/>
+				<remap from="depth/camera_info" to="/r200/camera/depth/camera_info"/>
+				<remap from="cloud"             to="camera_cloud" />
+			</group>
+
+			<group if="$(eval vehicle == 'iris_depth')">
+				<remap from="depth/image"       to="/camera/depth/image_raw"/>
+				<remap from="depth/camera_info" to="/camera/depth/camera_info"/>
+				<remap from="cloud"             to="/camera/depth/camera_info" />
+			</group>
 
 			<param name="decimation"  type="double" value="4"/>
 			<param name="voxel_size"  type="double" value="0.0"/>
