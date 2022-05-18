@@ -15,7 +15,7 @@
 	<arg name="fcu_url" default="udp://:14540@localhost:14557"/>
 	<arg name="respawn_mavros" default="false"/>
 
-	<arg name="world" default="$(find px4_tests)/worlds/small_house.world"/>
+	<!-- <arg name="world" default="$(find px4_tests)/worlds/small_house.world"/> -->
 	<arg name="sdf" default="$(find rtabmap_drone)/models/iris_depth_camera/iris_depth_camera.sdf"/>
 
 	<arg name="interactive" default="true"/>
