@@ -21,19 +21,44 @@
 
 	<node if="$(arg repub_camera_pose)" pkg="rtabmap_drone" type="camera_pose_publisher.py" name="camera_pose_publisher"> </node> 
 
-	<arg name="rgb_arg"	    default= "/r200/camera/color/image_raw" />
-	<arg name="depth_arg"	    default= "/r200/camera/depth/image_raw" />
-	<arg name="camera_info_arg" default= "/r200/camera/color/camera_info" />
-	<arg name="imu_arg"	    default= "/body_imu/data" />
+	<!-- rgb sensor topics with ifs according to employed vehicle -->
+	<!-- <group if="$(eval vehicle == 'rtabmap')"> -->
+	<!-- 	<arg name="rgb_arg"	        value= "/r200/camera/color/image_raw" /> -->
+	<!-- 	<arg name="depth_arg"	    value= "/r200/camera/depth/image_raw" /> -->
+	<!-- 	<arg name="camera_info_arg" value= "/r200/camera/color/camera_info" /> -->
+	<!-- 	<arg name="imu_arg"	        value= "/body_imu/data" /> -->
+	<!-- </group> -->
+	<!---->
+	<!-- <group if="$(eval vehicle == 'iris_depth')"> -->
+	<!-- 	<arg name="rgb_arg"	        value= "/camera/rgb/image_raw" /> -->
+	<!-- 	<arg name="depth_arg"	    value= "/camera/depth/image_raw" /> -->
+	<!-- 	<arg name="camera_info_arg" value= "/camera/rgb/camera_info" /> -->
+	<!-- 	<arg name="imu_arg"	        value= "/mavros/imu/data" /> -->
+	<!-- </group> -->
 	
+	<arg name="rgb_arg"	        value= "/camera/rgb/image_raw" />
+	<arg name="depth_arg"	    value= "/camera/depth/image_raw" />
+	<arg name="camera_info_arg" value= "/camera/rgb/camera_info" />
+	<arg name="imu_arg"	        value= "/mavros/imu/data" />
+
+	<!-- <arg name="rgb_arg"	    default= "/camera/rgb/image_raw" /> -->
+	<!-- <arg name="depth_arg"	    default= "/camera/depth/image_raw" /> -->
+	<!-- <arg name="camera_info_arg" default= "/camera/rgb/camera_info" /> -->
+	<!-- <arg name="imu_arg"	    default= "/mavros/imu/data" /> -->
+
 	<arg     if="$(arg localization)" name="pre_args" default=""/>
 	<arg unless="$(arg localization)" name="pre_args" default="-d"/>
 	
 	<node pkg="imu_complementary_filter" type="complementary_filter_node" name="imu_filter_node" output="screen">
-		<remap from="imu" to="body_imu"/>
+		<remap if="$(eval vehicle == 'rtabmap')" from="imu" to="body_imu"/>
+		<remap if="$(eval vehicle == 'iris_depth')" from="imu" to="mavros/imu"/>
 	</node> 
+
 	<node pkg="nodelet" type="nodelet" name="imu_to_tf" args="standalone rtabmap_ros/imu_to_tf">
-		<remap from="imu/data" to="/body_imu/data"/>
+		<!-- another if for the different imu topic for the different vehicles -->
+		<remap if="$(eval vehicle == 'rtabmap')" from="imu/data" to="/body_imu/data"/>
+		<remap if="$(eval vehicle == 'iris_depth')" from="imu/data" to="mavros/imu/data"/>
+		
 		<param name="fixed_frame_id" value="base_link_stabilized"/>
 		<param name="base_frame_id" value="base_link"/>
 	</node>
@@ -120,7 +145,7 @@
 			<group if="$(eval vehicle == 'iris_depth')">
 				<remap from="depth/image"       to="/camera/depth/image_raw"/>
 				<remap from="depth/camera_info" to="/camera/depth/camera_info"/>
-				<remap from="cloud"             to="/camera/depth/camera_info" />
+				<remap from="cloud"             to="/camera/depth/points" />
 			</group>
 
 			<param name="decimation"  type="double" value="4"/>
