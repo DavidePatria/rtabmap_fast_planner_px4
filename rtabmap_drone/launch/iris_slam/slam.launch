@@ -9,6 +9,11 @@
 	<arg name="control"      default="true"/>
 	<arg name="vehicle"      default="rtabmap"/>
 
+	<!-- define arg for topics and set them empty  -->
+	<!-- <arg name="rgb_arg"	        default= "" /> -->
+	<!-- <arg name="depth_arg"	    default= "" /> -->
+	<!-- <arg name="camera_info_arg" default= "" /> -->
+	<!-- <arg name="imu_arg"	        default= "" /> -->
 
 	<!-- the original package launches a lot of stuff with the slam, like move_base and others -->
 	<!-- for since these are being externalised the default behaviour here is to not launch  -->
@@ -22,18 +27,17 @@
 	<node if="$(arg repub_camera_pose)" pkg="rtabmap_drone" type="camera_pose_publisher.py" name="camera_pose_publisher"> </node> 
 
 	<!-- rgb sensor topics with ifs according to employed vehicle -->
-	<!-- <group if="$(eval vehicle == 'rtabmap')"> -->
-	<!-- 	<param name="rgb_arg"	        value= "/r200/camera/color/image_raw" /> -->
-	<!-- 	<param name="depth_arg"	    value= "/r200/camera/depth/image_raw" /> -->
-	<!-- 	<param name="camera_info_arg" value= "/r200/camera/color/camera_info" /> -->
-	<!-- 	<param name="imu_arg"	        value= "/body_imu/data" /> -->
+	<!-- <group if="$(eval arg('vehicle') == 'rtabmap')"> -->
+	<!-- 	<arg name="rgb_arg"	        value= "/r200/camera/color/image_raw" /> -->
+	<!-- 	<arg name="depth_arg"	    value= "/r200/camera/depth/image_raw" /> -->
+	<!-- 	<arg name="camera_info_arg" value= "/r200/camera/color/camera_info" /> -->
+	<!-- 	<arg name="imu_arg"	        value= "/body_imu/data" /> -->
 	<!-- </group> -->
-	<!---->
-	<!-- <group if="$(eval vehicle == 'iris_depth')"> -->
-	<!-- 	<param name="rgb_arg"	        value= "/camera/rgb/image_raw" /> -->
-	<!-- 	<param name="depth_arg"	    value= "/camera/depth/image_raw" /> -->
-	<!-- 	<param name="camera_info_arg" value= "/camera/rgb/camera_info" /> -->
-	<!-- 	<param name="imu_arg"	        value= "/mavros/imu/data" /> -->
+	<!-- <group if="$(eval arg('vehicle') == 'iris_depth')"> -->
+	<!-- 	<arg name="rgb_arg"	        value= "/camera/rgb/image_raw" /> -->
+	<!-- 	<arg name="depth_arg"	    value= "/camera/depth/image_raw" /> -->
+	<!-- 	<arg name="camera_info_arg" value= "/camera/rgb/camera_info" /> -->
+	<!-- 	<arg name="imu_arg"	        value= "/mavros/imu/data" /> -->
 	<!-- </group> -->
 	
 	<arg name="rgb_arg"	        value= "/r200/camera/color/image_raw" />
