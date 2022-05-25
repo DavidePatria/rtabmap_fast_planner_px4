@@ -1,4 +1,3 @@
-<?xml version="1.0"?>
 <launch>
 
 	<arg name="localization" default="false"/>
@@ -27,28 +26,16 @@
 	<node if="$(arg repub_camera_pose)" pkg="rtabmap_drone" type="camera_pose_publisher.py" name="camera_pose_publisher"> </node> 
 
 	<!-- rgb sensor topics with ifs according to employed vehicle -->
-	<!-- <group if="$(eval arg('vehicle') == 'rtabmap')"> -->
-	<!-- 	<arg name="rgb_arg"	        value= "/r200/camera/color/image_raw" /> -->
-	<!-- 	<arg name="depth_arg"	    value= "/r200/camera/depth/image_raw" /> -->
-	<!-- 	<arg name="camera_info_arg" value= "/r200/camera/color/camera_info" /> -->
-	<!-- 	<arg name="imu_arg"	        value= "/body_imu/data" /> -->
-	<!-- </group> -->
-	<!-- <group if="$(eval arg('vehicle') == 'iris_depth')"> -->
-	<!-- 	<arg name="rgb_arg"	        value= "/camera/rgb/image_raw" /> -->
-	<!-- 	<arg name="depth_arg"	    value= "/camera/depth/image_raw" /> -->
-	<!-- 	<arg name="camera_info_arg" value= "/camera/rgb/camera_info" /> -->
-	<!-- 	<arg name="imu_arg"	        value= "/mavros/imu/data" /> -->
-	<!-- </group> -->
-	
-	<arg name="rgb_arg"	        value= "/r200/camera/color/image_raw" />
-	<arg name="depth_arg"	    value= "/r200/camera/depth/image_raw" />
-	<arg name="camera_info_arg" value= "/r200/camera/color/camera_info" />
-	<arg name="imu_arg"	        value= "/body_imu/data" />
+	<!-- <group if="$(eval vehicle == 'rtabmap')"> -->
+	<arg if="$(eval vehicle == 'rtabmap')" name="rgb_arg"	      default= "/r200/camera/color/image_raw" />
+	<arg if="$(eval vehicle == 'rtabmap')" name="depth_arg"	      default= "/r200/camera/depth/image_raw" />
+	<arg if="$(eval vehicle == 'rtabmap')" name="camera_info_arg" default= "/r200/camera/color/camera_info" />
+	<arg if="$(eval vehicle == 'rtabmap')" name="imu_arg"	      default= "/body_imu/data" />
 
-	<!-- <arg name="rgb_arg"	    default= "/camera/rgb/image_raw" /> -->
-	<!-- <arg name="depth_arg"	    default= "/camera/depth/image_raw" /> -->
-	<!-- <arg name="camera_info_arg" default= "/camera/rgb/camera_info" /> -->
-	<!-- <arg name="imu_arg"	    default= "/mavros/imu/data" /> -->
+	<arg if="$(eval vehicle == 'iris_depth')" name="rgb_arg"	     default= "/camera/rgb/image_raw" />
+	<arg if="$(eval vehicle == 'iris_depth')" name="depth_arg"	     default= "/camera/depth/image_raw" />
+	<arg if="$(eval vehicle == 'iris_depth')" name="camera_info_arg" default= "/camera/rgb/camera_info" />
+	<arg if="$(eval vehicle == 'iris_depth')" name="imu_arg"	     default= "/mavros/imu/data" />
 
 	<arg     if="$(arg localization)" name="pre_args" default=""/>
 	<arg unless="$(arg localization)" name="pre_args" default="-d"/>
