@@ -23,23 +23,23 @@
 
 	<!-- rgb sensor topics with ifs according to employed vehicle -->
 	<!-- <group if="$(eval vehicle == 'rtabmap')"> -->
-	<!-- 	<arg name="rgb_arg"	        value= "/r200/camera/color/image_raw" /> -->
-	<!-- 	<arg name="depth_arg"	    value= "/r200/camera/depth/image_raw" /> -->
-	<!-- 	<arg name="camera_info_arg" value= "/r200/camera/color/camera_info" /> -->
-	<!-- 	<arg name="imu_arg"	        value= "/body_imu/data" /> -->
+	<!-- 	<param name="rgb_arg"	        value= "/r200/camera/color/image_raw" /> -->
+	<!-- 	<param name="depth_arg"	    value= "/r200/camera/depth/image_raw" /> -->
+	<!-- 	<param name="camera_info_arg" value= "/r200/camera/color/camera_info" /> -->
+	<!-- 	<param name="imu_arg"	        value= "/body_imu/data" /> -->
 	<!-- </group> -->
 	<!---->
 	<!-- <group if="$(eval vehicle == 'iris_depth')"> -->
-	<!-- 	<arg name="rgb_arg"	        value= "/camera/rgb/image_raw" /> -->
-	<!-- 	<arg name="depth_arg"	    value= "/camera/depth/image_raw" /> -->
-	<!-- 	<arg name="camera_info_arg" value= "/camera/rgb/camera_info" /> -->
-	<!-- 	<arg name="imu_arg"	        value= "/mavros/imu/data" /> -->
+	<!-- 	<param name="rgb_arg"	        value= "/camera/rgb/image_raw" /> -->
+	<!-- 	<param name="depth_arg"	    value= "/camera/depth/image_raw" /> -->
+	<!-- 	<param name="camera_info_arg" value= "/camera/rgb/camera_info" /> -->
+	<!-- 	<param name="imu_arg"	        value= "/mavros/imu/data" /> -->
 	<!-- </group> -->
 	
-	<arg name="rgb_arg"	        value= "/camera/rgb/image_raw" />
-	<arg name="depth_arg"	    value= "/camera/depth/image_raw" />
-	<arg name="camera_info_arg" value= "/camera/rgb/camera_info" />
-	<arg name="imu_arg"	        value= "/mavros/imu/data" />
+	<arg name="rgb_arg"	        value= "/r200/camera/color/image_raw" />
+	<arg name="depth_arg"	    value= "/r200/camera/depth/image_raw" />
+	<arg name="camera_info_arg" value= "/r200/camera/color/camera_info" />
+	<arg name="imu_arg"	        value= "/body_imu/data" />
 
 	<!-- <arg name="rgb_arg"	    default= "/camera/rgb/image_raw" /> -->
 	<!-- <arg name="depth_arg"	    default= "/camera/depth/image_raw" /> -->
