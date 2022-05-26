@@ -14,6 +14,10 @@
 
 	<arg name="vehicle" default="rtabmap"/>
 
+	<!-- <arg name="x" default="0"/> -->
+	<!-- <arg name="y" default="0"/> -->
+	<!-- <arg name="z" default="0"/> -->
+
 	<!-- Gazebo sim -->
 	<include file="$(find gazebo_ros)/launch/empty_world.launch">
 		<arg name="gui" value="$(arg gui)"/>
