@@ -17,19 +17,22 @@ if __name__ == '__main__':
     # base_link rs200_camera
 
     pose_pub = rospy.Publisher('camera/pose', PoseStamped, queue_size=1)
-
     listener = tf.TransformListener()
 
     rate = rospy.Rate(30.0)
+
     while not rospy.is_shutdown():
         try:
             # (trans,rot) = listener.lookupTransform('/'+parent_frame, '/'+camera_frame, rospy.Time(0))
-            trans,rot = listener.lookupTransform('base_link', 'rs200_camera', rospy.Time.now())
-        except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
+            # camera_link_rot is solely used to create a transform to publish the right point cloud
+            listener.waitForTransform('map', 'camera_link_rot', rospy.Time.now(), rospy.Duration(0.2))
+            trans,rot = listener.lookupTransform('map', 'camera_link_rot', rospy.Time.now())
+        except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException, tf.Exception) as e:
+            rospy.logwarn(e)
             continue
 
         pose_msg = PoseStamped()
-        pose_msg.header.frame_id = 'base_link'
+        pose_msg.header.frame_id = 'map'
         pose_msg.header.stamp = rospy.Time.now()
         pose_msg.pose.position.x = trans[0]
         pose_msg.pose.position.y = trans[1]
