@@ -54,7 +54,8 @@
 		<param name="base_frame_id" value="base_link"/>
 	</node>
 
-	<!-- potentially harmful has rtabmap shall not be connected to anything and solely serves the purpose of providing a position -->
+	<!-- potentially harmful has rtabmap shall not be connected to anything  -->
+	<!-- and solely serves the purpose of providing a position in this package -->
 	<!-- To connect rtabmap planning stuff with move_base below -->
 	<!-- <param name="/rtabmap/rtabmap/use_action_for_goal" value="true"/> -->
 	<!-- <remap from="/rtabmap/move_base" to="/move_base"/> -->

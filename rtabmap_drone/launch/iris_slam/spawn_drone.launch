@@ -1,59 +1,65 @@
 <?xml version="1.0"?>
 <launch>
 
-  <!-- vehicle model -->
-  <arg name="est" default="ekf2"/>
-  <arg name="vehicle" default="iris_rtabmap"/>
-  <arg name="urdf" default="$(find rtabmap_drone)/urdf/drone.urdf.xacro"/>
-  <arg name="rcS" default="$(find rtabmap_drone)/config/rcS"/>
-  <env name="PX4_SIM_MODEL" value="$(arg vehicle)" />
-  <env name="PX4_ESTIMATOR" value="$(arg est)" />
-  <arg name="scale" default="0.6"/>
-  <arg name="x" default="0"/>
-  <arg name="y" default="0"/>
-  <arg name="z" default="0.01"/>
-  <arg name="yaw" default="0"/>
-  <!-- MAVROS configs -->
-  <arg name="fcu_url" default="udp://:14540@localhost:14557"/>
-  <arg name="respawn_mavros" default="false"/>
-  <!-- PX4 configs -->
-  <arg name="interactive" default="true"/>
-  <!-- PX4 SITL -->
-  <arg     if="$(arg interactive)" name="px4_command_arg1" value=""/>
-  <arg unless="$(arg interactive)" name="px4_command_arg1" value="-d"/>
-  <node name="sitl" pkg="px4" type="px4" output="screen"
-        args="$(find px4)/build/px4_sitl_default/etc -s $(arg rcS) $(arg px4_command_arg1)" required="true"/>
+	<!-- THIS ONE IS FOR RTABMAP IRIS -->
 
-  <!-- Spawn drone in gazebo -->
-  <arg name="stl_path" value="mavlink_sitl_gazebo/models/iris/meshes"/>
-  <param name="robot_description" command="$(find xacro)/xacro --inorder '$(arg urdf)' scale:=$(arg scale) stl_path:=$(arg stl_path)" />
-  <node pkg="gazebo_ros" type="spawn_model" name="spawn_model" args="-urdf -param /robot_description -model drone -x $(arg x) -y $(arg y) -z $(arg z) -Y $(arg yaw)"/>
-  <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
-    <param name="publish_frequency" type="double" value="30.0" />
-  </node>
+	<!-- vehicle model -->
+	<arg name="est" default="ekf2"/>
+	<arg name="vehicle" default="iris_rtabmap"/>
+	<arg name="urdf" default="$(find rtabmap_drone)/urdf/drone.urdf.xacro"/>
+	<arg name="rcS" default="$(find rtabmap_drone)/config/rcS"/>
+	<env name="PX4_SIM_MODEL" value="$(arg vehicle)" />
+	<env name="PX4_ESTIMATOR" value="$(arg est)" />
+	<arg name="scale" default="0.6"/>
+	<arg name="x" default="0"/>
+	<arg name="y" default="0"/>
+	<arg name="z" default="0.01"/>
+	<arg name="yaw" default="0"/>
+	<!-- MAVROS configs -->
+	<arg name="fcu_url" default="udp://:14540@localhost:14557"/>
+	<arg name="respawn_mavros" default="false"/>
+	<!-- PX4 configs -->
+	<arg name="interactive" default="true"/>
+	<!-- PX4 SITL -->
+	<arg     if="$(arg interactive)" name="px4_command_arg1" value=""/>
+	<arg unless="$(arg interactive)" name="px4_command_arg1" value="-d"/>
+	<node name="sitl" pkg="px4" type="px4" output="screen"
+		args="$(find px4)/build/px4_sitl_default/etc -s $(arg rcS) $(arg px4_command_arg1)" required="true"/>
 
-   <!-- MAVROS -->
-  <include file="$(find mavros)/launch/node.launch">
-    <arg name="pluginlists_yaml" value="$(find mavros)/launch/px4_pluginlists.yaml" />
-    <arg name="config_yaml" value="$(find rtabmap_drone)/config/px4_config.yaml" />
+	<!-- Spawn drone in gazebo -->
+	<arg name="stl_path" value="mavlink_sitl_gazebo/models/iris/meshes"/>
+	<param name="robot_description" command="$(find xacro)/xacro --inorder '$(arg urdf)' scale:=$(arg scale) stl_path:=$(arg stl_path)" />
+	<node pkg="gazebo_ros" type="spawn_model" name="spawn_model" args="-urdf -param /robot_description -model drone -x $(arg x) -y $(arg y) -z $(arg z) -Y $(arg yaw)"/>
+	<node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
+		<param name="publish_frequency" type="double" value="30.0" />
+	</node>
 
-    <arg name="fcu_url" value="$(arg fcu_url)" />
-    <arg name="gcs_url" value="" /> <!-- GCS link is provided by SITL -->
-    <arg name="tgt_system" value="1" />
-    <arg name="tgt_component" value="1" />
-    <arg name="log_output" value="screen" />
-    <arg name="fcu_protocol" value="v2.0" />
-    <arg name="respawn_mavros" default="$(arg respawn_mavros)" />
-  </include>
+	<!-- MAVROS -->
+	<include file="$(find mavros)/launch/node.launch">
+		<arg name="pluginlists_yaml" value="$(find mavros)/launch/px4_pluginlists.yaml" />
+		<arg name="config_yaml" value="$(find rtabmap_drone)/config/px4_config.yaml" />
+
+		<arg name="fcu_url" value="$(arg fcu_url)" />
+		<arg name="gcs_url" value="" /> <!-- GCS link is provided by SITL -->
+		<arg name="tgt_system" value="1" />
+		<arg name="tgt_component" value="1" />
+		<arg name="log_output" value="screen" />
+		<arg name="fcu_protocol" value="v2.0" />
+		<arg name="respawn_mavros" default="$(arg respawn_mavros)" />
+	</include>
 
 	<!-- added to get the drone working with fast planner. by default the camera orientation is wrong -->
 	<!-- seen also in https://github.com/mzahana/px4_fast_planner/blob/c3d958e4204af22cd51487492f15ebe6dfef7901/launch/px4_fast_planner.launch#L30 -->
-	<node pkg="tf" type="static_transform_publisher" name="tf_camera" args="0.1 0 0.0 -1.57 0 -1.57 base_link camera_link 33"/>
+	<!-- <node pkg="tf" type="static_transform_publisher" name="tf_camera" args="0.1 0 0.0 0 0 0 base_link camera_link 30"/> -->
+	<!-- add another transform to create a frame rotated as the point cloud should be, later use by the script that -->
+	<!-- the iris_rtabmap already as base_link ==> "camera_link" published, only the next is needed -->
+	<!-- <node pkg="tf" type="static_transform_publisher" name="tf_camera" args="0.1 0 0.0 -1.57 0 -1.57 rs200_camera camera_link_rot 100"/> -->
+	<node pkg="tf" type="static_transform_publisher" name="camera_link_broadcaster" args="0.1 0 0 -0.5 0 -0.5 0.5 rs200_camera camera_link_rot 100" />
 
-  <!-- hack to get TF working in RVIZ for joints -->
-  <node pkg="tf" type="static_transform_publisher" name="base_link_imu"
-        args="0 0 0 0 0 0 base_link imu_link 100" />
-  <node pkg="rtabmap_drone" type="rotor_tf.py" name="rotor_tf">
-     <param name="scale" value="$(arg scale)"/>
-  </node>
+	<!-- hack to get TF working in RVIZ for joints -->
+	<node pkg="tf" type="static_transform_publisher" name="base_link_imu"
+		args="0 0 0 0 0 0 base_link imu_link 100" />
+	<node pkg="rtabmap_drone" type="rotor_tf.py" name="rotor_tf">
+		<param name="scale" value="$(arg scale)"/>
+	</node>
 </launch>
