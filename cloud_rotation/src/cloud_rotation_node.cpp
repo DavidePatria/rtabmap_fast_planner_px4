@@ -21,7 +21,7 @@ void cloud_sub_cb(const sensor_msgs::PointCloud2 &msg) {
 	sensor_msgs::PointCloud2 cloud_out;
 	// pcl::transformPointCloud(const pcl::PointCloud<PointT> &cloud_in, pcl::PointCloud<PointT> &cloud_out, const Eigen::Affine3f &transform)
 	pcl::transformPointCloud(msg, cloud_out, &rotation);
-	pcl::transformPointCloud
+	// pcl::transformPointCloud;
 }
 
 int main(int argc, char **argv) {
