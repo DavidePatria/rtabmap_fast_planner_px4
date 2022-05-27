@@ -34,7 +34,8 @@ if __name__ == '__main__':
     while not rospy.is_shutdown():
         try:
             # camera_link_rot is solely used to create a transform to publish the right point cloud
-            trans = TFbuffer.lookup_transform('map', 'camera_link_rot', rospy.Time.now(), rospy.Duration(1.0))
+            camera_link = 'camera_link_rot'
+            trans = TFbuffer.lookup_transform('map', camera_link, rospy.Time.now(), rospy.Duration(1.0))
         # except using tf and not tf2_ros
         except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException) as e:
             rospy.logwarn(e)
