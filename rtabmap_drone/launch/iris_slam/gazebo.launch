@@ -37,6 +37,10 @@
 	<arg if="$(eval world == 'small_house')" name="y" default="-0.5"/>
 	<arg if="$(eval world == 'small_house')" name="z" default="0.0"/>
 
+	<arg if="$(eval world == 'outdoor_village')" name="x" default="0.0"/>
+	<arg if="$(eval world == 'outdoor_village')" name="y" default="0.0"/>
+	<arg if="$(eval world == 'outdoor_village')" name="z" default="0.0"/>
+
 	<arg if="$(eval world == 'apt')" name="z" default="-1.57"/>
 
 	<arg name="yaw" default="0.0"/>
