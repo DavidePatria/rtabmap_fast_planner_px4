@@ -23,7 +23,7 @@
 		<!--Params specific for Iris copter-->
 		<!-- in the case of the present vehicle the needed values are quite different from the default ones -->
 		<!-- found in geometric_controller repo. they need to be tuned, and understood -->
-		<param name="attctrl_constant" value="0.5"/>
+		<param name="attctrl_constant" value="0.7"/>
 		<param name="normalizedthrust_constant" value="0.04"/>
 		<param name="normalizedthrust_offset" value="0.05"/>
 
