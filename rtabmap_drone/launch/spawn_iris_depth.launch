@@ -4,6 +4,8 @@
 
 	<!-- vehicle pose -->
 	<arg name="est" default="ekf2"/>
+	<!-- this name should guide px4 to source the rigt config file from the folder -->
+	<!-- in this package pointed to below -->
 	<arg name="vehicle" default="iris"/>
 	<arg name="x" default="-2"/>
 	<arg name="y" default="-0.5"/>
@@ -24,14 +26,19 @@
 
 	<!-- added from px4/posix_sitl.launch -->
 	<!-- <env name="PX4_SIM_MODEL" value="$(arg vehicle)" /> -->
-	<env name="PX4_SIM_MODEL" value="iris" />
+	<!-- <env name="PX4_SIM_MODEL" value="iris" /> -->
+	<env name="PX4_SIM_MODEL" value="$(arg vehicle)" />
 	<env name="PX4_ESTIMATOR" value="$(arg est)" />
 
 	<!-- PX4 SITL -->
 	<arg unless="$(arg interactive)" name="px4_command_arg1" value="-d"/>
 	<arg     if="$(arg interactive)" name="px4_command_arg1" value=""/>
+	<arg name="rcS" default="$(find rtabmap_drone)/config/rcS"/>
+	<!-- make px4 source the custom rc file or whatever it is -->
+	<!-- <node name="sitl" pkg="px4" type="px4" output="screen" -->
+	<!--     args="$(find px4)/build/px4_sitl_default/etc -s etc/init.d-posix/rcS $(arg px4_command_arg1)" required="true"/> -->
 	<node name="sitl" pkg="px4" type="px4" output="screen"
-	    args="$(find px4)/build/px4_sitl_default/etc -s etc/init.d-posix/rcS $(arg px4_command_arg1)" required="true"/>
+		args="$(find px4)/build/px4_sitl_default/etc -s $(arg rcS) $(arg px4_command_arg1)" required="true"/>
 	
 	<!-- added from px4/posix_sitl.launch -->
 	<!-- gazebo model -->

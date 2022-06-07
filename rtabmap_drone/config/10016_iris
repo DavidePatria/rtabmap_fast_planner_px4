@@ -1,0 +1,5 @@
+#!/bin/sh
+
+. ${R}etc/init.d/rc.mc_defaults
+
+param set-default EKF2_AID_MASK 24
