@@ -45,10 +45,21 @@
 	<node name="$(anon vehicle_spawn)" pkg="gazebo_ros" type="spawn_model" output="screen" args="-sdf -file $(arg sdf) -model $(arg vehicle) -x $(arg x) -y $(arg y) -z $(arg z) -R $(arg R) -P $(arg P) -Y $(arg yaw)"/>
 	
 	<!-- MAVROS -->
-	<include file="$(find mavros)/launch/px4.launch">
+	<!-- <include file="$(find mavros)/launch/px4.launch"> -->
+	<include file="$(find mavros)/launch/node.launch">
+		<!-- get the config from this package, which includes no tf publishing (which -->
+		<!-- is left to the slam) and other stuff -->
+		<arg name="pluginlists_yaml" value="$(find mavros)/launch/px4_pluginlists.yaml" />
+		<arg name="config_yaml" value="$(find rtabmap_drone)/config/px4_config.yaml" />
+
 	    <!-- GCS link is provided by SITL -->
-	    <arg name="gcs_url" value=""/>
+		<!-- copied from the iris_rtabmap spawner, hopefully no problems -->
 	    <arg name="fcu_url" value="$(arg fcu_url)"/>
+	    <arg name="gcs_url" value=""/>
+		<arg name="tgt_system" value="1" />
+		<arg name="tgt_component" value="1" />
+		<arg name="log_output" value="screen" />
+		<arg name="fcu_protocol" value="v2.0" />
 	    <arg name="respawn_mavros" value="$(arg respawn_mavros)"/>
 	</include>
 
