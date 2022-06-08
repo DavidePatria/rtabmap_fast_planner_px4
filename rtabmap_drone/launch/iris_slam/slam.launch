@@ -120,7 +120,9 @@
 	</group>
 
 	<!-- launch geometric controller -->
-	<include if="$(arg control)" file="$(find rtabmap_drone)/launch/geometric_controller.launch"> </include>
+	<include if="$(arg control)" file="$(find rtabmap_drone)/launch/geometric_controller.launch"> 
+		<arg name="vehicle" value="$(arg vehicle)"/>
+	</include>
 
 
 	<!-- has mentioned at the top this belongs to the original repository and is disable by default -->
