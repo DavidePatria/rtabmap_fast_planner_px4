@@ -2,6 +2,8 @@
 	<!-- geomtric controller already subscribes to the correct topics as it is made to work wit px4 -->
 	<!-- so no further integration steps are rquired for it to work with rtabmap and the other packages -->
 	<arg name="mav_name" default="iris"/>
+	<!-- <arg name="vehicle" default="rtabmap"/> -->
+	
 	<!-- according to the value 1 for the ctrl_mode is ERROR_QUATERNION and 2 is ERROR_GEOMETRIC  -->
 	<arg name="command_input" default="2" />
 	<arg name="gazebo_simulation" default="true" />
@@ -20,12 +22,41 @@
 		<!-- <param name="max_acc" value="$(arg max_acc)" /> -->
 		<param name="max_acc" value="2.0" />
 
+		<!-- THIS GROUPS SHOULD BE USED TO SEPARATE THE VEHICLES, FOR NOW THEY DO NOT WORK, MAYBE MISUSED GROUP -->
+
 		<!--Params specific for Iris copter-->
 		<!-- in the case of the present vehicle the needed values are quite different from the default ones -->
 		<!-- found in geometric_controller repo. they need to be tuned, and understood -->
+
+		<!-- <group if="$(eval vehicle == 'rtabmap')"> -->
+		<!-- 	<param name="attctrl_constant" value="0.7"/> -->
+		<!-- 	<param name="normalizedthrust_constant" value="0.04"/> -->
+		<!-- 	<param name="normalizedthrust_offset" value="0.05"/> -->
+		<!---->
+		<!-- 	<param name="Kp_x" value="10.0" /> -->
+		<!-- 	<param name="Kp_y" value="10.0" /> -->
+		<!-- 	<param name="Kp_z" value="20.0" /> -->
+		<!-- 	<param name="Kv_x" value="5.0" /> -->
+		<!-- 	<param name="Kv_y" value="5.0" /> -->
+		<!-- 	<param name="Kv_z" value="10.0" /> -->
+		<!-- </group> -->
+		<!---->
+		<!-- <group if="$(eval vehicle == 'iris_depth')"> -->
+		<!-- 	<param name="attctrl_constant" value="0.7"/> -->
+		<!-- 	<param name="normalizedthrust_constant" value="0.04"/> -->
+		<!-- 	<param name="normalizedthrust_offset" value="0.1"/> -->
+		<!---->
+		<!-- 	<param name="Kp_x" value="10.0" /> -->
+		<!-- 	<param name="Kp_y" value="10.0" /> -->
+		<!-- 	<param name="Kp_z" value="20.0" /> -->
+		<!-- 	<param name="Kv_x" value="5.0" /> -->
+		<!-- 	<param name="Kv_y" value="5.0" /> -->
+		<!-- 	<param name="Kv_z" value="10.0" /> -->
+		<!-- </group> -->
+
 		<param name="attctrl_constant" value="0.7"/>
-		<param name="normalizedthrust_constant" value="0.04"/>
-		<param name="normalizedthrust_offset" value="0.05"/>
+		<param name="normalizedthrust_constant" value="0.07"/>
+		<param name="normalizedthrust_offset" value="0.08"/>
 
 		<param name="Kp_x" value="10.0" />
 		<param name="Kp_y" value="10.0" />
@@ -33,6 +64,7 @@
 		<param name="Kv_x" value="5.0" />
 		<param name="Kv_y" value="5.0" />
 		<param name="Kv_z" value="10.0" />
+
 		<param name="init_pos_x" value="$(arg init_pos_x)" />
 		<param name="init_pos_y" value="$(arg init_pos_y)" />
 		<param name="init_pos_z" value="$(arg init_pos_z)" />
