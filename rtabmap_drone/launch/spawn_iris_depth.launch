@@ -6,7 +6,7 @@
 	<arg name="est" default="ekf2"/>
 	<!-- this name should guide px4 to source the rigt config file from the folder -->
 	<!-- in this package pointed to below -->
-	<arg name="vehicle" default="iris"/>
+	<arg name="vehicle" default="iris_vision"/>
 	<arg name="x" default="-2"/>
 	<arg name="y" default="-0.5"/>
 	<arg name="z" default="0"/>
@@ -38,7 +38,7 @@
 	<!-- <node name="sitl" pkg="px4" type="px4" output="screen" -->
 	<!--     args="$(find px4)/build/px4_sitl_default/etc -s etc/init.d-posix/rcS $(arg px4_command_arg1)" required="true"/> -->
 	<node name="sitl" pkg="px4" type="px4" output="screen"
-		args="$(find px4)/build/px4_sitl_default/etc -s $(arg rcS) $(arg px4_command_arg1)" required="true"/>
+		args="$(find px4)/build/px4_sitl_default/etc -s etc/init.d-posix/rcS $(arg px4_command_arg1)" required="true"/>
 	
 	<!-- added from px4/posix_sitl.launch -->
 	<!-- gazebo model -->
