@@ -41,6 +41,10 @@
 	<arg if="$(eval world == 'outdoor_village')" name="y" default="0.0"/>
 	<arg if="$(eval world == 'outdoor_village')" name="z" default="0.0"/>
 
+	<arg if="$(eval world == 'darpa_subt_final_circuit')" name="x" default="0.0"/>
+	<arg if="$(eval world == 'darpa_subt_final_circuit')" name="y" default="0.0"/>
+	<arg if="$(eval world == 'darpa_subt_final_circuit')" name="z" default="0.0"/>
+
 	<arg if="$(eval world == 'apt')" name="z" default="-1.57"/>
 
 	<arg name="yaw" default="0.0"/>
