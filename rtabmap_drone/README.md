@@ -185,3 +185,6 @@ roslaunch rtabmap_ros rtabmap.launch \
     imu_topic:=/rtabmap/imu
 ```
 
+save the octomap for other uses:
+`rosrun octomap_server octomap_saver mapfile.bt octomap_binary:=/rtabmap/octomap_binary`
+from [here](https://github.com/introlab/rtabmap_ros/issues/452)
