@@ -131,17 +131,21 @@
 		<!-- Costmap -->
 		<node pkg="nodelet" type="nodelet" name="camera_points_xyz" args="standalone rtabmap_ros/point_cloud_xyz">
 				
-			<group if="$(eval vehicle == 'rtabmap')">
-				<remap from="depth/image"       to="/r200/camera/depth/image_raw"/>
-				<remap from="depth/camera_info" to="/r200/camera/depth/camera_info"/>
-				<remap from="cloud"             to="camera_cloud" />
-			</group>
+			<!-- <group if="$(eval vehicle == 'rtabmap')"> -->
+			<!-- 	<remap from="depth/image"       to="/r200/camera/depth/image_raw"/> -->
+			<!-- 	<remap from="depth/camera_info" to="/r200/camera/depth/camera_info"/> -->
+			<!-- 	<remap from="cloud"             to="camera_cloud" /> -->
+			<!-- </group> -->
+			<!---->
+			<!-- <group if="$(eval vehicle == 'iris_depth')"> -->
+			<!-- 	<remap from="depth/image"       to="/camera/depth/image_raw"/> -->
+			<!-- 	<remap from="depth/camera_info" to="/camera/depth/camera_info"/> -->
+			<!-- 	<remap from="cloud"             to="/camera/depth/points" /> -->
+			<!-- </group> -->
 
-			<group if="$(eval vehicle == 'iris_depth')">
-				<remap from="depth/image"       to="/camera/depth/image_raw"/>
-				<remap from="depth/camera_info" to="/camera/depth/camera_info"/>
-				<remap from="cloud"             to="/camera/depth/points" />
-			</group>
+			<remap from="depth/image"       to="/camera/depth/image_raw"/>
+			<remap from="depth/camera_info" to="/camera/depth/camera_info"/>
+			<remap from="cloud"             to="/camera/depth/points" />
 
 			<param name="decimation"  type="double" value="4"/>
 			<param name="voxel_size"  type="double" value="0.0"/>
@@ -184,45 +188,6 @@
 		<param name="gazebo_frame_id" value="drone::base_link"/>
 
 
-		<!-- launch the nodes and stuff needed for the launch of explore, which 
-			also uses a planner from the original pakcage-->
-	<group if="$(arg vanilla_stuff)">
-		<!-- Costmap -->
-		<node pkg="nodelet" type="nodelet" name="camera_points_xyz" args="standalone rtabmap_ros/point_cloud_xyz">
-			<remap from="depth/image"       to="/r200/camera/depth/image_raw"/>
-			<remap from="depth/camera_info" to="/r200/camera/depth/camera_info"/>
-			<remap from="cloud"             to="camera_cloud" />
-
-			<param name="decimation"  type="double" value="4"/>
-			<param name="voxel_size"  type="double" value="0.0"/>
-			<param name="approx_sync" type="bool"   value="true"/>
-		</node> 
-
-		<!-- navigation -->  
-		<node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
-			<remap from="map" to="/rtabmap/grid_map"/>
-			<remap from="odom" to="/rtabmap/odom"/>
-			<param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS" />  
-			<rosparam file="$(find rtabmap_drone_example)/param/costmap_common_params.yaml" command="load" ns="global_costmap" />
-			<rosparam file="$(find rtabmap_drone_example)/param/costmap_common_params.yaml" command="load" ns="local_costmap" />
-			<rosparam file="$(find rtabmap_drone_example)/param/global_costmap_params.yaml" command="load" />
-			<rosparam file="$(find rtabmap_drone_example)/param/local_costmap_params.yaml" command="load" />
-			<rosparam file="$(find rtabmap_drone_example)/param/base_local_planner_params.yaml" command="load" />
-		</node>
-		<node name="empty_voxels_markers" pkg="rtabmap_ros" type="voxel_markers" args="voxel_grid:=/move_base/local_costmap/voxel_layer/voxel_grid visualization_marker:=/voxels_empty">
-			<param name="cell_type" value="0"/>
-		</node>
-		<node name="marked_voxels_markers" pkg="rtabmap_ros" type="voxel_markers" args="voxel_grid:=/move_base/local_costmap/voxel_layer/voxel_grid visualization_marker:=/voxels_marked" />
-
-	</group>
-
-
-
-
-
-
-
 
 	</node>
 </launch>
-
