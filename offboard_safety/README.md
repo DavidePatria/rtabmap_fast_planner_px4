@@ -1,6 +1,6 @@
 # reference
 
-This package is a spin-off (a rib) started from [rtabmap_drone_example](https://github.com/matlabbe/rtabmap_drone_example) and serves the purpose of providing fallbacks and safety mechanisms for navigating using a drone that localises though vision_pose in px4 and has to navigate autonomously.
+This package is a spin-off (a rib) started from [rtabmap_drone_example](https://github.com/matlabbe/rtabmap_drone_example) and serves the purpose of providing fallbacks and safety mechanisms for navigating using a drone that localises through vision_pose in px4 and has to navigate autonomously.
 
 In prticular, the implemented mechanisms are: 
 - keep moving if a remote computer publishes on `/remote_beat` at a given frequency (set to 2hz now)
@@ -9,4 +9,4 @@ In prticular, the implemented mechanisms are:
 
 ## 
 
-This package moves the drone by sending position setpoint through a mavros topic using the message `PositionTarget`.
+This package moves the drone by sending position setpoint to a mavros topic using the message `PositionTarget`.

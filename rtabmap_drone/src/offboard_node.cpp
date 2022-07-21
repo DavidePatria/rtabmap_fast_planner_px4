@@ -2,6 +2,8 @@
  * @file offb_node.cpp
  * @brief Offboard control example node, written with MAVROS version 0.19.x, PX4 Pro Flight
  * Stack and tested in Gazebo SITL
+ * 
+ * the node will automatically trigger takeoff at a fixed height and subscribe to joystick callback
  */
 
 #include "ros/subscriber.h"
@@ -88,7 +90,6 @@ void twist_cb(const geometry_msgs::Twist::ConstPtr& msg){
 		current_goal.velocity.y = msg->linear.y;
 		current_goal.velocity.z = velocity_mask == VELOCITY2D_CONTROL?0:msg->linear.z;
 		current_goal.position.z = 1.5;
-		current_goal.yaw_rate = msg->angular.z;
 		current_goal.yaw_rate = msg->angular.z;
 		lastTwistReceived = ros::Time::now();
 	}
