@@ -111,6 +111,10 @@
 		</node>
 
 		<!-- node that satisfies the condition for the remote beat to ease the simulation -->
+		<!-- the node above would need a manual publishing to /remote_beat  -->
+		<!-- topic as a safety measure in the real case, but in simulation -->
+		<!-- is easier to not use it, publishin automatically and not use the -->
+		<!-- safety mechanism -->
 		<node pkg="offboard_safety" type="remote_pub.py" name="remote_pub_node">
 		</node>
 	</group>
@@ -126,7 +130,7 @@
 	</include>
 
 
-	<!-- has mentioned at the top this belongs to the original repository and is disable by default -->
+	<!-- as mentioned at the top this belongs to the original repository and is disable by default -->
 	<group unless="$(arg slam_only)">
 		<!-- Costmap -->
 		<node pkg="nodelet" type="nodelet" name="camera_points_xyz" args="standalone rtabmap_ros/point_cloud_xyz">
@@ -176,8 +180,8 @@
 		<node pkg="teleop_twist_joy" type="teleop_node" name="teleop_node" output="screen">
 			<param name="autorepeat_rate" value="5"/>
 		</node>
-	</group>
 
+	</group>
 
 	<!-- Ground truth -->
 	<!-- still haven't figured out the usefulness of this which is false by default -->
@@ -186,7 +190,6 @@
 		<param name="frame_id"        value="world"/>
 		<param name="child_frame_id"  value="base_link_gt"/>
 		<param name="gazebo_frame_id" value="drone::base_link"/>
-
 
 
 	</node>
