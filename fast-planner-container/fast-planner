@@ -1,0 +1,18 @@
+#start from the other base image, the one that contains ros melodic on ubuntu 18.04 with cuda support
+# supposing the base has been built with the name "melodic-nvidia-18-04" and 
+# has tag "latest, which can be checked through `docker images`
+
+FROM melodic-nvidia-18-04:latest
+ENV DEBIAN_FRONTEND noninteractive
+ARG ROS_DISTRO=melodic
+
+# not swtiching keeps the last used user in the base docker being used
+USER root	
+RUN whoami
+
+RUN apt install -y ros-melodic-nlopt libnlopt-dev libarmadillo-dev
+
+USER docker
+WORKDIR /home/docker/catkin_ws/src/
+RUN git clone https://github.com/DavidePatria/Fast-Planner.git
+

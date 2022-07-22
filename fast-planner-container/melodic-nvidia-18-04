@@ -1,0 +1,87 @@
+FROM nvidia/cudagl:11.4.2-base-ubuntu18.04
+
+# replace sh default shell with bash, since sh doesn't support some commands
+# that are quite important
+SHELL [ "/bin/bash" , "-c" ]
+# choose a username
+ENV NOMEN docker
+
+ARG CMAKE_INSTALL_PREFIX=/usr/local
+
+RUN apt-key adv --fetch-keys http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/3bf863cc.pub
+# Minimal setup
+RUN apt-get --fix-missing update \
+  && apt-get install -y locales lsb-release
+ARG DEBIAN_FRONTEND=noninteractive
+RUN dpkg-reconfigure locales
+
+ 
+# Install ROS Melodic
+RUN apt-get install -y -qq build-essential pkg-config cmake git wget curl tar unzip apt-utils fuse iproute2 && \
+  sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list' && \
+  curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | apt-key add - && \
+  apt-get update && \
+  apt-get install -y ros-melodic-desktop-full && \
+  apt install -y python-rosdep python-rosinstall python-rosinstall-generator python-wstool build-essential python-catkin-tools ros-melodic-catkin python3-pip neovim && \
+  # solve the problem related to melodic version of gazebo that throws an error related to "missing symbol" or something similar
+  apt upgrade -y libignition-math2
+
+WORKDIR /tmp
+RUN wget https://github.com/BurntSushi/ripgrep/releases/download/13.0.0/ripgrep_13.0.0_amd64.deb && \
+	dpkg -i ripgrep_13.0.0_amd64.deb
+
+# create $NOMEN with id 1000 with sudo access, colorful bash shell and alteri cattsi
+# "$NOMEN:dockerized" is username:password, with password in clear text as also specified in the page for chpasswd.
+RUN useradd --shell /bin/bash -u 1000 -c "" -m $NOMEN && usermod -a -G dialout $NOMEN && echo "$NOMEN:dockerized" | chpasswd && adduser $NOMEN sudo && \
+  sed -i '/force_color_prompt/s/^#//g' ~/.bashrc && \
+  sed -i '/force_color_prompt/s/^#//g' /home/$NOMEN/.bashrc
+
+RUN echo "$NOMEN ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+# setup virtual X server
+RUN mkdir /tmp/.X11-unix && \
+	chmod 1777 /tmp/.X11-unix && \
+	chown -R root:root /tmp/.X11-unix
+ENV DISPLAY :99
+
+# set local and language to avoid errors when running ros
+RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && \
+    locale-gen
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US:en
+ENV LC_ALL en_US.UTF-8
+
+# change current user to $NOMEN and path to the relative home folder for the creation of catkin workspace
+USER $NOMEN
+WORKDIR /home/$NOMEN/
+ENV USER_HOME /home/$NOMEN
+
+RUN  sudo rosdep init && \
+  rosdep update
+
+# the usual good line inside the bashrc for ros purposes
+RUN echo "source /opt/ros/melodic/setup.bash" >> ~/.bashrc && \
+  source /opt/ros/melodic/setup.bash && \
+  echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc
+
+
+# Create & build catkin_ws
+# ROS_DISTRO variable does not need to be assigned here since once ros is installed it is all done
+RUN mkdir -p $USER_HOME/catkin_ws/src && \
+   sudo chown -R $NOMEN:$NOMEN $HOME/catkin_ws
+
+WORKDIR /home/$NOMEN/catkin_ws/
+
+RUN catkin init && \
+  catkin config --cmake-args -DCMAKE_BUILD_TYPE=Release && \
+  catkin config --merge-devel && \
+  catkin build
+# RUN catkin config --extend /opt/ros/$ROS_DISTRO
+
+# download neovim in appimage format and create a link
+# WORKDIR /home/$NOMEN
+# RUN mkdir -p $HOME/.local/bin/ && \
+#   echo "export PATH=\$PATH:/home/$NOMEN/.local/bin" >> /home/$NOMEN/.bashrc && \
+#   wget https://github.com/neovim/neovim/releases/download/v0.6.1/nvim.appimage && \
+#   ln -sf $HOME/nvim.appimage $HOME/.local/bin/nvim && \
+#   chmod +x $HOME/nvim.appimage && \
+#   source $HOME/.bashrc
