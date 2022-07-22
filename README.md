@@ -21,7 +21,7 @@ to setup your workspace for the simulation do the following:
 
 - clone `https://github.com/DavidePatria/mavros_controllers` for the geometric controller, making also sure to have the required dependencies.
 - clone this repo, making sure to check the single packages readmes to install the required dependencies
-- build the container based on *ubuntu 18.04* and *ros melodic* to run *Fast-Planner*
+- build the container based on *ubuntu 18.04* and *ros melodic* to run *Fast-Planner* from the folder located in this repo, following the instrucions in its readme
 
 
 # Important notes
@@ -49,3 +49,7 @@ where the arguments are set to the specific values.
 
 where vehicle can be *iris_depth*, which is the normal depth camera equipped iris from px4, which requires a modified rcS file to fuse slam position and deactivate geolocalization.
 
+Using two different terminal inside the container (be sure to build and source the right workspace) launch the planner and the visualizer (which is already setup properly for fast-planner
+
+`roslaunch plan_manage kino_replan.launch`
+`roslaunch plan_manage rviz.launch`
