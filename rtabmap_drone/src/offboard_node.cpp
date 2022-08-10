@@ -178,24 +178,17 @@ int main(int argc, char **argv)
 
 	// ros::ServiceClient client = nh.serviceClient<rtabmap_drone::MakeTakeoff>
 
-	ros::Subscriber remote_pub = nh.subscribe<std_msgs::Empty>
-	("/remote_beat", 1, remote_cb);
-	ros::Subscriber state_sub = nh.subscribe<mavros_msgs::State>
-	("mavros/state", 10, state_cb);
-	ros::Publisher local_pos_pub = nh.advertise<mavros_msgs::PositionTarget>
-	("mavros/setpoint_raw/local", 1);
-	ros::Publisher vision_pos_pub = nh.advertise<geometry_msgs::PoseStamped>
-	("mavros/vision_pose/pose", 1);
-	ros::ServiceClient arming_client = nh.serviceClient<mavros_msgs::CommandBool>
-	("mavros/cmd/arming");
-	ros::ServiceClient command_client = nh.serviceClient<mavros_msgs::CommandLong>
-	("mavros/cmd/command");
-	ros::ServiceClient set_mode_client = nh.serviceClient<mavros_msgs::SetMode>
-	("mavros/set_mode");
-	ros::Subscriber twist_sub = nh.subscribe<geometry_msgs::Twist>
-	("/cmd_vel", 1, twist_cb);
-	ros::Subscriber joy_sub = nh.subscribe<sensor_msgs::Joy>
-	("/joy", 1, joy_cb);
+	ros::Subscriber remote_pub = nh.subscribe<std_msgs::Empty>("/remote_beat", 1, remote_cb);
+	ros::Subscriber state_sub = nh.subscribe<mavros_msgs::State>("mavros/state", 10, state_cb);
+	ros::Subscriber twist_sub = nh.subscribe<geometry_msgs::Twist> ("/cmd_vel", 1, twist_cb);
+	ros::Subscriber joy_sub = nh.subscribe<sensor_msgs::Joy> ("/joy", 1, joy_cb);
+
+	ros::Publisher local_pos_pub = nh.advertise<mavros_msgs::PositionTarget> ("mavros/setpoint_raw/local", 1);
+	ros::Publisher vision_pos_pub = nh.advertise<geometry_msgs::PoseStamped> ("mavros/vision_pose/pose", 1);
+
+	ros::ServiceClient arming_client = nh.serviceClient<mavros_msgs::CommandBool> ("mavros/cmd/arming");
+	ros::ServiceClient command_client = nh.serviceClient<mavros_msgs::CommandLong> ("mavros/cmd/command");
+	ros::ServiceClient set_mode_client = nh.serviceClient<mavros_msgs::SetMode> ("mavros/set_mode");
 
 	//the setpoint publishing rate MUST be faster than 2Hz
 	// this is 50, way faster
@@ -211,7 +204,6 @@ int main(int argc, char **argv)
 
 	// at first the drone will be activated but it won't move until the condition
 	// on the remote computer is satisfied
-	//
 
 
 	// define a new message for setting au

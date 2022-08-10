@@ -1,9 +1,9 @@
-#include "geometry_msgs/PoseStamped.h"
-#include "mavros_msgs/State.h"
-#include "ros/init.h"
-#include "ros/rate.h"
-#include "ros/time.h"
-#include "tf/transform_listener.h"
+#include <geometry_msgs/PoseStamped.h>
+#include <mavros_msgs/State.h>
+#include <ros/init.h>
+#include <ros/rate.h>
+#include <ros/time.h>
+#include <tf/transform_listener.h>
 
 mavros_msgs::State current_state;
 
@@ -11,19 +11,14 @@ void state_cb(const mavros_msgs::State::ConstPtr& msg) {
 	current_state = *msg;
 }
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
 
-	ROS_INFO("about to start, get ready!");
-	ros::init(argc, argv, "pos_publisher");
+	ros::init(argc, argv, "vision_pos_publisher");
+	ROS_INFO("vision pose publisher node started");
 
-	ros::Publisher vision_pos_pub;
-	ros::Subscriber state_sub;
 	ros::NodeHandle nh;
-
-	vision_pos_pub = nh.advertise<geometry_msgs::PoseStamped>
-		("mavros/vision_pose/pose", 1);
-	state_sub = nh.subscribe("/mavros/state", 10, state_cb);
+	ros::Publisher vision_pos_pub = nh.advertise<geometry_msgs::PoseStamped>("mavros/vision_pose/pose", 1);
+	ros::Subscriber state_sub = nh.subscribe("/mavros/state", 10, state_cb);
 
 	ros::Rate rate(30.0);
 
@@ -33,7 +28,7 @@ int main(int argc, char **argv)
 	tf::TransformListener listener;
 
 	while(ros::ok() && !current_state.connected){
-		ROS_INFO("not connected yet!");
+		ROS_INFO_THROTTLE(2, "not connected yet!");
 		ros::spinOnce();
 		rate.sleep();
 	}
