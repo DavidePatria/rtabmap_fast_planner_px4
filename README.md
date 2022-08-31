@@ -10,7 +10,7 @@ Please refer to the readme files in the subpackages for details.
 
 original repositories of some components and that gave inspiration to the present project:
 
-- *rtabmap SLAM* and example of offboard control with px4 directly [repo](`https://github.com/matlabbe/rtabmap_drone_example`)
+- [rtabmap SLAM](`https://github.com/matlabbe/rtabmap_drone_example`) and example of offboard control with px4 directly repo
 - [fast planner](https://github.com/HKUST-Aerial-Robotics/Fast-Planner) that only works on melodic
 - [fork of fast planner](https://github.com/mzahana/Fast-Planner) oriented towards integration with px4 on melodic
 - integration of `px4`, `fast planner` that uses [geometric controller](https://github.com/Jaeyoung-Lim/mavros_controllers), but were the controlle is not tuned properly, so the drone stumbles and ends upside down and unfortunately it only works on *melodic*
@@ -19,9 +19,9 @@ original repositories of some components and that gave inspiration to the presen
 
 to setup your workspace for the simulation do the following:
 
-- clone `https://github.com/DavidePatria/mavros_controllers` for the geometric controller, making also sure to have the required dependencies.
-- clone this repo, making sure to check the single packages readmes to install the required dependencies
-- build the container based on *ubuntu 18.04* and *ros melodic* to run *Fast-Planner* from the folder located in this repo, following the instrucions in its readme
+- clone the geometric controller from `https://github.com/DavidePatria/mavros_controllers`, making also sure to have the required dependencies.
+- clone this repo, making sure to check every package readme to install the required dependencies
+- build the container, based on *ubuntu 18.04* and *ros melodic*, to run *Fast-Planner* from the folder located in this repo, following the instrucions in its readme
 
 
 # Important notes
@@ -38,6 +38,8 @@ The launch files needed for everything but *fast planner* are inside *rtabmap_dr
 Firsly, to launch the gazebo simulation and spawn the drone use
 `roslaunch rtabmap_drone gazebo.launch vehicle:=iris_depth world:=small_house gui:=false`
 For a list of available worlds look into `./rtabmap_drone/worlds/` and pass the name of the file as an argument when roslaunching.
+Note that only some of the available worlds have been throuhly tested, this meaning that problems strictly related to a specific world, such as collision during spawn, might be present.
+The worlds present in the launch file mentioned above have been tested and necessary adjustments have been taken.
 
 The *gui* option is set to `false` since the slam has rviz that can do the job of showing the position of the drone in the map, but it can also be set to true.
 
@@ -49,7 +51,15 @@ where the arguments are set to the specific values.
 
 where vehicle can be *iris_depth*, which is the normal depth camera equipped iris from px4, which requires a modified rcS file to fuse slam position and deactivate geolocalization.
 
+In another terminal launch geometric controller, not using its own launch file, but the file in these packges
+`roslaunch rtabmap_drone geometric_controller.launch`
+
 Using two different terminal inside the container (be sure to build and source the right workspace) launch the planner and the visualizer (which is already setup properly for fast-planner
 
-`roslaunch plan_manage kino_replan.launch`
-`roslaunch plan_manage rviz.launch`
+```
+roslaunch plan_manage kino_replan.launch
+roslaunch plan_manage rviz.launch
+```
+
+## small project navigation tip
+grep `NOTE` in the project, case sensitive, to get some bookmarks and important notes

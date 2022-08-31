@@ -139,7 +139,6 @@ Check the launch file for more details.
 
 
 
-
 ## particular configuration
 
 In a commit the issue relative to the configuration of `rtabmapviz` has been resolved an a `.ini` file has been added to the repo and it is passed to `rtabmap.launch` as an argument.
