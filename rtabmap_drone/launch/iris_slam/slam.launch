@@ -8,6 +8,7 @@
 	<arg name="control"        default="true"/>
 	<arg name="vehicle"        default="rtabmap"/>
 	<arg name="vanilla_stuff"  default="false"/>
+	<arg name="slower"         default="false"/>
 
 	<!-- define arg for topics and set them empty  -->
 	<!-- <arg name="rgb_arg"	        default= "" /> -->
@@ -121,7 +122,7 @@
 
 	<!-- if offbaord node is deactivated then just launch the programme to repub vision pose -->
 	<group unless="$(arg offb)">
-		<node pkg="offboard_safety" type="vision_pose" name="vision_pose"> </node>
+		<node pkg="offboard_safety" type="vision_pose_node" name="vision_pose_node"> </node>
 	</group>
 
 	<!-- launch geometric controller -->
@@ -129,6 +130,8 @@
 		<!-- <arg name="vehicle" value="$(arg vehicle)"/> -->
 	</include>
 
+	<node if="$(arg slower)" pkg="geometric_controller" type="slower_msg_node" name="slower_msg" >
+	</node>
 
 	<!-- as mentioned at the top this belongs to the original repository and is disable by default -->
 	<group unless="$(arg slam_only)">
@@ -190,7 +193,6 @@
 		<param name="frame_id"        value="world"/>
 		<param name="child_frame_id"  value="base_link_gt"/>
 		<param name="gazebo_frame_id" value="drone::base_link"/>
-
-
 	</node>
+
 </launch>
