@@ -54,6 +54,8 @@
 		<!-- 	<param name="Kv_z" value="10.0" /> -->
 		<!-- </group> -->
 
+		<!-- NOTE: this parameters are crucial to get the drone stay stable and depend on the vehicle, rtabmap and iris behave really -->
+		<!-- differently -->
 		<param name="attctrl_constant" value="0.7"/>
 		<param name="normalizedthrust_constant" value="0.07"/>
 		<param name="normalizedthrust_offset" value="0.08"/>
